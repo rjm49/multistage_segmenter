@@ -12,9 +12,10 @@ import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import numpy as np
 from __builtin__ import True
-from common import read_file, UNK, DIR, DATAFILE,\
+from multistage_segmenter.common import read_file, UNK, DIR, DATAFILE,\
     PROBFILE, OUTSUBDIR, loadSymbolTable
 from multistage_segmenter.common import ANYWORD, BREAK, EPS
+from numpy.f2py.auxfuncs import throw_error
 
 write_files = False
 write_slm = True
@@ -23,7 +24,7 @@ unkify = False
 
 lm_symbol_table = []
 
-def writeLink(ofile,s,w,p):
+def writeLink(ofile,state,w,p):
     if not write_files:
         return
 #     ln_not_p = -math.log(1-p)
@@ -37,21 +38,21 @@ def writeLink(ofile,s,w,p):
     else:
         wo = w
         
-    ofile.write("%d %d %s %s 0\n" % (s,s+1,w,wo))
-    ofile.write("%d %d <epsilon> <epsilon> %f\n" % (s+1,s+2, not_weight))
-    ofile.write("%d %d <epsilon> <break> %f\n" % (s+1,s+2, weight))
+    ofile.write("%d %d %state %state 0\n" % (state,state+1,w,wo))
+    ofile.write("%d %d <epsilon> <epsilon> %f\n" % (state+1,state+2, not_weight))
+    ofile.write("%d %d <epsilon> <break> %f\n" % (state+1,state+2, weight))
 
     
-def writeFinalStateAndClose(ofile,s):
+def write_final_state_and_close(ofile,state):
     if not write_files:
         return
-    ofile.write("%d 0" % s)
+    ofile.write("%d 0" % state)
     ofile.flush()
     ofile.close()
-    print "wrote",ofilename
+    print "wrote",ofile
 
 
-def plot_graph(x_vals, gam_gen):
+def plot_graph(x_vals, gam_gen, els):
     # First of all, fit the samples to a gamma distribution to get the relevant shape params
     
     fig, ax = plt.subplots(1, 1)
@@ -102,78 +103,60 @@ def write_slm(x_vals, gam_gen):
     lfile.flush() 
     lfile.close()
 
-if __name__ == '__main__':
-    
+def generate_pm(data_rows, prob_rows):
     lm_symbol_table = loadSymbolTable()
-    data_rows = read_file(os.path.join(DIR, DATAFILE), ',', skip_header=True)
-    prob_rows = read_file(os.path.join(DIR, PROBFILE), ' ', skip_header=True)
-    
-    slength_counts = Counter()
 
     if len(data_rows)!=len(prob_rows):
         print len(data_rows), "in data not equal to prob rows:", len(prob_rows)
         exit(1)
 
-    s=0
-    ofile = None
-    ofilename = None
-    slen=0
-    
-    currseg = None
+    if(len(data_rows)==0):
+        print "No data rows"
+        exit(1)
 
-    if(len(data_rows)>0):
-        spkid = data_rows[0][0][1:-1]
-        currseg = spkid + "." + data_rows[0][1]
-        ofilename = os.path.join(DIR,OUTSUBDIR,spkid+".fxt")
-        
-        if(write_files):
-            ofile = codecs.open(ofilename, 'w')
+    state=0
+    transcript_id = data_rows[0][0][1:-1]
+    ofilename = os.path.join(DIR,OUTSUBDIR,transcript_id+".fxt")
+    ofile = codecs.open(ofilename, 'w') if write_files else None
     
-        for r in data_rows:
-            newspkid = r[0][1:-1]
-            newseg = newspkid + "." + r[1]
-            print newseg
-            w = r[5][1:-1]
-            #if(w not in lm_symbol_table):
-            #    lm_symbol_table.append(w)
-            
-            if (newseg != currseg):
-                slength_counts[slen]+=1
-                currseg = newseg
-                slen=0
-                
-                if(newspkid != spkid):
-                    spkid = newspkid
-                    writeFinalStateAndClose(ofile, s)
-                    ofilename = os.path.join(DIR,OUTSUBDIR,spkid+".fxt")
-                    s=0
-                    if(write_files):
-                        ofile = codecs.open(ofilename, 'w')
-                    
-            p = float( prob_rows.pop(0)[2] ) # pop the next probability value from our remaining prob_rows
-            writeLink(ofile, s, w, p)
+    for r in data_rows:
+        next_transcript_id = r[0][1:-1]
+        w = r[5][1:-1]
+        if(next_transcript_id != transcript_id):
+            transcript_id = next_transcript_id
+            write_final_state_and_close(ofile, state)
+            state=0
+            if(write_files):
+                ofilename = os.path.join(DIR,OUTSUBDIR,transcript_id+".fxt")
+                ofile = codecs.open(ofilename, 'w')
+        p = float( prob_rows.pop(0)[1] ) # pop the next probability value from our remaining prob_rows
+        writeLink(ofile, state, w, p)
+        state += 2 # we advance the state counter two steps because each "link" writes two arcs
+    write_final_state_and_close(ofile, state)
+    #saveSymbolTable(lm_symbol_table)
+    print "wrote",ofilename        
+    
+
+def generate_slm(data_rows):
+    slength_counts = Counter()
+    slen=0
+
+    segment_id = data_rows[0][1]
+    for r in data_rows:
+        next_segment_id = r[1]
+        if(next_segment_id <= segment_id): #this implies a reset of the segment number ... the only equal case should be 1==1 (for a single word sentence)
+            slength_counts[slen]+=1
+            slen = 0
+        else:
             slen += 1
-            s += 2
-                
-        print "ended on rec.seg="+str(currseg)
-        writeFinalStateAndClose(ofile, s)
-        #saveSymbolTable(lm_symbol_table)
-        print "wrote",ofilename        
-    
-    els = list( slength_counts.elements() )
-    print els
+        
+    els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
     
     x_vals = range(0, max(els)+1)
     (shape, loc, scale) = gamma.fit(els, floc=0)
     gam_gen = gamma(shape, loc, scale) #use these model params to build a new gamma distrib/n generator
     
     write_slm(x_vals, gam_gen)
-    ########################
-    # OH YEAH, NOW PLOT IT #
-    ########################
-    if do_plot:
-        plot_graph(x_vals, gam_gen)
-        
 
-    
-    
+    if do_plot:
+        plot_graph(x_vals, gam_gen, els)

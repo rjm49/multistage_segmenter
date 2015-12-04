@@ -8,6 +8,9 @@ from sklearn.metrics.classification import precision_recall_fscore_support,\
     classification_report
 from multistage_segmenter.common import *
 from multistage_segmenter.svm.balance import sep_classes, shuff_trim_balance_classes
+from sklearn.externals import joblib
+
+do_grid_search = False
 
 if __name__ == '__main__':
 ## eval1 training set
@@ -36,16 +39,25 @@ if __name__ == '__main__':
     print "no samples", len(samples)
     print "feature dim", len(samples[0])
     print "no classes", len(classes)
-    
-    #GRID SEARCH HERE!
-#     best_params = gs.grid_search(samples, classes)
-#     best_gamma=best_params['gamma']
-#     best_C=best_params['C']
+
+    #set default values for gamma and C...
     best_gamma = 3.0517578125e-05
     best_C = 0.5
     
+    #override the defaults with the results of a grid search if desired (takes a while)
+    if(do_grid_search):
+        best_params = gs.grid_search(samples, classes)
+        best_gamma=best_params['gamma']
+        best_C=best_params['C']
+       
     #clf = svm.SVC(kernel='linear', gamma=0.7, C=1.0, probability=True)
-    clf = svm.SVC(kernel='rbf', C=best_C, gamma=best_gamma, cache_size=2000, probability=True)
+    
+    clf = None
+    pickled_model = "svm_classifier.pkl"
+    if(os.path.exists(pickled_model) and os.path.isfile(pickled_model)):
+        clf = joblib.load(pickled_model)
+    else: 
+        clf = svm.SVC(kernel='rbf', C=best_C, gamma=best_gamma, cache_size=2000, probability=True)
     print clf
 
     print "HIT ANY KEY TO CONTINUE..."
@@ -61,6 +73,7 @@ if __name__ == '__main__':
 #     predictions = clf.predict([[-3,-3],[2.6,3],[-3,2]])
 #     print predictions
 #     print clf.predict_proba([[-3,-3],[2.6,3],[-3,2]])
+    joblib.dump(clf, 'svm_classifier.pkl') 
     
     ## pilot test set
     print "\nLoading BULATS pilot test data"
@@ -70,10 +83,11 @@ if __name__ == '__main__':
     tsamples = scaler.transform(samps_raw)
     print "no test cases", len(tsamples)
     
-    predictions = clf.predict_proba(tsamples)
+    predictions = clf.predict_proba(tsamples) #this is a list of pairs of probs in form [ [1-p, p],  ... ]
+    p_classes = [(1.0 if x[1]>=0.5 else 0.0) for x in predictions] # we just extract the "boundary" probs and map them to binary values
     
     print predictions
-    print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(tsamples),(tclasses != predictions).sum()))
+    print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(tsamples),(tclasses != (0.0 if predictions[1]<0.5 else 1.0)).sum()))
     print(classification_report(tclasses, predictions))
 
     print len(clf.support_vectors_)
