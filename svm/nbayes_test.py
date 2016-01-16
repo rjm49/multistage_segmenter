@@ -6,15 +6,18 @@ import codecs
 import sys
 import grid_search as gs
 from sklearn.metrics.classification import precision_recall_fscore_support
-from multistage_segmenter.common import read_file
+from multistage_segmenter.common import read_file, DIR, EVAL1_FILE_NORMED,\
+    filter_data_rows, PILOT_FILE_NORMED
+import os
 
 
 if __name__ == '__main__':
 ## eval1 training set
     print "\nLoading BULATS eval1 training data"
-    eval1file = 'C:\\Users\\Russell\\Dropbox\\nlp_alta\\recreate_LG\\datafiles\\eval1-prosodicFeats_norm.csv'
-    eval1 = read_file(eval1file)    
-    samples, classes = filter(eval1)
+    eval1file = os.path.join(DIR,EVAL1_FILE_NORMED)
+    eval1 = read_file(eval1file, ',', skip_header=True) 
+    sel = range(7,30)
+    samples, classes = filter_data_rows(eval1, sel=sel)
         
     Xraw = samples
     scaler = preprocessing.StandardScaler().fit( np.array(Xraw) )    
@@ -37,12 +40,16 @@ if __name__ == '__main__':
     
     ## pilot test set
     print "\nLoading BULATS pilot test data"
-    pilotfile = 'C:\\Users\\Russell\\Dropbox\\nlp_alta\\recreate_LG\\datafiles\\pilot-prosodicFeats_norm.csv'
-    pilot = read_file(pilotfile)
-    samps_raw, tclasses = filter(pilot)
+    pilotfile = os.path.join(DIR,PILOT_FILE_NORMED)
+    pilot = read_file(pilotfile, ',', skip_header=True) 
+    samps_raw, tclasses = filter_data_rows(pilot, sel=sel)
     
     tsamples = scaler.transform(samps_raw)
     y_pred = gnb.predict(tsamples)
+    
+    print y_pred
+    print tclasses
+    
     print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(samps_raw),(tclasses != y_pred).sum()))
     
     prf = precision_recall_fscore_support(tclasses, y_pred, average='binary')

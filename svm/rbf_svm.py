@@ -15,7 +15,8 @@ do_grid_search = False
 if __name__ == '__main__':
 ## eval1 training set
     print "\nLoading BULATS eval1 training data"
-    eval1 = read_file(os.path.join(DIR,EVAL1_FILE_NORMED), ',', skip_header=True) 
+    eval1 = read_file(os.path.join(DIR,EVAL1_FILE_NORMED), ',', skip_header=True)
+    pred_file = open(os.path.join(DIR,PROSODIC_PREDICTION_FILE),"w")
     #sel = [12,13,14,15,21,22,23,24]
     sel = range(7,30)
     samples, classes = filter_data_rows(eval1, sel=sel)
@@ -54,7 +55,11 @@ if __name__ == '__main__':
     
     clf = None
     pickled_model = "svm_classifier.pkl"
+    
     if(os.path.exists(pickled_model) and os.path.isfile(pickled_model)):
+        pickled = True
+    
+    if(pickled):
         clf = joblib.load(pickled_model)
     else: 
         clf = svm.SVC(kernel='rbf', C=best_C, gamma=best_gamma, cache_size=2000, probability=True)
@@ -63,17 +68,12 @@ if __name__ == '__main__':
     print "HIT ANY KEY TO CONTINUE..."
 #    sys.stdin.readline()
     print "FITTING"
-    
-#     X = [[-1,-1],[-2,-3],[3,2],[8,3]]
-#     Y = [0,0,1,1]
      
     clf.fit(X, Y)
     print clf
     
-#     predictions = clf.predict([[-3,-3],[2.6,3],[-3,2]])
-#     print predictions
-#     print clf.predict_proba([[-3,-3],[2.6,3],[-3,2]])
-    joblib.dump(clf, 'svm_classifier.pkl') 
+    if(not pickled):
+        joblib.dump(clf, pickled_model) 
     
     ## pilot test set
     print "\nLoading BULATS pilot test data"
@@ -84,10 +84,16 @@ if __name__ == '__main__':
     print "no test cases", len(tsamples)
     
     predictions = clf.predict_proba(tsamples) #this is a list of pairs of probs in form [ [1-p, p],  ... ]
-    p_classes = [(1.0 if x[1]>=0.5 else 0.0) for x in predictions] # we just extract the "boundary" probs and map them to binary values
+    p_classes = clf.predict(tsamples)
     
-    print predictions
-    print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(tsamples),(tclasses != (0.0 if predictions[1]<0.5 else 1.0)).sum()))
-    print(classification_report(tclasses, predictions))
+    print p_classes
+    print tclasses
+    print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(tsamples),(tclasses != p_classes).sum()))
+    print(classification_report(tclasses, p_classes))
 
     print len(clf.support_vectors_)
+    
+    for p in predictions:
+        pred_file.write(str(p)+"\n")
+    pred_file.flush()
+    pred_file.close()

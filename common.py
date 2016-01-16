@@ -6,7 +6,9 @@ Created on 3 Sep 2015
 import codecs
 import os
 
-DIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
+WDIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
+LDIR = "/home/rjm49/Dropbox/nlp_alta/recreate_LG/datafiles"
+DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here
 OUTSUBDIR = "seg_fsts"
 DATAFILE = PILOT_FILE = "pilot-prosodicFeats.csv"
 PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
@@ -19,6 +21,8 @@ UNK = "<unk>"
 BREAK = "<break>"
 ANYWORD = "<w>"
 EPS = "<epsilon>"
+
+PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
 
 def full_path(fname):
     return os.path.join(DIR,fname)
