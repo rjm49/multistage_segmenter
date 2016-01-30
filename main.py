@@ -13,8 +13,9 @@ from multistage_segmenter.lm_gen import fstcompose, modfile, generate_lm,\
 from multistage_segmenter.pm.pm_utils import compile_pm_files,\
     generate_pm_text_files
 from multistage_segmenter.slm.slm_utils import generate_slm,\
-    create_lm_slm_converter
+    create_converter
 import glob
+import sys
 
 if __name__ == '__main__':
     print "reading raw annotated token data from", EVAL1_FILE_NORMED
@@ -42,12 +43,15 @@ if __name__ == '__main__':
     generate_slm(training_rows, do_plot=False) # build the sentence length model, plot it so we can see it's sane
     #raw_input("slm done - press key")
     
-    create_lm_slm_converter()
+    create_converter()
     
     fstarcsort(SLM_FST_FILE_GLOBAL, ilabel_sort=True)
 
     fstcompose(CONV_FST_FILE_GLOBAL, SLM_FST_FILE_GLOBAL, JOINT_CV_SLM_FILE_GLOBAL)
     fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
+
+    print "Wrote CVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
+    #sys.stdin.read()
 
     prob_rows = read_file(os.path.join(DIR, PROBFILE), ' ', skip_header=True)
     #generate pm

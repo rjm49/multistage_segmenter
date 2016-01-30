@@ -4,20 +4,21 @@ Created on Jan 16, 2016
 @author: rjm49
 '''
 import codecs
-from multistage_segmenter.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE,\
-    SLM_FXT_FILE, SYM_FILE_GLOBAL, load_symbol_table, OUTSUBDIR, UNK,\
-    CONV_FST_FILE, CONV_FXT_FILE
+from multistage_segmenter.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL,\
+    SLM_FXT_FILE_GLOBAL, SYM_FILE_GLOBAL, load_symbol_table, OUTSUBDIR, UNK,\
+    CONV_FST_FILE_GLOBAL, CONV_FXT_FILE_GLOBAL
 import os
 from collections import Counter
 from scipy.stats import gamma, norm
 import matplotlib.pyplot as plt
 import subprocess as sp
 
-def create_lm_slm_converter():
+def create_converter():
+    print "creating converter...."
     syms = load_symbol_table()
-    ofilename = os.path.join(DIR,CONV_FXT_FILE)
+    #ofilename = os.path.join(DIR,CONV_FXT_FILE)
     
-    ofile = codecs.open(ofilename, 'w')
+    ofile = codecs.open(CONV_FXT_FILE_GLOBAL, 'w')
     
     for sym in syms:
         if(sym not in [BREAK, UNK]):
@@ -30,11 +31,9 @@ def create_lm_slm_converter():
     #final state needed?
     ofile.flush()
     ofile.close()
-    compile_lm_slm_converter()
-    
-def compile_lm_slm_converter():
-    #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
-    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", os.path.join(DIR,CONV_FXT_FILE), os.path.join(DIR,CONV_FST_FILE)])
+    print "compiling...."
+    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", CONV_FXT_FILE_GLOBAL, CONV_FST_FILE_GLOBAL])
+    print "done...."    
     
 
 def generate_slm(training_rows, do_plot):
@@ -62,7 +61,7 @@ def generate_slm(training_rows, do_plot):
 def write_slm(x_vals, gam_gen):
     if not write_slm:
         return
-    lfile = codecs.open(os.path.join(DIR,SLM_FXT_FILE),"w")
+    lfile = codecs.open(SLM_FXT_FILE_GLOBAL,"w")
     lfile.truncate()
     for i in x_vals:
         #prob of being length i = p(i)
@@ -86,7 +85,7 @@ def write_slm(x_vals, gam_gen):
     
 def compile_slm():
     #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
-    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", os.path.join(DIR,SLM_FXT_FILE), os.path.join(DIR,SLM_FST_FILE)])
+    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", SLM_FXT_FILE_GLOBAL, SLM_FST_FILE_GLOBAL])
     
 def plot_graph(x_vals, gam_gen, els):
     fig, ax = plt.subplots(1, 1)

@@ -72,8 +72,8 @@ def writeLink(ofile,state,w,p):
         wo = w
     
     ofile.write("%d %d %s %s 0\n" % (state,state+1,w,wo))
-    ofile.write("%d %d <epsilon> <epsilon> %f\n" % (state+1,state+2, not_weight))
-    ofile.write("%d %d <epsilon> <break> %f\n" % (state+1,state+2, weight))
+    ofile.write("%d %d <epsilon> <epsilon> %f\n" % (state+1,state+2, weight))
+    ofile.write("%d %d <epsilon> <break> %f\n" % (state+1,state+2, not_weight))
     
 def write_final_state_and_close(ofile,state):
     if not write_files:
