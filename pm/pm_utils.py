@@ -3,7 +3,8 @@ Created on Jan 16, 2016
 
 @author: rjm49
 '''
-from multistage_segmenter.common import load_symbol_table, DIR, OUTSUBDIR, UNK
+from multistage_segmenter.common import load_symbol_table, DIR, OUTSUBDIR, UNK,\
+    EPS, BREAK
 import os
 import codecs
 from multistage_segmenter.lm_gen import fstcompile
@@ -13,8 +14,6 @@ write_files = True
 write_slm = True
 do_plot = False
 unkify = False
-
-lm_symbol_table = load_symbol_table()
 
 def compile_pm_files():
     pmt_glob = os.path.join(DIR,OUTSUBDIR,"*.fxt")
@@ -58,6 +57,8 @@ def generate_pm_text_files(training_rows, prob_rows):
     #saveSymbolTable(lm_symbol_table)
     
 def writeLink(ofile,state,w,p):
+    symbols = load_symbol_table()
+    
     if not write_files:
         return
 #     ln_not_p = -math.log(1-p)
@@ -66,14 +67,14 @@ def writeLink(ofile,state,w,p):
     weight = p
     not_weight = 1-p
     
-    if unkify and w not in lm_symbol_table:
+    if unkify and w not in symbols:
         wo = UNK
     else:
         wo = w
     
     ofile.write("%d %d %s %s 0\n" % (state,state+1,w,wo))
-    ofile.write("%d %d <epsilon> <epsilon> %f\n" % (state+1,state+2, weight))
-    ofile.write("%d %d <epsilon> <break> %f\n" % (state+1,state+2, not_weight))
+    ofile.write("%d %d %s %s %f\n" % (state+1,state+2, EPS, EPS, weight))
+    ofile.write("%d %d %s %s %f\n" % (state+1,state+2, EPS, BREAK, not_weight))
     
 def write_final_state_and_close(ofile,state):
     if not write_files:

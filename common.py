@@ -105,7 +105,7 @@ def save_symbol_table(syms):
     syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
     syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant
     for i,s in enumerate(syms):
-        symf.write("%s\t%d\n" % (s,i))
+        symf.write("%s %d\n" % (s,i))
         
     symf.flush()
     symf.close()
