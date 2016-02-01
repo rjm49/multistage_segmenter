@@ -4,7 +4,7 @@ Created on Dec 8, 2015
 @author: rjm49
 '''
 import subprocess as sp
-from multistage_segmenter.common import DIR, OUTSUBDIR, SYM_FILE_GLOBAL
+from multistage_segmenter.common import DIR, OUTSUBDIR, SYM_FILE_GLOBAL, BREAK
 import os
 import string
 import codecs
@@ -14,11 +14,14 @@ cmd_farcompilestrings = "farcompilestrings"
 cmd_ngramcount = "ngramcount"
 cmd_ngrammake = "ngrammake"
 cmd_fstcompose = "fstcompose"
-rawtext_file = os.path.join(DIR,OUTSUBDIR,"normed.txt")
-farfile = os.path.join(DIR,OUTSUBDIR,"lm.far")
+
+lm_dir = "lm"
+
+rawtext_file = os.path.join(DIR,lm_dir,"normed.txt")
+farfile = os.path.join(DIR,lm_dir,"lm.far")
 #symfile = os.path.join(DIR,"vsys.sym")
-cntfile = os.path.join(DIR,OUTSUBDIR,"lm.cnt")
-modfile = os.path.join(DIR,OUTSUBDIR,"lm.mod")
+cntfile = os.path.join(DIR,lm_dir,"lm.cnt")
+modfile = os.path.join(DIR,lm_dir,"lm.mod")
 
 def generate_lm(data):
     generate_normed_text_file(data)
@@ -41,7 +44,7 @@ def generate_normed_text_file(data):
         if rec_id != r[0] or seg_id != r[1]:
             if not first:
                 trailer = '\n' if (rec_id!=r[0]) else ' ' # trailing space for a segment break, newline for the end of a whole recording
-                writer.write('<break>'+trailer) #finish off the segment
+                writer.write(BREAK+trailer) #finish off the segment
             else:
                 first=False
             rec_id = r[0]

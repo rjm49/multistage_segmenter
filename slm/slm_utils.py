@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import subprocess as sp
 
 def create_converter():
-    print "creating converter...."
+    #print "creating converter...."
     syms = load_symbol_table()
     #ofilename = os.path.join(DIR,CONV_FXT_FILE)
     
@@ -31,9 +31,9 @@ def create_converter():
     #final state needed?
     ofile.flush()
     ofile.close()
-    print "compiling...."
+    #print "compiling...."
     sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", CONV_FXT_FILE_GLOBAL, CONV_FST_FILE_GLOBAL])
-    print "done...."    
+    #print "done...."    
     
 
 def generate_slm(training_rows, do_plot):

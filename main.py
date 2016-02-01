@@ -18,6 +18,8 @@ import glob
 import sys
 
 if __name__ == '__main__':
+    
+    EVAL1_FILE_NORMED = "smalltest_norm.csv"
     print "reading raw annotated token data from", EVAL1_FILE_NORMED
     training_rows = read_file(os.path.join(DIR, EVAL1_FILE_NORMED), ',', skip_header=True)
     test_rows = read_file(os.path.join(DIR, PILOT_FILE_NORMED), ',', skip_header=True)
@@ -44,20 +46,21 @@ if __name__ == '__main__':
     #raw_input("slm done - press key")
     
     create_converter()
+    print "created converter."
     
     fstarcsort(SLM_FST_FILE_GLOBAL, ilabel_sort=True)
-
+    print "composing CV o SLM..."
     fstcompose(CONV_FST_FILE_GLOBAL, SLM_FST_FILE_GLOBAL, JOINT_CV_SLM_FILE_GLOBAL)
+    print "Done. Now composing LM o CVoSLM..."
     fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
-
-    print "Wrote CVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
+    print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
     #sys.stdin.read()
 
     prob_rows = read_file(os.path.join(DIR, PROBFILE), ' ', skip_header=True)
     #generate pm
     generate_pm_text_files(test_rows, prob_rows) #this should produce the fxt files on disc that can feed into the FST composition
     compile_pm_files()
-    
+    print "compiled PM files."
 
     #insert loop here for PMs
     #prep SVM for inference
