@@ -34,6 +34,8 @@ def generate_pm_text_files(training_rows, prob_rows):
     if(len(training_rows)==0):
         print "No data rows"
         exit(1)
+        
+    symbols = load_symbol_table()
 
     state=0
     transcript_id = training_rows[0][0]#[1:-1]
@@ -51,13 +53,13 @@ def generate_pm_text_files(training_rows, prob_rows):
                 ofilename = os.path.join(DIR,OUTSUBDIR,transcript_id+".fxt")
                 ofile = codecs.open(ofilename, 'w')
         p = float( prob_rows.pop(0)[1] ) # pop the next probability value from our remaining prob_rows
-        writeLink(ofile, state, w, p)
+        writeLink(ofile, symbols, state, w, p)
         state += 2 # we advance the state counter two steps because each "link" writes two arcs
     write_final_state_and_close(ofile, state)
     #saveSymbolTable(lm_symbol_table)
     
-def writeLink(ofile,state,w,p):
-    symbols = load_symbol_table()
+def writeLink(ofile, symbols,state,w,p):
+    #symbols = load_symbol_table()
     
     if not write_files:
         return

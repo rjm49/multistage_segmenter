@@ -15,29 +15,29 @@ cmd_ngramcount = "ngramcount"
 cmd_ngrammake = "ngrammake"
 cmd_fstcompose = "fstcompose"
 
-lm_dir = "lm"
-
-rawtext_file = os.path.join(DIR,lm_dir,"normed.txt")
-farfile = os.path.join(DIR,lm_dir,"lm.far")
-#symfile = os.path.join(DIR,"vsys.sym")
-cntfile = os.path.join(DIR,lm_dir,"lm.cnt")
-modfile = os.path.join(DIR,lm_dir,"lm.mod")
-
-def generate_lm(data):
-    generate_normed_text_file(data)
-    print "gen'd normed text file"
-    farcompilestrings() #create test.far from the normed text file
+def compile_lm(ifile, lmdir_global):
+    #generate_normed_text_file(data)
+    #raw_input("about to far compile - press key")
+    farfile = farcompilestrings(ifile, lmdir_global) #create test.far from the normed text file
     print "farcompiled strings"
-    ngramcount(3) #hopefully this combines all the segments into a single set of unified counts
+    #raw_input("about to ngramcount - press key")
+    cntfile = ngramcount(farfile, lmdir_global, 3) #hopefully this combines all the segments into a single set of unified counts
     print "counted ngrammes"
-    ngrammake() #this creates the ngram model file
+    #raw_input("about to ngrammake - press key")
+    modfile = ngrammake(cntfile, lmdir_global) #this creates the ngram model file
     print "made ngrammes"
+    return modfile
 
-def generate_normed_text_file(data):
+def generate_normed_text_file(data, lmdir_global):   
     rec_id = None
     seg_id = None
     first = True
-    filenm = os.path.join(DIR,OUTSUBDIR,"normed.txt")
+    filenm = os.path.join(lmdir_global,"normed.txt")
+    
+    #if this file already exists, just return the full filename
+    if(os.path.isfile(filenm)):
+        return filenm
+    
     writer = codecs.open(filenm, 'w')
     print 'writing file',filenm
     for r in data:
@@ -54,23 +54,31 @@ def generate_normed_text_file(data):
         writer.write(w)
         writer.write(' ')
     writer.flush()
-    writer.close() 
+    writer.close()
+    return filenm
 
-def ngramsymbols():
-    sp.call([cmd_ngramsymbols], stdin=open(rawtext_file), stdout=open(SYM_FILE_GLOBAL,"w"))
+def ngramsymbols(infile):
+    sp.call([cmd_ngramsymbols], stdin=open(infile), stdout=open(SYM_FILE_GLOBAL,"w"))
 
-def farcompilestrings():
-    sp.call([cmd_farcompilestrings,"-symbols="+SYM_FILE_GLOBAL,"-keep_symbols=1",rawtext_file], stdout=open(farfile,"w"))
+def farcompilestrings(ifile, lmdir_global):
+    ofile = os.path.join(lmdir_global, "lm.far")
+    sp.call([cmd_farcompilestrings,"-symbols="+SYM_FILE_GLOBAL,"-keep_symbols=1",ifile], stdout=open(ofile,"w"))
+    return ofile
     
 #ngramcount -order=5 earnest.far >earnest.cnts
-def ngramcount(ordr):
-    sp.call([cmd_ngramcount, "--require_symbols=false", "-order="+str(ordr), farfile], stdout=open(cntfile,'w'))
+def ngramcount(ifile, lmdir_global, ordr):
+    cntfile = os.path.join(lmdir_global,"lm.cnt")
+    sp.call([cmd_ngramcount, "--require_symbols=false", "-order="+str(ordr), ifile], stdout=open(cntfile,'w'))
     print "created",cntfile
+    return cntfile
 
 #ngrammake earnest.cnts >earnest.mod
-def ngrammake():
-    sp.call([cmd_ngrammake, cntfile], stdout=open(modfile,'w'))
+def ngrammake(ifile, lmdir_global):
+    print "calling ngrammake on", ifile
+    modfile = os.path.join(lmdir_global,"lm.mod")
+    sp.call([cmd_ngrammake, ifile], stdout=open(modfile,'w'))
     print "created",modfile
+    return modfile
 
 #fstcompose a.fst b.fst out.fst 
 def fstcompose(a,b, out):
@@ -86,3 +94,6 @@ def fstarcsort(txtf,ilabel_sort=True):
     
 def add_symbols(fstf):
     sp.call(["fstsymbols","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL,fstf])
+    
+def nshortest_path(fstf,outf,ordr):
+    sp.call(["fstshortestpath","--nshortest="+str(ordr),fstf,outf])

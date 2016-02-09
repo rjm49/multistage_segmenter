@@ -7,13 +7,13 @@ import codecs
 import os
 
 WDIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
-LDIR = "/home/rjm49/Dropbox/nlp_alta/recreate_LG/datafiles"
+LDIR = "/home/rjm49/mseg"
 DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here
 OUTSUBDIR = "seg_fsts"
 PILOT_FILE = "pilot-prosodicFeats.csv"
 PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
 PROBFILE = "predictions.dat"
-LM_SYM_SRC = EVAL1_FILE = "eval1-prosodicFeats.csv"
+EVAL1_FILE = "eval1-prosodicFeats.csv"
 EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm.csv"
 
 SYM_FILE_GLOBAL = os.path.join(DIR,"vsys.sym")
