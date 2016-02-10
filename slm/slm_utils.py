@@ -74,10 +74,10 @@ def write_slm(x_vals, gam_gen):
             score_gt_i = 1-gam_gen.cdf(i)
             #lfile.write("%d %d <rho> <rho> %f\n" % (i,i+1, score_gt_i)) #...arc out
             lfile.write("%d %d %s %s\n" % (i,i+1,ANYWORD,ANYWORD))
-            lfile.write("%d %d %s %s %d\n" % (i,i,EPS,EPS,score_gt_i))
+            lfile.write("%d %d %s %s %s\n" % (i,i,EPS,EPS,str(score_gt_i)))
         if(i>0):
             #lfile.write("%d 0 <break> <break> %f\n" % (i, score_i)) #arc back
-            lfile.write("%d 0 %s %s %d\n" % (i,BREAK,BREAK,score_i)) #arc back    
+            lfile.write("%d 0 %s %s %s\n" % (i,BREAK,BREAK,str(score_i))) #arc back    
     #lfile.write("0 0") #final state=0 with penalty=zero
     lfile.write("0")
     lfile.flush() 

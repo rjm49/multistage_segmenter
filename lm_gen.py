@@ -35,8 +35,10 @@ def generate_normed_text_file(data, lmdir_global):
     filenm = os.path.join(lmdir_global,"normed.txt")
     
     #if this file already exists, just return the full filename
-    if(os.path.isfile(filenm)):
+    if(os.path.exists(filenm) and os.path.isfile(filenm)):
         return filenm
+    else:
+        os.makedirs(os.path.dirname(filenm))
     
     writer = codecs.open(filenm, 'w')
     print 'writing file',filenm
@@ -83,6 +85,7 @@ def ngrammake(ifile, lmdir_global):
 #fstcompose a.fst b.fst out.fst 
 def fstcompose(a,b, out):
     cmpfile = os.path.join(DIR,OUTSUBDIR, out)
+    print cmpfile
     sp.call([cmd_fstcompose, a, b, cmpfile])
     
 #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
