@@ -35,26 +35,30 @@ def generate_normed_text_file(data, lmdir_global):
     filenm = os.path.join(lmdir_global,"normed.txt")
     
     #if this file already exists, just return the full filename
-    if(os.path.exists(filenm) and os.path.isfile(filenm)):
-        return filenm
-    else:
+#     if(os.path.exists(filenm)):
+#         return filenm
+
+    try:
         os.makedirs(os.path.dirname(filenm))
-    
+    except OSError:
+        print "could not make dirs"
+        
     writer = codecs.open(filenm, 'w')
+   
     print 'writing file',filenm
     for r in data:
-        if rec_id != r[0] or seg_id != r[1]:
+        if rec_id!=r[0] or seg_id!=r[1]:
             if not first:
-                trailer = '\n' if (rec_id!=r[0]) else ' ' # trailing space for a segment break, newline for the end of a whole recording
+                trailer = '\n' if (rec_id!=r[0]) else ' ' #a trailing space for new seg, a newline for new recprding
                 writer.write(BREAK+trailer) #finish off the segment
             else:
                 first=False
             rec_id = r[0]
             seg_id = r[1]
-        #w = r[5].translate(string.maketrans("",""), string.punctuation) #remove punctuation  
         w = r[5]
-        writer.write(w)
-        writer.write(' ')
+        writer.write(w+' ')
+    writer.write(BREAK)
+    writer.write('\n<unk>\n')
     writer.flush()
     writer.close()
     return filenm
@@ -85,7 +89,7 @@ def ngrammake(ifile, lmdir_global):
 #fstcompose a.fst b.fst out.fst 
 def fstcompose(a,b, out):
     cmpfile = os.path.join(DIR,OUTSUBDIR, out)
-    print cmpfile
+    print "composing",a,b,"->",cmpfile
     sp.call([cmd_fstcompose, a, b, cmpfile])
     
 #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst

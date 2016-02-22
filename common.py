@@ -27,7 +27,7 @@ JOINT_LM_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"lm_cv_slm.fst")
 UNK = "<unk>"
 BREAK = "<break>"
 ANYWORD = "<w>"
-EPS = "<eps>"
+EPS = "<epsilon>"
 
 # SLM_FXT_FILE = "slm.fxt"
 # SLM_FST_FILE = "slm.fst"

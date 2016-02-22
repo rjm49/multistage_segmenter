@@ -38,8 +38,11 @@ if __name__ == '__main__':
     te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
     rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
     
-    syms = set([r[5] for r in tr_rows + te_rows])
-    save_symbol_table(syms)
+    all_syms = set([r[5] for r in tr_rows + te_rows])
+    
+    lm_syms = set([r[5] for r in tr_rows])
+    
+    save_symbol_table(all_syms)
     
     buildmod = "y"
     modfile = os.path.join(lmdir_global,"lm.mod")
@@ -69,7 +72,7 @@ if __name__ == '__main__':
     
     raw_input("about to generate pm text files- press key to continue...")
     #generate pm
-    generate_pm_text_files(te_rows, prob_rows) #this should produce the fxt files on disc that can feed into the FST composition
+    generate_pm_text_files(lm_syms, te_rows, prob_rows) #this should produce the fxt files on disc that can feed into the FST composition
         
     compile_pm_files()
     print "compiled PM files."
@@ -77,7 +80,6 @@ if __name__ == '__main__':
     fs = glob.glob(os.path.join(DIR,OUTSUBDIR,"*.fst"))
     for f in fs:
         outf = os.path.join(DIR,"composed",os.path.basename(f))
-        print "composing",f,"o (LM o CV o SLM)"
-        fstcompose(f, JOINT_LM_CV_SLM_FILE_GLOBAL, outf)
-    
-    
+        #print "composing",f,"o (LM o CV o SLM)"
+        #fstcompose(f, JOINT_LM_CV_SLM_FILE_GLOBAL, outf)
+        fstcompose(f, modfile, outf)
