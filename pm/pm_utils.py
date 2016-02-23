@@ -53,7 +53,7 @@ def generate_pm_text_files(known_syms, training_rows, prob_rows):
                 ofile = codecs.open(ofilename, 'w')
         p = float( prob_rows.pop(0)[1] ) # pop the next probability value from our remaining prob_rows
         writeLink(ofile, known_syms, state, w, p)
-        state += 1 # we advance the state counter two steps because each "link" writes two arcs
+        state += 2 # we advance the state counter two steps because each "link" writes two arcs
     write_final_state_and_close(ofile, state)
     #saveSymbolTable(lm_symbol_table)
     
@@ -76,8 +76,8 @@ def writeLink(ofile, symbols,state,w,p):
         wo = w
     
     ofile.write("%d %d %s %s 0\n" % (state,state+1,w,wo))
-    #ofile.write("%d %d %s %s %f\n" % (state+1,state+2, EPS, EPS, weight))
-    #ofile.write("%d %d %s %s %f\n" % (state+1,state+2, EPS, BREAK, not_weight))
+    ofile.write("%d %d %s %s %f\n" % (state+1,state+2, EPS, EPS, weight))
+    ofile.write("%d %d %s %s %f\n" % (state+1,state+2, EPS, BREAK, not_weight))
     
 def write_final_state_and_close(ofile,state):
     if not write_files:
