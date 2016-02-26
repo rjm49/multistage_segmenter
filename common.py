@@ -9,18 +9,22 @@ import os
 WDIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
 LDIR = "/home/rjm49/mseg"
 DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here
-OUTSUBDIR = "seg_fsts"
+PM_SUB_DIR = "seg_fsts"
 PILOT_FILE = "pilot-prosodicFeats.csv"
 PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
 PROBFILE = "predictions.dat"
 EVAL1_FILE = "eval1-prosodicFeats.csv"
 EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm.csv"
 
-SYM_FILE_GLOBAL = os.path.join(DIR,"vsys.sym")
+SYM_FILE="sym.dat"
+CONV_FST="conv.fst"
+CONV_FXT="conv.fxt"
+
+#SYM_FILE_GLOBAL = os.path.join(DIR,"vsys.sym")
 SLM_FXT_FILE_GLOBAL = os.path.join(DIR,"slm.fxt")
 SLM_FST_FILE_GLOBAL = os.path.join(DIR,"slm.fst")
-CONV_FXT_FILE_GLOBAL = os.path.join(DIR,"lm_slm_converter.fxt")
-CONV_FST_FILE_GLOBAL = os.path.join(DIR,"lm_slm_converter.fst")
+#CONV_FXT_FILE_GLOBAL = os.path.join(DIR,"lm_slm_converter.fxt")
+#CONV_FST_FILE_GLOBAL = os.path.join(DIR,"lm_slm_converter.fst")
 JOINT_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"cv_slm.fst")
 JOINT_LM_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"lm_cv_slm.fst")
 
@@ -87,20 +91,19 @@ def filter_data_rows(in_list, keep_headers=False, sel=range(7,30)):
     else:
         return (samples, classes)
 
-def load_symbol_table():
-    if(not(SYM_FILE_GLOBAL)):
-        return []
-    
+def load_symbol_table(lm_dir):
+    symfile = os.path.join(lm_dir,SYM_FILE)
     syms = []
-    rows = read_file(SYM_FILE_GLOBAL, " ", skip_header=False)
+    rows = read_file(symfile, " ", skip_header=False)
     for r in rows:
         syms.append(r[0])
     return syms
 
-def save_symbol_table(syms):
+def save_symbol_table(syms, lm_dir):
     #now write the accompanying symbol table
+    symfile = os.path.join(lm_dir,SYM_FILE)
     syms = list(syms)
-    symf = codecs.open(SYM_FILE_GLOBAL, 'w')
+    symf = codecs.open(os.path.join(lm_dir,SYM_FILE), 'w')
     symf.truncate()
     syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
     syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant
@@ -109,6 +112,6 @@ def save_symbol_table(syms):
         
     symf.flush()
     symf.close()
-    print("wrote symbol table ", SYM_FILE_GLOBAL)
+    print("wrote symbol table ", symfile)
     
 

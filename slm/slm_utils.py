@@ -5,20 +5,22 @@ Created on Jan 16, 2016
 '''
 import codecs
 from multistage_segmenter.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL,\
-    SLM_FXT_FILE_GLOBAL, SYM_FILE_GLOBAL, load_symbol_table, OUTSUBDIR, UNK,\
-    CONV_FST_FILE_GLOBAL, CONV_FXT_FILE_GLOBAL
+    SLM_FXT_FILE_GLOBAL, load_symbol_table, PM_SUB_DIR, UNK,\
+    SYM_FILE, CONV_FXT, CONV_FST
 import os
 from collections import Counter
 from scipy.stats import gamma, norm
 import matplotlib.pyplot as plt
 import subprocess as sp
 
-def create_converter():
+def create_converter(lmdir):
     #print "creating converter...."
-    syms = load_symbol_table()
-    #ofilename = os.path.join(DIR,CONV_FXT_FILE)
+    syms = load_symbol_table(lmdir)
+    symfile = os.path.join(lmdir,SYM_FILE)
+    convfxt = os.path.join(lmdir,CONV_FXT)
+    convfst = os.path.join(lmdir,CONV_FST)
     
-    ofile = codecs.open(CONV_FXT_FILE_GLOBAL, 'w')
+    ofile = codecs.open(convfxt, 'w')
     
     for sym in syms:
         if(sym not in [BREAK, UNK]):
@@ -32,11 +34,11 @@ def create_converter():
     ofile.flush()
     ofile.close()
     #print "compiling...."
-    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", CONV_FXT_FILE_GLOBAL, CONV_FST_FILE_GLOBAL])
+    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols", convfxt, convfst])
     #print "done...."    
     
 
-def generate_slm(training_rows, do_plot):
+def generate_slm(training_rows, lm_dir, do_plot=True):
     slength_counts = Counter()
     slen=1
     for r in training_rows:
@@ -56,7 +58,7 @@ def generate_slm(training_rows, do_plot):
     write_slm(x_vals, gam_gen)
     if do_plot:
         plot_graph(x_vals, gam_gen, els)
-    compile_slm() #this last step compiles the slm to binary .fst format
+    compile_slm(lm_dir) #this last step compiles the slm to binary .fst format
 
 def write_slm(x_vals, gam_gen):
     if not write_slm:
@@ -83,9 +85,10 @@ def write_slm(x_vals, gam_gen):
     lfile.flush() 
     lfile.close()
     
-def compile_slm():
+def compile_slm(lm_dir):
+    symfile = os.path.join(lm_dir,SYM_FILE)
     #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
-    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols", SLM_FXT_FILE_GLOBAL, SLM_FST_FILE_GLOBAL])
+    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols", SLM_FXT_FILE_GLOBAL, SLM_FST_FILE_GLOBAL])
     
 def plot_graph(x_vals, gam_gen, els):
     fig, ax = plt.subplots(1, 1)

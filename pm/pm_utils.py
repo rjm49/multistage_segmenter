@@ -3,7 +3,7 @@ Created on Jan 16, 2016
 
 @author: rjm49
 '''
-from multistage_segmenter.common import load_symbol_table, DIR, OUTSUBDIR, UNK,\
+from multistage_segmenter.common import load_symbol_table, DIR, PM_SUB_DIR, UNK,\
     EPS, BREAK
 import os
 import codecs
@@ -16,14 +16,14 @@ write_slm = True
 do_plot = False
 unkify = True
 
-def compile_pm_files():
-    pmt_glob = os.path.join(DIR,OUTSUBDIR,"*.fxt")
+def compile_pm_files(sym_dir):
+    pmt_glob = os.path.join(DIR,PM_SUB_DIR,"*.fxt")
     pm_text_file_list = glob.glob(pmt_glob)
     n=0
     for f in pm_text_file_list:
         bin_name = f[:-3]+"fst"
 #         print "compiling", bin_name
-        fstcompile(f, bin_name)
+        fstcompile(f, bin_name, sym_dir)
         n+=1
     print "compiled",str(n),"prosodic model FSTs"
 
@@ -38,7 +38,7 @@ def generate_pm_text_files(known_syms, training_rows, prob_rows):
         
     state=0
     transcript_id = training_rows[0][0]#[1:-1]
-    ofilename = os.path.join(DIR,OUTSUBDIR,transcript_id+".fxt")
+    ofilename = os.path.join(DIR,PM_SUB_DIR,transcript_id+".fxt")
     ofile = codecs.open(ofilename, 'w') if write_files else None
     
     for r in training_rows:
@@ -49,7 +49,7 @@ def generate_pm_text_files(known_syms, training_rows, prob_rows):
             write_final_state_and_close(ofile, state)
             state=0
             if(write_files):
-                ofilename = os.path.join(DIR,OUTSUBDIR,transcript_id+".fxt")
+                ofilename = os.path.join(DIR,PM_SUB_DIR,transcript_id+".fxt")
                 ofile = codecs.open(ofilename, 'w')
         p = float( prob_rows.pop(0)[1] ) # pop the next probability value from our remaining prob_rows
         writeLink(ofile, known_syms, state, w, p)

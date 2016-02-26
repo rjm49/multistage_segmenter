@@ -4,7 +4,7 @@ Created on Dec 8, 2015
 @author: rjm49
 '''
 import subprocess as sp
-from multistage_segmenter.common import DIR, OUTSUBDIR, SYM_FILE_GLOBAL, BREAK
+from multistage_segmenter.common import DIR, PM_SUB_DIR, BREAK, SYM_FILE
 import os
 import string
 import codecs
@@ -63,12 +63,14 @@ def generate_normed_text_file(data, lmdir_global):
     writer.close()
     return filenm
 
-def ngramsymbols(infile):
-    sp.call([cmd_ngramsymbols], stdin=open(infile), stdout=open(SYM_FILE_GLOBAL,"w"))
+def ngramsymbols(infile, lmdir_global):
+    symfile = os.path.join(lmdir_global, SYM_FILE)
+    sp.call([cmd_ngramsymbols], stdin=open(infile), stdout=open(symfile,"w"))
 
 def farcompilestrings(ifile, lmdir_global):
+    symfile = os.path.join(lmdir_global, SYM_FILE)
     ofile = os.path.join(lmdir_global, "lm.far")
-    sp.call([cmd_farcompilestrings,"-symbols="+SYM_FILE_GLOBAL,"-keep_symbols=1",ifile], stdout=open(ofile,"w"))
+    sp.call([cmd_farcompilestrings,"-symbols="+symfile,"-keep_symbols=1",ifile], stdout=open(ofile,"w"))
     return ofile
     
 #ngramcount -order=5 earnest.far >earnest.cnts
@@ -88,19 +90,21 @@ def ngrammake(ifile, lmdir_global):
 
 #fstcompose a.fst b.fst out.fst 
 def fstcompose(a,b, out):
-    cmpfile = os.path.join(DIR,OUTSUBDIR, out)
+    cmpfile = os.path.join(DIR,PM_SUB_DIR, out)
     print "composing",a,b,"->",cmpfile
     sp.call([cmd_fstcompose, a, b, cmpfile])
     
 #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
-def fstcompile(txtf,binf):
-    sp.call(["fstcompile","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL, "--keep_isymbols", "--keep_osymbols",txtf,binf])
+def fstcompile(txtf,binf, sym_dir):
+    symfile = os.path.join(sym_dir, SYM_FILE)
+    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols",txtf,binf])
     
 def fstarcsort(txtf,ilabel_sort=True):
     sp.call(["fstarcsort","--sort_type="+("ilabel" if ilabel_sort else "olabel"),txtf,txtf])
     
-def add_symbols(fstf):
-    sp.call(["fstsymbols","--isymbols="+SYM_FILE_GLOBAL,"--osymbols="+SYM_FILE_GLOBAL,fstf])
+def add_symbols(fstf, lmdir_global):
+    symfile = os.path.join(lmdir_global, SYM_FILE)
+    sp.call(["fstsymbols","--isymbols="+symfile,"--osymbols="+symfile,fstf])
     
 def nshortest_path(fstf,outf,ordr):
     sp.call(["fstshortestpath","--nshortest="+str(ordr),fstf,outf])
