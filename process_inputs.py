@@ -5,13 +5,13 @@ Created on Feb 24, 2016
 '''
 import glob, os
 from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-    JOINT_LM_CV_SLM_FILE_GLOBAL
+    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR
 from multistage_segmenter.lm_gen import fstcompose
 
 def process_inputs(lm_dir,pm_dir):
     fs = glob.glob(os.path.join(DIR,PM_SUB_DIR,"*.fst"))
     for f in fs:
-        outf = os.path.join(DIR,"composed",os.path.basename(f))        
+        outf = os.path.join(DIR, COMP_SUB_DIR,os.path.basename(f))        
         fstcompose(f, JOINT_LM_CV_SLM_FILE_GLOBAL, outf)
 
 if __name__ == '__main__':

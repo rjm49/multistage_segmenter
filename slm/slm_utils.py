@@ -23,7 +23,7 @@ def create_converter(lmdir):
     ofile = codecs.open(convfxt, 'w')
     
     for sym in syms:
-        if(sym not in [BREAK, UNK]):
+        if(sym not in [ANYWORD, EPS, BREAK, UNK]):
             ofile.write("0 0 %s %s\n" % (sym,ANYWORD))
 
     ofile.write("0 0 %s %s\n" % (UNK,ANYWORD))
