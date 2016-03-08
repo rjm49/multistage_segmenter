@@ -53,11 +53,13 @@ if __name__ == '__main__':
         modfile = compile_lm(rawtext_file, lmdir_global)
         print "Created language model file:", modfile
     
-    generate_slm(tr_rows, lmdir_global, do_plot=False) # build the sentence length model, plot it so we can see it's sane
+    generate_slm(tr_rows, lmdir_global, do_plot=True) # build the sentence length model, plot it so we can see it's sane
     #raw_input("slm done - press key")
     
     create_converter(lmdir_global)
     print "created converter."
+    
+    raw_input("hit return to start compositions...")
     
     fstarcsort(SLM_FST_FILE_GLOBAL, ilabel_sort=True)
     print "composing CV o SLM..."

@@ -12,6 +12,7 @@ from collections import Counter
 from scipy.stats import gamma, norm
 import matplotlib.pyplot as plt
 import subprocess as sp
+import math
 
 def create_converter(lmdir):
     #print "creating converter...."
@@ -53,6 +54,7 @@ def generate_slm(training_rows, lm_dir, do_plot=True):
     els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
     #print els
     x_vals = range(0, max(els)+1)
+    
     (shape, loc, scale) = gamma.fit(els, floc=0)
     gam_gen = gamma(shape, loc, scale) #use these model params to build a new gamma distrib/n generator
     write_slm(x_vals, gam_gen)
@@ -65,20 +67,26 @@ def write_slm(x_vals, gam_gen):
         return
     lfile = codecs.open(SLM_FXT_FILE_GLOBAL,"w")
     lfile.truncate()
+    
+    maxp = 0
+    
     for i in x_vals:
         #prob of being length i = p(i)
-        #except for last state for the max-length sentence, each state has an arc back and an arc out...
-        #ln_prob_i = -math.log(gam_gen.pdf(i))
-        score_i = gam_gen.pdf(i)
-        #print score_i
+        
+        #first state (0) has arc OUT and EPS arc
+        #states 1-(L-1) have arcs OUT, EPS, and BREAK
+        #state (L-1) has arc EPS and BREAK
+
+        lfile.write("%d %d %s %s\n" % (i,i,EPS,EPS))
         if(i < max(x_vals)): #unless we're in the final state...
-            #ln_prob_gt_i = -math.log(1-gam_gen.cdf(i))
-            score_gt_i = 1-gam_gen.cdf(i)
-            #lfile.write("%d %d <rho> <rho> %f\n" % (i,i+1, score_gt_i)) #...arc out
-            lfile.write("%d %d %s %s\n" % (i,i+1,ANYWORD,ANYWORD))
-            lfile.write("%d %d %s %s %s\n" % (i,i,EPS,EPS,str(score_gt_i)))
+            score_gt_i = -math.log( 1-gam_gen.cdf(i) )
+            lfile.write("%d %d %s %s %s\n" % (i,i+1,ANYWORD,ANYWORD,str(score_gt_i)))
         if(i>0):
-            #lfile.write("%d 0 <break> <break> %f\n" % (i, score_i)) #arc back
+            p_i = gam_gen.pdf(i)
+            if(p_i>maxp):
+                maxp = p_i
+                print "new max p=",str(maxp)," at slen ",str(i)
+            score_i = -math.log(gam_gen.pdf(i))
             lfile.write("%d 0 %s %s %s\n" % (i,BREAK,BREAK,str(score_i))) #arc back    
     #lfile.write("0 0") #final state=0 with penalty=zero
     lfile.write("0")

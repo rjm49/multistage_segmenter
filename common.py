@@ -12,6 +12,7 @@ DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here
 PM_SUB_DIR = "seg_fsts"
 COMP_SUB_DIR = "composed"
 SHP_SUB_DIR = "shortest_paths"
+OUTS_SUB_DIR = "output_strings"
 PILOT_FILE = "pilot-prosodicFeats.csv"
 PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
 PROBFILE = "predictions.dat"
