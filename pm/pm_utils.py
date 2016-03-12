@@ -19,29 +19,27 @@ unkify = True
 def compile_pm_files(sym_dir):
     pmt_glob = os.path.join(DIR,PM_SUB_DIR,"*.fxt")
     pm_text_file_list = glob.glob(pmt_glob)
-    n=0
     for f in pm_text_file_list:
         bin_name = f[:-3]+"fst"
 #         print "compiling", bin_name
         fstcompile(f, bin_name, sym_dir)
-        n+=1
-    print "compiled",str(n),"prosodic model FSTs"
+        print "compiled",bin_name
 
-def generate_pm_text_files(known_syms, training_rows, prob_rows):
-    if len(training_rows)!=len(prob_rows):
-        print len(training_rows), "in data not equal to prob rows:", len(prob_rows)
+def generate_pm_text_files(known_syms, test_rows, prob_rows):
+    if len(test_rows)!=len(prob_rows):
+        print len(test_rows), "in data not equal to prob rows:", len(prob_rows)
         exit(1)
 
-    if(len(training_rows)==0):
+    if(len(test_rows)==0):
         print "No data rows"
         exit(1)
         
     state=0
-    transcript_id = training_rows[0][0]#[1:-1]
+    transcript_id = test_rows[0][0]#[1:-1]
     ofilename = os.path.join(DIR,PM_SUB_DIR,transcript_id+".fxt")
     ofile = codecs.open(ofilename, 'w') if write_files else None
     
-    for r in training_rows:
+    for r in test_rows:
         next_transcript_id = r[0][1:-1]
         w = r[5]#[1:-1]
         if(next_transcript_id != transcript_id):

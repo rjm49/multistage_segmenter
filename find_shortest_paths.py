@@ -33,7 +33,7 @@ def fstprint(inf):
                 outstr += toks[3]
             else:
                 outstr += toks[2]
-            outstr += ' '
+            outstr += '\n'
     return outstr.strip()
     
 def process_outputs(cmp_dir, shp_dir, outs_dir):
@@ -47,6 +47,7 @@ def process_outputs(cmp_dir, shp_dir, outs_dir):
         of.write(outstr)
         of.flush()
         of.close()
+        print "wrote",cmpf
 
 if __name__ == '__main__':
 #     lmdir = "eval1n"

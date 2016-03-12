@@ -6,13 +6,13 @@ Created on 30 Nov 2015
 from multistage_segmenter.common import EVAL1_FILE_NORMED, read_file, DIR, PROBFILE, \
     PILOT_FILE_NORMED, save_symbol_table, PM_SUB_DIR, JOINT_CV_SLM_FILE_GLOBAL,\
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL,\
-    EVAL1_FILE, CONV_FST
+    EVAL1_FILE, CONV_FST, LM_SYM_FILE
 import os
 import string
 from multistage_segmenter.lm_gen import fstcompose, compile_lm,\
     fstarcsort, generate_normed_text_file
 from multistage_segmenter.pm.pm_utils import compile_pm_files,\
-    generate_pm_text_files
+    generate_pm_text_files, generate_pm_text_files
 from multistage_segmenter.slm.slm_utils import generate_slm,\
     create_converter
 import glob
@@ -43,7 +43,8 @@ if __name__ == '__main__':
     lm_syms = set([r[5] for r in tr_rows])
     
     save_symbol_table(all_syms, lmdir_global)
-    
+    save_symbol_table(lm_syms, lmdir_global, LM_SYM_FILE)
+        
     buildmod = "y"
     modfile = os.path.join(lmdir_global,"lm.mod")
     if(os.path.exists(modfile)):
@@ -75,7 +76,7 @@ if __name__ == '__main__':
     
     raw_input("about to generate pm text files- press key to continue...")
     #generate pm
-    generate_pm_text_files(lm_syms, te_rows, prob_rows) #this should produce the fxt files on disc that can feed into the FST composition
+    generate_pm_text_files(lm_syms, te_rows, prob_rows) #this produces the fxt files on disc that can feed into the FST composition
         
     compile_pm_files(sym_dir=lmdir_global)
     print "compiled PM files."

@@ -13,6 +13,7 @@ PM_SUB_DIR = "seg_fsts"
 COMP_SUB_DIR = "composed"
 SHP_SUB_DIR = "shortest_paths"
 OUTS_SUB_DIR = "output_strings"
+GOLD_SUB_DIR = "gold_standard"
 PILOT_FILE = "pilot-prosodicFeats.csv"
 PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
 PROBFILE = "predictions.dat"
@@ -20,6 +21,7 @@ EVAL1_FILE = "eval1-prosodicFeats.csv"
 EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm.csv"
 
 SYM_FILE="sym.dat"
+LM_SYM_FILE="lm_sym.dat"
 CONV_FST="conv.fst"
 CONV_FXT="conv.fxt"
 
@@ -35,15 +37,6 @@ UNK = "<unk>"
 BREAK = "<break>"
 ANYWORD = "<w>"
 EPS = "<epsilon>"
-
-# SLM_FXT_FILE = "slm.fxt"
-# SLM_FST_FILE = "slm.fst"
-# CONV_FXT_FILE = "lm_slm_converter.fxt"
-# CONV_FST_FILE = "lm_slm_converter.fst"
-
-# JOINT_CV_SLM_FILE = "cv_slm.fst"
-#JOINT_LM_SLM_FILE = "lm_slm.fst"
-# JOINT_LM_CV_SLM_FILE = "lm_cv_slm.fst" 
 
 PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
 
@@ -94,19 +87,19 @@ def filter_data_rows(in_list, keep_headers=False, sel=range(7,30)):
     else:
         return (samples, classes)
 
-def load_symbol_table(lm_dir):
-    symfile = os.path.join(lm_dir,SYM_FILE)
+def load_symbol_table(lm_dir, fname=SYM_FILE):
+    symfile = os.path.join(lm_dir, fname)
     syms = []
     rows = read_file(symfile, " ", skip_header=False)
     for r in rows:
         syms.append(r[0])
     return syms
 
-def save_symbol_table(syms, lm_dir):
+def save_symbol_table(syms, lm_dir, fname=SYM_FILE):
     #now write the accompanying symbol table
-    symfile = os.path.join(lm_dir,SYM_FILE)
+    symfile = os.path.join(lm_dir,fname)
     syms = list(syms)
-    symf = codecs.open(os.path.join(lm_dir,SYM_FILE), 'w')
+    symf = codecs.open(os.path.join(lm_dir,fname), 'w')
     symf.truncate()
     syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
     syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant
@@ -116,5 +109,3 @@ def save_symbol_table(syms, lm_dir):
     symf.flush()
     symf.close()
     print("wrote symbol table ", symfile)
-    
-
