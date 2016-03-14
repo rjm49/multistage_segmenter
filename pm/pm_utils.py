@@ -40,7 +40,7 @@ def generate_pm_text_files(known_syms, test_rows, prob_rows):
     ofile = codecs.open(ofilename, 'w') if write_files else None
     
     for r in test_rows:
-        next_transcript_id = r[0][1:-1]
+        next_transcript_id = r[0]
         w = r[5]#[1:-1]
         if(next_transcript_id != transcript_id):
             transcript_id = next_transcript_id

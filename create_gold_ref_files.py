@@ -23,7 +23,7 @@ def generate_gold_files(rows):
     ofile = open_wfile(odir, transcript_id)
     
     for r in rows:
-        next_transcript_id = r[0][1:-1]
+        next_transcript_id = r[0]
         w = r[5]#[1:-1]
         b = int(r[6])
         if(next_transcript_id != transcript_id):
@@ -32,10 +32,9 @@ def generate_gold_files(rows):
             ofile.close()
             print "wrote",ofile
             ofile = open_wfile(odir, transcript_id)
-        ofile.write(w)
+        ofile.write(w+"\n")
         if(b):
-            ofile.write("<break>")
-    #saveSymbolTable(lm_symbol_table)
+            ofile.write("<break>\n")
     ofile.flush()
     ofile.close()
     print "wrote",ofile
