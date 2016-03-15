@@ -72,13 +72,20 @@ if __name__ == '__main__':
                     gfps += 1
                     out_row = output_rows.pop(0)
         
+        remaining = len(output_rows)
+        if(remaining)>0:
+            print "Dangling output row remaining=", remaining
+            print output_rows
+            fps+=1
+            gfps+=1
+        
         #print tps, tns
         #print fps, fns
         p = 1.0 if (tps+fps==0) else (tps / (tps + fps)) #cases found / (cases found + wrongly assumed cases)
         r = 1.0 if (tps+fns==0) else (tps / (tps + fns)) #cases found / (cases found + cases not found)
          
         #print p, r
-        F = 0 if (p+r==0) else (p*r / (p+r))
+        F = 0 if (p+r==0) else (2*p*r / (p+r))
         print outf,"- p/r/F:",p,r,F
         outstr = os.path.basename(outf)[:-4]
         outstr+= ","+str(nobrks_gold)
@@ -98,8 +105,8 @@ if __name__ == '__main__':
     #calculate global versions of p,r,F i.e. if we assume there is just a single unified string of tokens
     gp = 1.0 if (gtps+gfps==0) else (gtps / (gtps + gfps)) #cases found / (cases found + wrongly assumed cases)
     gr = 1.0 if (gtps+gfns==0) else (gtps / (gtps + gfns)) #cases found / (cases found + cases not found)    
-    gF = 0 if (gp+gr==0) else (gp*gr / (gp+gr))
-    print outf,"- - - - gp/gr/gF:",gp,gr,gF
+    gF = 0 if (gp+gr==0) else (2*gp*gr / (gp+gr))
+    print "Total: - gp/gr/gF:",gp,gr,gF
 
     # check also the average (mean) F across files    
     avF = totF/n
