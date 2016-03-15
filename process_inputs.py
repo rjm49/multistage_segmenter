@@ -8,17 +8,33 @@ from multistage_segmenter.common import DIR, PM_SUB_DIR,\
     JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR
 from multistage_segmenter.lm_gen import fstcompose
 
-def process_inputs(lm_dir,pm_dir):
-    fs = glob.glob(os.path.join(DIR,PM_SUB_DIR,"*.fst"))
+def process_inputs(pm_dir, lm_file, out_dir):
+    fs = glob.glob(os.path.join(pm_dir,"*.fst"))
     for f in fs:
-        outf = os.path.join(DIR, COMP_SUB_DIR,os.path.basename(f))        
-        fstcompose(f, JOINT_LM_CV_SLM_FILE_GLOBAL, outf)
+        outf = os.path.join(out_dir ,os.path.basename(f))        
+        fstcompose(f, lm_file, outf)
+        print "output:",outf
 
 if __name__ == '__main__':
     lmdir = "eval1n"
     print "This script will run all the prosodic model FSTs through the combined language/slen model"
+    print "And also run the PM FSTs through just the LM without slen (for comparison)"
     lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
     print "using ",lmdir
-    lmdir_global = os.path.join(DIR,lmdir)
+    
+    lmfile = os.path.join(DIR,lmdir,"lm.pru")
     pm_dir = os.path.join(DIR,PM_SUB_DIR)
-    process_inputs(DIR, pm_dir)
+    out_dir = os.path.join(DIR, COMP_SUB_DIR)
+    pmlm_dir = os.path.join(DIR, "pm_lm_composed")
+            
+    for p in (pm_dir,out_dir,pmlm_dir):
+        if not os.path.exists(p):
+            os.makedirs(p)
+    
+    #use combined LM and slen modifier
+    #process_inputs(pm_dir, JOINT_LM_CV_SLM_FILE_GLOBAL, out_dir)
+
+    #now just use the pruned LM file without slen modifier
+    
+    process_inputs(pm_dir, lmfile, pmlm_dir)
+    

@@ -36,18 +36,18 @@ def fstprint(inf):
             outstr += '\n'
     return outstr.strip()
     
-def process_outputs(cmp_dir, shp_dir, outs_dir):
-    fs = glob.glob(os.path.join(cmp_dir,"*.fst"))
-    for cmpf in fs:
-        shpf = os.path.join(shp_dir,os.path.basename(cmpf))
-        outf = os.path.join(outs_dir, os.path.basename(cmpf))
-        fstshortestpath(cmpf, shpf)
+def process_outputs(input_dir, shp_dir, strs_dir):    
+    fs = glob.glob(os.path.join(input_dir,"*.fst"))
+    for inf in fs:
+        shpf = os.path.join(shp_dir,os.path.basename(inf))
+        outf = os.path.join(strs_dir, os.path.basename(inf))
+        fstshortestpath(inf, shpf)
         outstr = fstprint(shpf)
         of = open(outf,"w")
         of.write(outstr)
         of.flush()
         of.close()
-        print "processed",cmpf
+        print "shortest path ->",outf
 
 if __name__ == '__main__':
 #     lmdir = "eval1n"
@@ -58,18 +58,37 @@ if __name__ == '__main__':
     cmp_dir = os.path.join(DIR,COMP_SUB_DIR)
     shp_dir = os.path.join(DIR,SHP_SUB_DIR)
     outs_dir = os.path.join(DIR, OUTS_SUB_DIR)
+    pm_dir = os.path.join(DIR, PM_SUB_DIR)
+
+    pmshp_dir = os.path.join(DIR, "pm_shortest")
+    pmouts_dir = os.path.join(DIR, "pm_output")
+    
+    pmlm_indir = os.path.join(DIR, "pm_lm_composed")
+    pmlmshp_dir = os.path.join(DIR, "pm_lm_shortest")
+    pmlmouts_dir = os.path.join(DIR, "pm_lm_output")
     
     print "reading from", cmp_dir
     print "shortest path FSTs to", shp_dir
     print "segmented strings to", outs_dir
-    
+
+    dirs = (cmp_dir, shp_dir, outs_dir, pm_dir, pmshp_dir, pmouts_dir, pmlm_indir, pmlmshp_dir, pmlmouts_dir)
     try:
-        os.makedirs(shp_dir)
+        for d in dirs:
+            if not os.path.exists(d):
+                os.makedirs(d)
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise 
-    
+        
+    #process the multi-stage composed models first 
     process_outputs(cmp_dir, shp_dir, outs_dir)
+    
+    #next, do the prosodic-only models
+    process_outputs(pm_dir, pmshp_dir, pmouts_dir)
+    
+    #next, do the PMLM models
+    process_outputs(pmlm_indir, pmlmshp_dir, pmlmouts_dir)
+    
     print "done"
     
     
