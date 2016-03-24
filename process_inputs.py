@@ -8,8 +8,8 @@ from multistage_segmenter.common import DIR, PM_SUB_DIR,\
     JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR
 from multistage_segmenter.lm_gen import fstcompose
 
-def process_inputs(pm_dir, lm_file, out_dir):
-    fs = glob.glob(os.path.join(pm_dir,"*.fst"))
+def process_inputs(in_dir, lm_file, out_dir):
+    fs = glob.glob(os.path.join(in_dir,"*.fst"))
     for f in fs:
         outf = os.path.join(out_dir ,os.path.basename(f))        
         fstcompose(f, lm_file, outf)
@@ -24,15 +24,15 @@ if __name__ == '__main__':
     
     lmfile = os.path.join(DIR,lmdir,"lm.pru")
     pm_dir = os.path.join(DIR,PM_SUB_DIR)
-    out_dir = os.path.join(DIR, COMP_SUB_DIR)
+    full_cmp_dir = os.path.join(DIR, COMP_SUB_DIR)
     pmlm_dir = os.path.join(DIR, "pm_lm_composed")
             
-    for p in (pm_dir,out_dir,pmlm_dir):
+    for p in (pm_dir, full_cmp_dir, pmlm_dir):
         if not os.path.exists(p):
             os.makedirs(p)
     
     #use combined LM and slen modifier
-    #process_inputs(pm_dir, JOINT_LM_CV_SLM_FILE_GLOBAL, out_dir)
+    process_inputs(pm_dir, JOINT_LM_CV_SLM_FILE_GLOBAL, full_cmp_dir)
 
     #now just use the pruned LM file without slen modifier
     

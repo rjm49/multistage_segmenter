@@ -36,11 +36,11 @@ def fstprint(inf):
             outstr += '\n'
     return outstr.strip()
     
-def process_outputs(input_dir, shp_dir, strs_dir):    
+def process_outputs(input_dir, shortpath_dir, strings_dir):    
     fs = glob.glob(os.path.join(input_dir,"*.fst"))
     for inf in fs:
-        shpf = os.path.join(shp_dir,os.path.basename(inf))
-        outf = os.path.join(strs_dir, os.path.basename(inf))
+        shpf = os.path.join(shortpath_dir,os.path.basename(inf))
+        outf = os.path.join(strings_dir, os.path.basename(inf))
         fstshortestpath(inf, shpf)
         outstr = fstprint(shpf)
         of = open(outf,"w")

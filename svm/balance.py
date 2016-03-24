@@ -15,12 +15,12 @@ def sep_classes(samples, classes):
             negs.append(s)
     return segs,negs
 
-def shuff_trim_balance_classes(samples, classes):
+def shuff_trim_balance_classes(samples, classes, wgt):
     segs, negs = sep_classes(samples, classes)
     
     shuffle(negs)
     print("We have {0} boundary examples".format(len(segs)))
-    negs = negs[:len(segs)]
+    negs = negs[:len(segs)*wgt]
     samples = negs + segs
     print("Total {0} data samples".format(len(samples)))
 

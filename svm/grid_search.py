@@ -15,7 +15,7 @@ from numpy.f2py.auxfuncs import throw_error
 
 print(__doc__)
 
-def grid_search(samples, classes):
+def grid_search(samples, classes, wgt):
     if(len(samples)!=len(classes)):
         print("grid_search: mismatching lens of samples and classes")
         return None
@@ -39,14 +39,19 @@ def grid_search(samples, classes):
     print('gamma_range', gamma_range)
     print('c_range', c_range)
     
-    tuned_parameters = [{'kernel': ['rbf'],
+    
+    tuned_parameters = [{ #'kernel': ['rbf'],
                          'gamma': gamma_range, #step -2
                          'C': c_range},] #step 2
+    
     
     print("# Tuning hyper-parameters")
     print()
 
-    clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5, scoring='recall_weighted')
+    #class_weight={1:2},
+    estr = SVC(kernel='rbf', C=1.0, cache_size=6000, class_weight={ 0:wgt }, probability=False)
+    #estr = SVC(C=1.0)
+    clf = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=3)
     clf.fit(X_train, y_train)
     
     print("Best parameters set found on development set:")

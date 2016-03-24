@@ -6,7 +6,7 @@ Created on 30 Nov 2015
 from multistage_segmenter.common import EVAL1_FILE_NORMED, read_file, DIR, PROBFILE, \
     PILOT_FILE_NORMED, save_symbol_table, PM_SUB_DIR, JOINT_CV_SLM_FILE_GLOBAL,\
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL,\
-    EVAL1_FILE, CONV_FST, LM_SYM_FILE
+    EVAL1_FILE, CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE
 import os
 import string
 from multistage_segmenter.lm_gen import fstcompose, compile_lm,\
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
     #sys.stdin.read()
 
-    prob_rows = read_file(os.path.join(DIR, PROBFILE), ' ', skip_header=True)
+    prob_rows = read_file(os.path.join(DIR, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
     
     raw_input("about to generate pm text files- press key to continue...")
     #generate pm

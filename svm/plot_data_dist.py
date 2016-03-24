@@ -5,7 +5,7 @@ from sklearn import svm, datasets, preprocessing
 from multistage_segmenter.common import *
 import os
 
-all_rows = read_file(os.path.join(DIR,EVAL1_FILE_NORMED), ',', skip_header=False)
+all_rows = read_file(os.path.join(DIR,EVAL1_FILE), ',', skip_header=False)
 (samples, classes, headers) = filter_data_rows(all_rows, keep_headers=True)
 # print(test_arr[0])
 

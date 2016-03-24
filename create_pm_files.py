@@ -6,7 +6,7 @@ Created on Feb 24, 2016
 import glob, os
 from multistage_segmenter.common import DIR, PM_SUB_DIR,\
      PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file, PROBFILE, load_symbol_table,\
-    LM_SYM_FILE
+    LM_SYM_FILE, PROSODIC_PREDICTION_FILE
 from multistage_segmenter.lm_gen import fstcompose
 import codecs
 from multistage_segmenter.pm.pm_utils import generate_pm_text_files,\
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     
     lmdir_global = os.path.join(DIR,lmdir)
     lm_syms = load_symbol_table(lmdir_global, LM_SYM_FILE)
-    prob_rows = read_file(os.path.join(DIR, PROBFILE), ' ', skip_header=True)
+    prob_rows = read_file(os.path.join(DIR, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
 
     generate_pm_text_files(lm_syms, te_rows, prob_rows)
     compile_pm_files(sym_dir=lmdir_global)
