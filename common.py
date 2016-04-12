@@ -14,11 +14,12 @@ COMP_SUB_DIR = "composed"
 SHP_SUB_DIR = "shortest_paths"
 OUTS_SUB_DIR = "output_strings"
 GOLD_SUB_DIR = "gold_standard"
-PILOT_FILE = "pilot-prosodicFeats.csv"
-PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
+#PILOT_FILE = "pilot-prosodicFeats.csv"
+#PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
+PILOT_FILE_NORMED = "eval1-prosodicFeats_norm_test.csv"
 PROBFILE = "predictions.dat"
 EVAL1_FILE = "eval1-prosodicFeats.csv"
-EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm.csv"
+EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm_train.csv"
 
 SYM_FILE="sym.dat"
 LM_SYM_FILE="lm_sym.dat"
@@ -33,12 +34,26 @@ SLM_FST_FILE_GLOBAL = os.path.join(DIR,"slm.fst")
 JOINT_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"cv_slm.fst")
 JOINT_LM_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"lm_cv_slm.fst")
 
+LM_PRUNED = "mod.pru"
+
 UNK = "<unk>"
 BREAK = "<break>"
 ANYWORD = "<w>"
 EPS = "<epsilon>"
 
 PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
+
+def resolve_filenames():
+    lmdir = "eval1n"
+    lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
+    print "using ",lmdir
+    lmdir_global = os.path.join(DIR,lmdir)
+    all_syms = os.path.join(lmdir_global,SYM_FILE)
+    lm_syms = os.path.join(lmdir_global,LM_SYM_FILE)
+    tr_file = os.path.join(lmdir_global,EVAL1_FILE_NORMED)
+    te_file = os.path.join(lmdir_global,PILOT_FILE_NORMED)
+    
+
 
 def full_path(fname):
     return os.path.join(DIR,fname)

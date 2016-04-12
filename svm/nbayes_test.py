@@ -4,7 +4,7 @@ from sklearn import svm, datasets, preprocessing
 from sklearn.naive_bayes import GaussianNB
 import codecs
 import sys
-import grid_search as gs
+import grid_search as searcher
 from sklearn.metrics.classification import precision_recall_fscore_support
 from multistage_segmenter.common import read_file, DIR, EVAL1_FILE_NORMED,\
     filter_data_rows, PILOT_FILE_NORMED

@@ -13,38 +13,34 @@ from multistage_segmenter.pm.pm_utils import generate_pm_text_files,\
     compile_pm_files
 
 #this lets us compare the contents of two files
-def compare_rows(gold_rows, algo_rows):
+def compare_rows(_recid, gold_rows, algo_rows):
     fps=tps=fns=tns = 0.0 #reset our counters for each record, as floats
     nobrks_out=nobrks_gold = 0
 
-    while gold_rows != []:
-        gold_row = gold_rows.pop(0)
-        out_row = algo_rows.pop(0)
-        #print gold_row,"vs",out_row
+    for (gold_row, algo_row) in zip(gold_rows, algo_rows):
+        gold_row = gold_row.split("\t")
+        algo_row = algo_row.split("\t")
         
-        if(gold_row == out_row):
-            if gold_row == BREAK:
-                nobrks_gold += 1
+        gold_is_brk = int(gold_row[1])
+        algo_is_brk = int(algo_row[1])
+        
+        #print gold_row,"vs",algo_row
+        print gold_is_brk, algo_is_brk
+        
+        if(gold_is_brk):
+            nobrks_gold += 1
+            if(algo_is_brk):
+                tps+=1
                 nobrks_out += 1
-                tps += 1
             else:
-                tns += 1
-        else: #either outrow has missed a break, or added one too many
-            if gold_row == BREAK: #out missed a break
-                nobrks_gold+=1
-                fns += 1
-                gold_row = gold_rows.pop(0)
+                fns+=1
+        else:
+            if(algo_is_brk):
+                fps+=1
+                nobrks_out += 1
             else:
-                nobrks_out+=1
-                fps += 1
-                out_row = algo_rows.pop(0)
-    
-    remaining = len(algo_rows)
-    if(remaining)>0:
-        print "Dangling output row remaining=", remaining
-        print algo_rows
-        fps+=1
-    
+                tns+=1
+                
     #print tps, tns
     #print fps, fns
     p = 1.0 if (tps+fps==0) else (tps / (tps + fps)) #cases found / (cases found + wrongly assumed cases)
@@ -52,11 +48,8 @@ def compare_rows(gold_rows, algo_rows):
      
     #print p, r
     F = 0 if (p+r==0) else (2*p*r / (p+r))
-    print outf,"- p/r/F:",p,r,F
 
-    recid = os.path.basename(outf)[:-4]
-
-    return (recid, nobrks_gold, nobrks_out, tps, fps, fns, tns, p,r,F)
+    return (_recid, nobrks_gold, nobrks_out, tps, fps, fns, tns, p,r,F)
 
 
 if __name__ == '__main__':
@@ -65,7 +58,7 @@ if __name__ == '__main__':
     gold_dir = os.path.join(DIR,GOLD_SUB_DIR)
     #output_dir = os.path.join(DIR,OUTS_SUB_DIR)
     
-    output_dirs = ("pm_output", "pm_lm_output", OUTS_SUB_DIR)
+    output_dirs = (OUTS_SUB_DIR, "pm_output", "pm_lm_output")
 
     prF = "p,r,F"
     out_rows = []
@@ -76,21 +69,24 @@ if __name__ == '__main__':
 
     report = {}
     for d in output_dirs:
-                
+            
+        print "dir is:", d
         gfps=gtps=gfns=gtns = 0.0
         totF=avF = 0.0
         n=0.0
             
         outs = glob.glob(os.path.join(DIR, d,"*.fst"))
         for outf in outs:
-            goldf = os.path.basename(outf)[:-4]+".gld"
+            print "algo_rows from:",outf
+            recid = os.path.basename(outf)[:-4]
+            goldf = recid+".gld"
             algo_rows = codecs.open(os.path.join(DIR, d,outf), "r").read().splitlines()        
             gold_rows = codecs.open(os.path.join(gold_dir,goldf), "r").read().splitlines()
             
-            tup = compare_rows(gold_rows, algo_rows)
-            
-            recid=tup[0]
-            
+            tup = compare_rows(recid, gold_rows, algo_rows)
+                        
+            print tup
+                        
             gtps+=tup[3] #add the t/f p/n scores to the global totals
             gfps+=tup[4]
             gfns+=tup[5]

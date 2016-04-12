@@ -6,11 +6,12 @@ Created on 30 Nov 2015
 from multistage_segmenter.common import EVAL1_FILE_NORMED, read_file, DIR, PROBFILE, \
     PILOT_FILE_NORMED, save_symbol_table, PM_SUB_DIR, JOINT_CV_SLM_FILE_GLOBAL,\
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL,\
-    EVAL1_FILE, CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE
+    EVAL1_FILE, CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE,\
+    LM_PRUNED
 import os
 import string
 from multistage_segmenter.lm_gen import fstcompose, compile_lm,\
-    fstarcsort, generate_normed_text_file
+    fstarcsort, generate_normed_text_file, ngramshrink
 from multistage_segmenter.pm.pm_utils import compile_pm_files,\
     generate_pm_text_files, generate_pm_text_files
 from multistage_segmenter.slm.slm_utils import generate_slm,\
@@ -22,11 +23,9 @@ from __builtin__ import True
 
 gen_ntxt = False
 tr_file, lmdir = EVAL1_FILE_NORMED, "eval1n"
-#tr_file, lmdir = "test1.csv", "test1"
 
 if __name__ == '__main__':
         
-    #EVAL1_FILE_NORMED = "smalltest_norm.csv"     
     lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
     print "using ",lmdir
     lmdir_global = os.path.join(DIR,lmdir)
@@ -38,21 +37,25 @@ if __name__ == '__main__':
     te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
     rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
     
-    all_syms = set([r[5] for r in tr_rows + te_rows])
-    
+    all_syms = set([r[5] for r in (tr_rows + te_rows)])
     lm_syms = set([r[5] for r in tr_rows])
     
-    save_symbol_table(all_syms, lmdir_global)
+    save_symbol_table(all_syms, lmdir_global, SYM_FILE)
     save_symbol_table(lm_syms, lmdir_global, LM_SYM_FILE)
         
     buildmod = "y"
     modfile = os.path.join(lmdir_global,"lm.mod")
+    modpru = os.path.join(lmdir_global,LM_PRUNED)
     if(os.path.exists(modfile)):
         buildmod = raw_input("model file in "+lmdir_global+" already exists.  Overwrite? [n]").lower() or "n"
     
     if(not buildmod=="n"):
-        modfile = compile_lm(rawtext_file, lmdir_global)
-        print "Created language model file:", modfile
+        unpruned_modfile = compile_lm(rawtext_file, lmdir_global)
+        print "Created unpruned lang model file:", unpruned_modfile
+        print "Now pruning LM..."
+        ngramshrink(unpruned_modfile, modpru)
+        #we don't use the unpruned modfile again, so switch over to the pruned version here
+        modfile = modpru
     
     generate_slm(tr_rows, lmdir_global, do_plot=True) # build the sentence length model, plot it so we can see it's sane
     #raw_input("slm done - press key")
@@ -66,9 +69,9 @@ if __name__ == '__main__':
     print "composing CV o SLM..."
     convfst = os.path.join(lmdir_global,CONV_FST)
     fstcompose(convfst, SLM_FST_FILE_GLOBAL, JOINT_CV_SLM_FILE_GLOBAL)
+        
     print "Done. Now composing LM o CVoSLM..."
-    
-    fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
+    fstcompose(modpru, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
     print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
     #sys.stdin.read()
 

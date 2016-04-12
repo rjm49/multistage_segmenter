@@ -6,7 +6,8 @@ Created on Feb 24, 2016
 import glob, os
 import subprocess as sp
 from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR
+    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS,\
+    BREAK
 from multistage_segmenter.lm_gen import fstcompose
 import errno
 
@@ -36,18 +37,52 @@ def fstprint(inf):
             outstr += '\n'
     return outstr.strip()
     
+    
+def fstprint2(inf):
+    op = sp.check_output(["fstprint",inf]) #call the print command and get the output as a byte string
+    #print op
+    op = op.decode() #convert byte string into unicode
+    lines = op.split('\n')
+
+    lines.pop() # remove empty line from end of list
+    lines.append(lines.pop(0)) #for some reason the last state appears first so we must fix this...
+    lines.reverse() # and then, the list is back to front, so we must also do this!
+
+    outstr = ""
+    was_break = False
+    last_tok=""
+    first = True
+
+    for line in lines:
+        #print (line)
+        toks= line.split('\t')
+        if (len(toks)>3):
+            if(toks[2]!=EPS):
+                if first:
+                    first=False
+                else:
+                    outstr+= (last_tok + "\t" + ("1" if was_break else "0") + "\n")
+                was_break = False
+                last_tok=toks[2]
+            elif(toks[3]==BREAK):
+                was_break = True
+
+    outstr+= (last_tok + "\t" + ("1" if was_break else "0") + "\n")
+    return outstr.strip()
+    
 def process_outputs(input_dir, shortpath_dir, strings_dir):    
     fs = glob.glob(os.path.join(input_dir,"*.fst"))
     for inf in fs:
         shpf = os.path.join(shortpath_dir,os.path.basename(inf))
         outf = os.path.join(strings_dir, os.path.basename(inf))
+        print "shortest path:",inf,"->",outf
         fstshortestpath(inf, shpf)
-        outstr = fstprint(shpf)
+        outstr = fstprint2(shpf)
         of = open(outf,"w")
         of.write(outstr)
         of.flush()
         of.close()
-        print "shortest path ->",outf
+        
 
 if __name__ == '__main__':
 #     lmdir = "eval1n"

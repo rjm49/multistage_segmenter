@@ -5,7 +5,7 @@ Created on Feb 24, 2016
 '''
 import glob, os
 from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR
+    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, LM_PRUNED
 from multistage_segmenter.lm_gen import fstcompose
 
 def process_inputs(in_dir, lm_file, out_dir):
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
     print "using ",lmdir
     
-    lmfile = os.path.join(DIR,lmdir,"lm.pru")
+    modpru = os.path.join(DIR,lmdir,LM_PRUNED)
     pm_dir = os.path.join(DIR,PM_SUB_DIR)
     full_cmp_dir = os.path.join(DIR, COMP_SUB_DIR)
     pmlm_dir = os.path.join(DIR, "pm_lm_composed")
@@ -36,5 +36,5 @@ if __name__ == '__main__':
 
     #now just use the pruned LM file without slen modifier
     
-    process_inputs(pm_dir, lmfile, pmlm_dir)
+    process_inputs(pm_dir, modpru, pmlm_dir)
     

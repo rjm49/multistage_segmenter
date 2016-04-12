@@ -25,16 +25,16 @@ def generate_gold_files(rows):
     for r in rows:
         next_transcript_id = r[0]
         w = r[5]#[1:-1]
-        b = int(r[6])
+        b = r[6]
         if(next_transcript_id != transcript_id):
             transcript_id = next_transcript_id
             ofile.flush()
             ofile.close()
             print "wrote",ofile
             ofile = open_wfile(odir, transcript_id)
-        ofile.write(w+"\n")
-        if(b):
-            ofile.write("<break>\n")
+        ofile.write(w+"\t"+b+"\n")
+#         if(b):
+#             ofile.write("<break>\n")
     ofile.flush()
     ofile.close()
     print "wrote",ofile

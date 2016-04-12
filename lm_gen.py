@@ -94,6 +94,11 @@ def fstcompose(a,b, out):
     print "composing",a,b,"->",cmpfile
     sp.call([cmd_fstcompose, a, b, cmpfile])
     
+def ngramshrink(a,out):
+#ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru
+    sp.call(["ngramshrink","-method=relative_entropy","-theta=0.0015",a],stdout=open(out,'w'))
+    
+
 #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
 def fstcompile(txtf,binf, sym_dir):
     symfile = os.path.join(sym_dir, SYM_FILE)
