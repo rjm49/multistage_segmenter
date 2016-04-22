@@ -108,7 +108,7 @@ if __name__ == '__main__':
         
         param_dist={'C': scipy.stats.expon(scale=100), 'gamma': scipy.stats.expon(scale=.1), 'kernel': ['rbf'], 'class_weight':['balanced', classWeight]}
         
-        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=50, n_jobs=3, cv=6, verbose=True, scoring='recall')
+        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, cv=5, verbose=True, scoring="recall")
         searcher.fit(X,Y)
         best_params = searcher.best_params_
         print "best_params:",best_params

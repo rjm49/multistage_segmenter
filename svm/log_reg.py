@@ -1,18 +1,13 @@
 import numpy as np
-from sklearn import svm, datasets, preprocessing
-import codecs
-import sys
-from sklearn.metrics.classification import precision_recall_fscore_support,\
-    classification_report
-from multistage_segmenter.common import *
-from multistage_segmenter.svm.balance import sep_classes, shuff_trim_balance_classes
-from sklearn.externals import joblib
-from multistage_segmenter.svm.plot_data_dist import plot_compare
+from sklearn import preprocessing
+from sklearn.metrics.classification import classification_report
 from sklearn.cross_validation import train_test_split
-from sklearn.linear_model.logistic import LogisticRegression,\
-    LogisticRegressionCV
-from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
+from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.grid_search import RandomizedSearchCV
 import scipy.stats
+from multistage_segmenter.common import DIR, EVAL1_FILE_NORMED, read_file,\
+    PROSODIC_PREDICTION_FILE, filter_data_rows, PILOT_FILE_NORMED
+import os
 
 do_search = True
 save_pkl = False
@@ -87,8 +82,9 @@ if __name__ == '__main__':
         print scipy.stats.expon(scale=100)
         
         estr= LogisticRegression(class_weight='balanced')
-        searcher = GridSearchCV(estr, param_grid, scoring='recall', n_jobs=-1, cv=8, verbose=True)
-#         searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=50, n_jobs=-1, cv=8, verbose=True, scoring='recall_weighted') 
+        #estr= LogisticRegression()
+#         searcher = GridSearchCV(estr, param_grid, n_jobs=-1, cv=3, verbose=True, scoring="recall")
+        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=200, n_jobs=-1, cv=5, verbose=True, scoring='recall') 
 #         searcher = LogisticRegressionCV(Cs=50, fit_intercept=True, cv=8, dual=False, penalty='l2', scoring='recall_weighted', solver='lbfgs', tol=0.0001, max_iter=100, class_weight='balanced', n_jobs=-1, verbose=1, refit=True, intercept_scaling=1.0, multi_class='ovr', random_state=None)
         searcher.fit(X_train,y_train)
       
@@ -99,11 +95,15 @@ if __name__ == '__main__':
 
     print clf
     print clf.get_params()
+    print clf.best_estimator_
+    print clf.best_params_
+    print clf.best_score_
     
     X_test = scaler.transform(X_test)
     print "num test cases", len(X_test)
     
     predictions = -1.0 * clf.predict_log_proba(X_test) #this is a list of pairs of probs in form [ [1-p, p],  ... ]
+    #predictions = clf.predict_proba(X_test)
     predicted_classes = clf.predict(X_test)
     
     #print predicted_classes
@@ -112,8 +112,8 @@ if __name__ == '__main__':
     print(classification_report(y_test, predicted_classes))
     
     pred_file.write("labels 0 1\n") #this emulates an earlier file format for compatibility
-    for p, pc in zip(predictions,predicted_classes):
-        pred_file.write("%d %f %f\n" % (pc,p[0],p[1]))
+    for sooth, p, pc in zip(y_test, predictions,predicted_classes):
+        pred_file.write("%d %f %f %d\n" % (pc,p[0],p[1], sooth))
     pred_file.flush()
     pred_file.close()
     print "wrote predictions file:",pred_file

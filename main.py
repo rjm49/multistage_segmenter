@@ -3,10 +3,10 @@ Created on 30 Nov 2015
 
 @author: Russell
 '''
-from multistage_segmenter.common import EVAL1_FILE_NORMED, read_file, DIR, PROBFILE, \
+from multistage_segmenter.common import EVAL1_FILE_NORMED, read_file, DIR, \
     PILOT_FILE_NORMED, save_symbol_table, PM_SUB_DIR, JOINT_CV_SLM_FILE_GLOBAL,\
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL,\
-    EVAL1_FILE, CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE,\
+    CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE,\
     LM_PRUNED
 import os
 import string
@@ -18,8 +18,7 @@ from multistage_segmenter.slm.slm_utils import generate_slm,\
     create_converter
 import glob
 import sys
-from string import lowercase
-from __builtin__ import True
+
 
 gen_ntxt = False
 tr_file, lmdir = EVAL1_FILE_NORMED, "eval1n"
@@ -50,14 +49,14 @@ if __name__ == '__main__':
         buildmod = raw_input("model file in "+lmdir_global+" already exists.  Overwrite? [n]").lower() or "n"
     
     if(not buildmod=="n"):
-        unpruned_modfile = compile_lm(rawtext_file, lmdir_global)
-        print "Created unpruned lang model file:", unpruned_modfile
+        modfile = compile_lm(rawtext_file, lmdir_global)
+        print "Created unpruned lang model file:", modfile
         print "Now pruning LM..."
-        ngramshrink(unpruned_modfile, modpru)
+        ngramshrink(modfile, modpru)
         #we don't use the unpruned modfile again, so switch over to the pruned version here
         modfile = modpru
     
-    generate_slm(tr_rows, lmdir_global, do_plot=True) # build the sentence length model, plot it so we can see it's sane
+    #generate_slm(tr_rows, lmdir_global, do_plot=True) # build the sentence length model, plot it so we can see it's sane
     #raw_input("slm done - press key")
     
     create_converter(lmdir_global)
@@ -69,9 +68,11 @@ if __name__ == '__main__':
     print "composing CV o SLM..."
     convfst = os.path.join(lmdir_global,CONV_FST)
     fstcompose(convfst, SLM_FST_FILE_GLOBAL, JOINT_CV_SLM_FILE_GLOBAL)
+    #fstcompose(modfile,convfst,os.path.join(DIR,"lm_cv"))
         
     print "Done. Now composing LM o CVoSLM..."
-    fstcompose(modpru, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
+    fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
+    #fstcompose(os.path.join(DIR,"lm_cv"), SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL)
     print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
     #sys.stdin.read()
 

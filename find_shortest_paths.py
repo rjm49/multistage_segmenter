@@ -10,6 +10,8 @@ from multistage_segmenter.common import DIR, PM_SUB_DIR,\
     BREAK
 from multistage_segmenter.lm_gen import fstcompose
 import errno
+import shutil
+from pickle import SHORT_BINSTRING
 
 
 def fstshortestpath(inf, outf):
@@ -38,8 +40,8 @@ def fstprint(inf):
     return outstr.strip()
     
     
-def fstprint2(inf):
-    op = sp.check_output(["fstprint",inf]) #call the print command and get the output as a byte string
+def fstprint2(full_fname):
+    op = sp.check_output(["fstprint",full_fname]) #call the print command and get the output as a byte string
     #print op
     op = op.decode() #convert byte string into unicode
     lines = op.split('\n')
@@ -70,11 +72,21 @@ def fstprint2(inf):
     outstr+= (last_tok + "\t" + ("1" if was_break else "0") + "\n")
     return outstr.strip()
     
-def process_outputs(input_dir, shortpath_dir, strings_dir):    
+def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):    
+    if(not os.path.exists(input_dir)):
+        print "FST source directory",input_dir,"does not exist - can't continue analysis without it!"
+        exit(1)
+       
+    #create/refresh the working directories 
+    for d in (shortpath_dir, strings_dir):
+        shutil.rmtree(d, ignore_errors=True)
+        os.mkdir(d)
+    
     fs = glob.glob(os.path.join(input_dir,"*.fst"))
     for inf in fs:
-        shpf = os.path.join(shortpath_dir,os.path.basename(inf))
-        outf = os.path.join(strings_dir, os.path.basename(inf))
+        fname = os.path.basename(inf)
+        shpf = os.path.join(shortpath_dir, fname)
+        outf = os.path.join(strings_dir, fname)
         print "shortest path:",inf,"->",outf
         fstshortestpath(inf, shpf)
         outstr = fstprint2(shpf)
@@ -106,23 +118,24 @@ if __name__ == '__main__':
     print "shortest path FSTs to", shp_dir
     print "segmented strings to", outs_dir
 
-    dirs = (cmp_dir, shp_dir, outs_dir, pm_dir, pmshp_dir, pmouts_dir, pmlm_indir, pmlmshp_dir, pmlmouts_dir)
+    dirs = ((cmp_dir, shp_dir, outs_dir), (pm_dir, pmshp_dir, pmouts_dir), (pmlm_indir, pmlmshp_dir, pmlmouts_dir))
     try:
-        for d in dirs:
-            if not os.path.exists(d):
+        for tupl in dirs:
+            for d in tupl:
+#                 if os.path.exists(d):
+#                     #print "removing",d 
+#                     shutil.rmtree(d)
                 os.makedirs(d)
+                print "made",d
     except OSError as e:
         if e.errno != errno.EEXIST:
-            raise 
+            raise
         
     #process the multi-stage composed models first 
-    process_outputs(cmp_dir, shp_dir, outs_dir)
-    
-    #next, do the prosodic-only models
-    process_outputs(pm_dir, pmshp_dir, pmouts_dir)
-    
-    #next, do the PMLM models
-    process_outputs(pmlm_indir, pmlmshp_dir, pmlmouts_dir)
+    for tupl in dirs:
+        (compostion_dir, shortest_path_dir, output_dir) = tupl
+        print "analysing shortest paths:", compostion_dir, shortest_path_dir, "->", output_dir
+        stringify_shortest_paths(compostion_dir, shortest_path_dir, output_dir)
     
     print "done"
     

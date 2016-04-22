@@ -5,7 +5,7 @@ Created on Feb 24, 2016
 '''
 import glob, os
 from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file, PROBFILE, load_symbol_table,\
+     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file, load_symbol_table,\
     LM_SYM_FILE, OUTS_SUB_DIR, BREAK
 from multistage_segmenter.lm_gen import fstcompose
 import codecs
@@ -25,7 +25,7 @@ def compare_rows(_recid, gold_rows, algo_rows):
         algo_is_brk = int(algo_row[1])
         
         #print gold_row,"vs",algo_row
-        print gold_is_brk, algo_is_brk
+        #print gold_is_brk, algo_is_brk
         
         if(gold_is_brk):
             nobrks_gold += 1
@@ -59,6 +59,8 @@ if __name__ == '__main__':
     #output_dir = os.path.join(DIR,OUTS_SUB_DIR)
     
     output_dirs = (OUTS_SUB_DIR, "pm_output", "pm_lm_output")
+    #output_dirs = ("pm_output",)
+    
 
     prF = "p,r,F"
     out_rows = []
@@ -77,7 +79,7 @@ if __name__ == '__main__':
             
         outs = glob.glob(os.path.join(DIR, d,"*.fst"))
         for outf in outs:
-            print "algo_rows from:",outf
+#            print "algo_rows from:",outf
             recid = os.path.basename(outf)[:-4]
             goldf = recid+".gld"
             algo_rows = codecs.open(os.path.join(DIR, d,outf), "r").read().splitlines()        
@@ -85,7 +87,7 @@ if __name__ == '__main__':
             
             tup = compare_rows(recid, gold_rows, algo_rows)
                         
-            print tup
+ #           print tup
                         
             gtps+=tup[3] #add the t/f p/n scores to the global totals
             gfps+=tup[4]

@@ -9,17 +9,21 @@ import os
 WDIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
 LDIR = "/home/rjm49/mseg"
 DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here
-PM_SUB_DIR = "seg_fsts"
-COMP_SUB_DIR = "composed"
-SHP_SUB_DIR = "shortest_paths"
-OUTS_SUB_DIR = "output_strings"
+PM_SUB_DIR = "pm_fsts"
+COMP_SUB_DIR = "all_composed"
+SHP_SUB_DIR = "all_shortest"
+OUTS_SUB_DIR = "all_output"
 GOLD_SUB_DIR = "gold_standard"
 #PILOT_FILE = "pilot-prosodicFeats.csv"
 #PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
 PILOT_FILE_NORMED = "eval1-prosodicFeats_norm_test.csv"
-PROBFILE = "predictions.dat"
-EVAL1_FILE = "eval1-prosodicFeats.csv"
+#PROBFILE = "predictions.dat"
+#EVAL1_FILE = "eval1-prosodicFeats.csv"
 EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm_train.csv"
+#EVAL1_FILE_NORMED = "switchboard-prosodicFeats_norm_train.csv"
+
+#TEST_FILE="switchboard-prosodicFeats_norm_train.csv"
+TRAIN_FILE="switchboard-prosodicFeats_norm_train.csv"
 
 SYM_FILE="sym.dat"
 LM_SYM_FILE="lm_sym.dat"
@@ -34,6 +38,7 @@ SLM_FST_FILE_GLOBAL = os.path.join(DIR,"slm.fst")
 JOINT_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"cv_slm.fst")
 JOINT_LM_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"lm_cv_slm.fst")
 
+LM_RAW = "lm.mod"
 LM_PRUNED = "mod.pru"
 
 UNK = "<unk>"
