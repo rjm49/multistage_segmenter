@@ -1,17 +1,19 @@
-import numpy as np
-from sklearn import svm, datasets, preprocessing
-import codecs
-import sys
-from random import shuffle
-from sklearn.metrics.classification import precision_recall_fscore_support,\
-    classification_report
-from multistage_segmenter.common import *
-from multistage_segmenter.svm.balance import sep_classes, shuff_trim_balance_classes
-from sklearn.externals import joblib
-from multistage_segmenter.svm.plot_data_dist import plot_compare
-from sklearn.cross_validation import train_test_split
-from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
+import os
+
 import scipy.stats
+from sklearn import svm, datasets, preprocessing
+from sklearn.cross_validation import train_test_split
+from sklearn.externals import joblib
+from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
+from sklearn.metrics.classification import precision_recall_fscore_support, \
+    classification_report
+
+from common import read_file, DIR, filter_data_rows, EVAL1_FILE_NORMED, \
+    PROSODIC_PREDICTION_FILE, PILOT_FILE_NORMED
+import numpy as np
+from svm.balance import sep_classes, shuff_trim_balance_classes
+from svm.plot_data_dist import plot_compare
+
 
 use_pilot = True
 do_search = True

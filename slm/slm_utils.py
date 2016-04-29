@@ -4,15 +4,18 @@ Created on Jan 16, 2016
 @author: rjm49
 '''
 import codecs
-from multistage_segmenter.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL,\
-    SLM_FXT_FILE_GLOBAL, load_symbol_table, PM_SUB_DIR, UNK,\
-    SYM_FILE, CONV_FXT, CONV_FST
-import os
 from collections import Counter
-from scipy.stats import gamma, norm
-import matplotlib.pyplot as plt
-import subprocess as sp
 import math
+import os
+
+from scipy.stats import gamma, norm
+
+import matplotlib.pyplot as plt
+from multistage_segmenter.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
+    SLM_FXT_FILE_GLOBAL, load_symbol_table, PM_SUB_DIR, UNK, \
+    SYM_FILE, CONV_FXT, CONV_FST
+import subprocess as sp
+
 
 def create_converter(lmdir):
     #print "creating converter...."

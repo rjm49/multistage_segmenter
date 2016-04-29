@@ -3,21 +3,22 @@ Created on 30 Nov 2015
 
 @author: Russell
 '''
-from multistage_segmenter.common import EVAL1_FILE_NORMED, read_file, DIR, \
-    PILOT_FILE_NORMED, save_symbol_table, PM_SUB_DIR, JOINT_CV_SLM_FILE_GLOBAL,\
-    SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL,\
-    CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE,\
-    LM_PRUNED
+import glob
 import os
 import string
-from multistage_segmenter.lm_gen import fstcompose, compile_lm,\
-    fstarcsort, generate_normed_text_file, ngramshrink
-from multistage_segmenter.pm.pm_utils import compile_pm_files,\
-    generate_pm_text_files, generate_pm_text_files
-from multistage_segmenter.slm.slm_utils import generate_slm,\
-    create_converter
-import glob
 import sys
+
+from common import EVAL1_FILE_NORMED, read_file, DIR, \
+    PILOT_FILE_NORMED, save_symbol_table, PM_SUB_DIR, JOINT_CV_SLM_FILE_GLOBAL, \
+    SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL, \
+    CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE, \
+    LM_PRUNED
+from lm_gen import fstcompose, compile_lm, \
+    fstarcsort, generate_normed_text_file, ngramshrink
+from pm.pm_utils import compile_pm_files, \
+    generate_pm_text_files, generate_pm_text_files
+from slm.slm_utils import generate_slm, \
+    create_converter
 
 
 gen_ntxt = False

@@ -3,13 +3,14 @@ Created on Feb 24, 2016
 
 @author: rjm49
 '''
-import glob, os
-from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file, load_symbol_table,\
-    LM_SYM_FILE, PROSODIC_PREDICTION_FILE
-from multistage_segmenter.lm_gen import fstcompose
 import codecs
-from multistage_segmenter.pm.pm_utils import generate_pm_text_files,\
+import glob, os
+
+from common import DIR, PM_SUB_DIR, \
+     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file, load_symbol_table, \
+    LM_SYM_FILE, PROSODIC_PREDICTION_FILE
+from lm_gen import fstcompose
+from pm.pm_utils import generate_pm_text_files, \
     compile_pm_files
 
 

@@ -3,11 +3,12 @@ Created on Dec 8, 2015
 
 @author: rjm49
 '''
-import subprocess as sp
-from multistage_segmenter.common import DIR, PM_SUB_DIR, BREAK, SYM_FILE
-import os
-import string
 import codecs
+import os
+
+from common import DIR, PM_SUB_DIR, BREAK, SYM_FILE
+import subprocess as sp
+
 
 cmd_ngramsymbols = "ngramsymbols"
 cmd_farcompilestrings = "farcompilestrings"

@@ -1,9 +1,12 @@
-import sys
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn import svm, datasets, preprocessing
-from multistage_segmenter.common import *
 import os
+import sys
+
+from sklearn import svm, datasets, preprocessing
+
+import matplotlib.pyplot as plt
+from multistage_segmenter.common import *
+import numpy as np
+
 
 def plot_compare(samples, classes, headers):
     scaler = preprocessing.StandardScaler().fit( np.array(samples) )

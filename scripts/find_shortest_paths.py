@@ -3,15 +3,16 @@ Created on Feb 24, 2016
 
 @author: rjm49
 '''
-import glob, os
-import subprocess as sp
-from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS,\
-    BREAK
-from multistage_segmenter.lm_gen import fstcompose
 import errno
-import shutil
+import glob, os
 from pickle import SHORT_BINSTRING
+import shutil
+
+from common import DIR, PM_SUB_DIR, \
+    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS, \
+    BREAK
+from lm_gen import fstcompose
+import subprocess as sp
 
 
 def fstshortestpath(inf, outf):

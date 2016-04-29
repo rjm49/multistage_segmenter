@@ -6,6 +6,7 @@ Created on 24 Jun 2015
 import codecs
 import random
 
+
 ## method to load data
 def read_file(filename):
     listobj = []  # empty list

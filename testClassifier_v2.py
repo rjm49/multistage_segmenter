@@ -1,10 +1,12 @@
 ## import modules
-import nltk, csv, codecs, collections
-from random import shuffle
-from nltk.util import ngrams
 from collections import Counter
-import nltk.metrics
+from random import shuffle
 import sys
+
+import nltk, csv, codecs, collections
+import nltk.metrics
+from nltk.util import ngrams
+
 
 ## method to load data
 def read_file(filename , n=0):

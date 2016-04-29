@@ -1,8 +1,10 @@
 print(__doc__)
 
-import numpy as np
-import matplotlib.pyplot as plt
 from sklearn import svm, datasets
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # import some data to play with
 iris = datasets.load_iris()

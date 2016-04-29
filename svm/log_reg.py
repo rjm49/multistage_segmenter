@@ -1,13 +1,16 @@
-import numpy as np
-from sklearn import preprocessing
-from sklearn.metrics.classification import classification_report
-from sklearn.cross_validation import train_test_split
-from sklearn.linear_model.logistic import LogisticRegression
-from sklearn.grid_search import RandomizedSearchCV
-import scipy.stats
-from multistage_segmenter.common import DIR, EVAL1_FILE_NORMED, read_file,\
-    PROSODIC_PREDICTION_FILE, filter_data_rows, PILOT_FILE_NORMED
 import os
+
+import scipy.stats
+from sklearn import preprocessing
+from sklearn.cross_validation import train_test_split
+from sklearn.grid_search import RandomizedSearchCV
+from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.metrics.classification import classification_report
+
+from multistage_segmenter.common import DIR, EVAL1_FILE_NORMED, read_file, \
+    PROSODIC_PREDICTION_FILE, filter_data_rows, PILOT_FILE_NORMED
+import numpy as np
+
 
 do_search = True
 save_pkl = False

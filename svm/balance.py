@@ -5,6 +5,7 @@ Created on 19 Nov 2015
 '''
 from random import shuffle
 
+
 def sep_classes(samples, classes):
     segs = []
     negs = []

@@ -6,6 +6,7 @@ Created on 3 Sep 2015
 import codecs
 import os
 
+
 WDIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
 LDIR = "/home/rjm49/mseg"
 DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here

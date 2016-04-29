@@ -4,13 +4,15 @@ Created on Feb 24, 2016
 @author: rjm49
 '''
 import glob, os
-from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, LM_PRUNED, OUTS_SUB_DIR,\
-    SHP_SUB_DIR, LM_RAW
-from multistage_segmenter.lm_gen import fstcompose
-from multistage_segmenter import find_shortest_paths
-from multistage_segmenter.find_shortest_paths import stringify_shortest_paths
 import shutil
+
+from common import DIR, PM_SUB_DIR, \
+    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, LM_PRUNED, OUTS_SUB_DIR, \
+    SHP_SUB_DIR, LM_RAW
+from find_shortest_paths import stringify_shortest_paths
+import find_shortest_paths
+from lm_gen import fstcompose
+
 
 def process_inputs(input_dir, lm_file, out_dir):
     if(not os.path.exists(input_dir)):

@@ -1,14 +1,16 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn import svm, datasets, preprocessing
-from sklearn.naive_bayes import GaussianNB
 import codecs
-import sys
-import grid_search as searcher
-from sklearn.metrics.classification import precision_recall_fscore_support
-from multistage_segmenter.common import read_file, DIR, EVAL1_FILE_NORMED,\
-    filter_data_rows, PILOT_FILE_NORMED
 import os
+import sys
+
+from sklearn import svm, datasets, preprocessing
+from sklearn.metrics.classification import precision_recall_fscore_support
+from sklearn.naive_bayes import GaussianNB
+
+import grid_search as searcher
+import matplotlib.pyplot as plt
+from multistage_segmenter.common import read_file, DIR, EVAL1_FILE_NORMED, \
+    filter_data_rows, PILOT_FILE_NORMED
+import numpy as np
 
 
 if __name__ == '__main__':

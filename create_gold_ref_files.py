@@ -3,11 +3,13 @@ Created on Feb 24, 2016
 
 @author: rjm49
 '''
-import glob, os
-from multistage_segmenter.common import DIR, PM_SUB_DIR,\
-     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file
-from multistage_segmenter.lm_gen import fstcompose
 import codecs
+import glob, os
+
+from common import DIR, PM_SUB_DIR, \
+     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file
+from lm_gen import fstcompose
+
 
 def generate_gold_files(rows):
 

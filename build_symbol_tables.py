@@ -3,10 +3,12 @@ Created on 30 Nov 2015
 
 @author: Russell
 '''
-from multistage_segmenter.common import LM_SYM_FILE, SYM_FILE, EVAL1_FILE_NORMED,\
-    DIR, PILOT_FILE_NORMED, read_file, save_symbol_table
 import os
-from multistage_segmenter.lm_gen import generate_normed_text_file
+
+from common import LM_SYM_FILE, SYM_FILE, EVAL1_FILE_NORMED, \
+    DIR, PILOT_FILE_NORMED, read_file, save_symbol_table
+from lm_gen import generate_normed_text_file
+
 
 gen_ntxt = False
 tr_file, lmdir = EVAL1_FILE_NORMED, "eval1n"

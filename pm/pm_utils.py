@@ -3,12 +3,14 @@ Created on Jan 16, 2016
 
 @author: rjm49
 '''
-from multistage_segmenter.common import DIR, PM_SUB_DIR, UNK,\
-    EPS, BREAK
-import os
 import codecs
-from multistage_segmenter.lm_gen import fstcompile
 import glob, shutil
+import os
+
+from common import DIR, PM_SUB_DIR, UNK, \
+    EPS, BREAK
+from lm_gen import fstcompile
+
 
 write_files = True
 write_slm = True
