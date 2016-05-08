@@ -7,7 +7,7 @@ from sklearn.grid_search import RandomizedSearchCV
 from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.metrics.classification import classification_report
 
-from multistage_segmenter.common import DIR, EVAL1_FILE_NORMED, read_file, \
+from common import DIR, EVAL1_FILE_NORMED, read_file, \
     PROSODIC_PREDICTION_FILE, filter_data_rows, PILOT_FILE_NORMED
 import numpy as np
 

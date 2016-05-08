@@ -8,7 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 
 import grid_search as searcher
 import matplotlib.pyplot as plt
-from multistage_segmenter.common import read_file, DIR, EVAL1_FILE_NORMED, \
+from common import read_file, DIR, EVAL1_FILE_NORMED, \
     filter_data_rows, PILOT_FILE_NORMED
 import numpy as np
 
