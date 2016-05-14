@@ -6,10 +6,11 @@ Created on 3 Sep 2015
 import codecs
 import os
 
+if(os.name=="nt"):
+    DIR = "C:\\Users\\Russell\\mseg"
+else:
+    DIR = "/home/rjm49/mseg"
 
-WDIR = "C:\\Users\\Russell\\Documents\\Dropbox\\nlp_alta\\recreate_LG\\datafiles"
-LDIR = "/home/rjm49/mseg"
-DIR = LDIR #TODO crap hack - you can switch between windows and linux paths here
 PM_SUB_DIR = "pm_fsts"
 COMP_SUB_DIR = "all_composed"
 SHP_SUB_DIR = "all_shortest"

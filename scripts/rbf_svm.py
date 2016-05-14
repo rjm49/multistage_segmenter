@@ -46,11 +46,9 @@ if __name__ == '__main__':
         data_file = EVAL1_FILE_NORMED
         test_file = PILOT_FILE_NORMED
         out_file = PROSODIC_PREDICTION_FILE
-        balance = True
         do_search = True
 #         use_pilot = False
         n_samples = 2000
-        k = 'rbf'
         cache = 800
     
     print base_dir+"/"+data_file+" -SVM-> "+pm_dir+"/"+out_file
@@ -156,10 +154,7 @@ if __name__ == '__main__':
 
     print clf
 
-    print "FITTING"
-    print tr_samples[0:10]
-    print tr_classes[0:10] 
-     
+    print "FITTING"     
     clf.fit(tr_samples, tr_classes)
     print clf
     
