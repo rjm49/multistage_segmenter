@@ -68,27 +68,11 @@ if __name__ == '__main__':
     if(n_samples>0):
         eval1 = eval1[0:n_samples]
     
-    #samples, classes, headers = filter_data_rows(eval1, sel=sel, keep_headers=True)
-    #samples, classes = shuff_trim_balance_classes(samples,classes,max_size=500)
-    
     headers = [eval1[0][i] for i in sel]
     words = [r[5] for r in eval1]
     samples = [[float(r[i]) for i in sel] for r in eval1]
     classes = [float(r[6]) for r in eval1]
         
-        
-    print samples[0:10]
-#     n=p=0.0
-#     for c in classes:
-#         if c==0:
-#             n+=1.0
-#         else:
-#             p+=1.0
-#     wgt = n/p
-#     print "n=",n," p=",p
-#     print "wgt=",wgt
-#     classWeight = { 1: wgt }
-    
     print classes
     p = sum(c==1.0 for c in classes) # count the positive instances
     n = len(classes) - p # derive the negative instances
@@ -96,22 +80,6 @@ if __name__ == '__main__':
     wgt=float(n)/float(p) # cast and divide
     print "wgt=",wgt
     classWeight = { 1: wgt }
-    
-    
-# we remove the option of testing against the pilot data - we just want to see what works best on held out training data
-#     # pilot test set
-#     if(use_pilot):
-#         print "\nLoading ",test_file
-#         pilot = read_file(os.path.join(base_dir, test_file), ',', skip_header=False)
-#         #samps_raw, tclasses, theaders = filter_data_rows(pilot, sel=sel, keep_headers=True)
-#         theaders = [pilot[0][i] for i in sel]
-#         ptoks = [r[5] for r in pilot[1:]]
-#         samps_raw = [[r[i] for i in sel] for r in pilot[1:]]
-#         tclasses = [r[6] for r in pilot[1:]]
-#            
-#         samples, X_test, classes, y_test = train_test_split(samples, classes, test_size=0.90, random_state=0, stratify=classes)
-#     else:
-    
     
     
     tr_samples, te_samples, tr_classes, te_classes = train_test_split(samples, classes, test_size=0.20, random_state=0, stratify=classes)
@@ -132,18 +100,18 @@ if __name__ == '__main__':
     #override the defaults with the results of a grid search if desired (takes a while)
     if(do_search):
         
-#         cmin, cmax, cstep = -5,  17,  2
-#         cr = range(cmin,cmax,cstep)
-#         print(cr)
-#         c_range = [ pow(2, y) for y in cr]
-        c_range =(0.005, 0.5, 5, 50, 500, 5000, 50000)
+        cmin, cmax, cstep = -5,  17,  2
+        cr = range(cmin,cmax,cstep)
+        print(cr)
+        c_range = [ pow(2, y) for y in cr]
+        #c_range =(0.005, 0.5, 5, 50, 500, 5000, 50000)
         print('c_range', c_range)
     
-#         gmin, gmax, gstep = -15, 5, 2
-#         gr = range(gmin, gmax, gstep)
-#         print(gr)
-#         gamma_range = [ pow(2, y) for y in gr ]
-        gamma_range = (0.00005, 0.0005, 0.005, 0.05, 0.5, 5.0, 50, 500)
+        gmin, gmax, gstep = -15, 5, 2
+        gr = range(gmin, gmax, gstep)
+        print(gr)
+        gamma_range = [ pow(2, y) for y in gr ]
+        #gamma_range = (0.00005, 0.0005, 0.005, 0.05, 0.5, 5.0, 50, 500)
         print('gamma_range', gamma_range)
         
         tuned_parameters = [
@@ -156,12 +124,14 @@ if __name__ == '__main__':
                     ]
         
         estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True)
-#         searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
+        searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
         
-        param_dist={'C': scipy.stats.expon(scale=100), 'gamma': scipy.stats.expon(scale=.1), 'class_weight':['balanced', classWeight]}
-#         param_dist={'C': c_range, 'gamma': gamma_range, 'kernel': ['rbf'], 'class_weight':['balanced', classWeight]}        
-        
-        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=1000, n_jobs=-1, cv=5, verbose=True, scoring="recall")
+        c_dist =  scipy.stats.expon(scale=100)
+        gamma_dist = scipy.stats.expon(scale=.1)
+                
+        param_dist={'C': c_dist, 'gamma': gamma_dist, 'class_weight':['balanced', classWeight]}
+
+#         searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=1000, n_jobs=-1, cv=5, verbose=True, scoring="recall")
         
         
         searcher.fit(tr_samples,tr_classes)
@@ -174,12 +144,6 @@ if __name__ == '__main__':
         print clf.get_params()
         print best_params
         
-        
-#         best_gamma=best_params['gamma'] if 'gamma' in best_params.keys() else best_gamma
-#         best_C=best_params['C'] if 'C' in best_params.keys() else best_C
-#         best_kernel=best_params['kernel'] if 'kernel' in best_params.keys() else best_kernel
-#         best_degree=best_params['degree'] if 'degree' in best_params.keys() else best_degree
-   
            
     pickled = False
     pickled_model = "svm_classifier.pkl"
@@ -189,15 +153,6 @@ if __name__ == '__main__':
     
     if(pickled):
         clf = joblib.load(pickled_model)
-    else:
-        pass #we just use the clf from the search stage 
-#         clf = svm.SVC(#kernel=best_kernel, C=best_C, degree=best_degree, gamma=best_gamma, 
-#                       cache_size=cache, probability=True, 
-#                       #class_weight={1:wgt}, 
-#                       class_weight=class_weight,
-#                       verbose=True)
-
-
 
     print clf
 
