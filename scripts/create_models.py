@@ -18,6 +18,7 @@ from pm.pm_utils import compile_pm_files, \
 from slm.slm_utils import create_converter
 import sys
 import json
+import shutil
 
 
 gen_ntxt = False
@@ -32,17 +33,34 @@ if __name__ == '__main__':
 #     config = None
 #     with open('sample_config.cfg') as data_file:    
 #         config = json.load(data_file)
-    
-    batch_name = args[0]
-    base_dir = args[1]
-    pm_dir = args[2]
-    lm_dir = args[3]
-    slm_dir = args[4]
-    tr_file = args[5]
-    te_file = args[6]
-    out_dir = args[7]
 
-    lmdir_global = os.path.join(base_dir,lm_dir)
+if len(args)>1: 
+    batch_name = args[1]
+    base_dir = args[2]
+    pm_dir = args[3]
+    lm_dir = args[4]
+    slm_dir = args[5]
+    tr_file = args[6]
+    te_file = args[7]
+    out_dir = args[8]
+else:
+    batch_name = "default"
+    base_dir = DIR
+    pm_dir = "default_pm"
+    lm_dir = "default_lm"
+    slm_dir = "default_slm"
+    tr_file = EVAL1_FILE_NORMED
+    te_file = PILOT_FILE_NORMED
+    out_dir = "default_output"
+    
+
+    lmdir_global = os.path.join(base_dir, batch_name, lm_dir) # probably unwisely we're going for base/batch/lm
+    if(os.path.exists(lmdir_global)):
+        shutil.rmtree(lmdir_global)
+    os.makedirs(lmdir_global)
+
+#     tr_file = raw_input("enter training file name: [%s]" % tr_file) or tr_file
+#     te_file = raw_input("enter test file name: [%s]" % PILOT_FILE_NORMED) or PILOT_FILE_NORMED
     
     tr_rows = read_file(os.path.join(base_dir, tr_file), ',', skip_header=True)
     te_rows = read_file(os.path.join(base_dir, te_file), ',', skip_header=True)
@@ -74,27 +92,20 @@ if __name__ == '__main__':
     create_converter(lmdir_global)
     print "created converter."
     
-    raw_input("hit return to start compositions...")
-    
-    slm_file = os.path.join(lmdir_global,"slm.fst")
-    cv_slm_file = os.path.join(lmdir_global,"cv_slm.fst")
-    lm_cv_slm_file = os.path.join(lmdir_global,"lm_cv_slm.fst")
-    
-    fstarcsort(slm_file, ilabel_sort=True)
+    fstarcsort(SLM_FST_FILE_GLOBAL, ilabel_sort=True)
     print "composing CV o SLM..."
     convfst = os.path.join(lmdir_global,CONV_FST)
-    fstcompose(convfst, slm_file, cv_slm_file)
+    fstcompose(convfst, SLM_FST_FILE_GLOBAL, JOINT_CV_SLM_FILE_GLOBAL)
     #fstcompose(modfile,convfst,os.path.join(DIR,"lm_cv"))
         
     print "Done. Now composing LM o CVoSLM..."
-    fstcompose(modfile, cv_slm_file, lm_cv_slm_file) #TODO do this here?
+    fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
     #fstcompose(os.path.join(DIR,"lm_cv"), SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL)
-    print "Wrote LMoCVoSLM file:", lm_cv_slm_file
+    print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
     #sys.stdin.read()
 
-    prob_rows = read_file(os.path.join(base_dir, pm_dir, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
+    prob_rows = read_file(os.path.join(pm_dir, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
     
-    raw_input("about to generate pm text files- press key to continue...")
     #generate pm
     generate_pm_text_files(lm_syms, te_rows, prob_rows) #this produces the fxt files on disc that can feed into the FST composition
         

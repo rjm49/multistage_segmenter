@@ -23,7 +23,7 @@ if __name__ == '__main__':
         
     Xraw = samples
     scaler = preprocessing.StandardScaler().fit( np.array(Xraw) )    
-    X = scaler.transform(Xraw)
+    tr_samples = scaler.transform(Xraw)
 
     gnb = GaussianNB()
 
@@ -31,9 +31,9 @@ if __name__ == '__main__':
     sys.stdin.readline()
     print "FITTING"
     
-#     X = [[-1,-1],[-2,-3],[3,2],[8,3]]
+#     tr_samples = [[-1,-1],[-2,-3],[3,2],[8,3]]
 #     Y = [0,0,1,1]
-    y_pred = gnb.fit(X,classes).predict(X)
+    y_pred = gnb.fit(tr_samples,classes).predict(tr_samples)
     print("XV: Number of mislabelled points out of a total %d points : %d" % (len(samples),(classes != y_pred).sum()))
     
 #     predictions = clf.predict([[-3,-3],[2.6,3],[-3,2]])

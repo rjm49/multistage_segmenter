@@ -105,8 +105,8 @@ def fstcompile(txtf,binf, sym_dir):
     symfile = os.path.join(sym_dir, SYM_FILE)
     sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols",txtf,binf])
     
-def fstarcsort(txtf,ilabel_sort=True):
-    sp.call(["fstarcsort","--sort_type="+("ilabel" if ilabel_sort else "olabel"),txtf,txtf])
+def fstarcsort(f,ilabel_sort=True):
+    sp.call(["fstarcsort","--sort_type="+("ilabel" if ilabel_sort else "olabel"),f,f])
     
 def add_symbols(fstf, lmdir_global):
     symfile = os.path.join(lmdir_global, SYM_FILE)
