@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+'''
+Created on May 16, 2016
+
+@author: rjm49
+'''
+
 import os
 
 import scipy.stats
@@ -49,7 +55,7 @@ if __name__ == '__main__':
         out_file = PROSODIC_PREDICTION_FILE
         do_search = True
 #         use_pilot = False
-        n_samples = 2000
+        n_samples = 1000
         cache = 800
     
     print base_dir+"/"+data_file+" -SVM-> "+pm_dir+"/"+out_file
@@ -91,14 +97,17 @@ if __name__ == '__main__':
     print tr_samples.mean(axis=0)
     print tr_samples.std(axis=0)
             
-    best_kernel='rbf'
-    best_degree = 2
-    
     clf = None
     best_params = None
     #override the defaults with the results of a grid search if desired (takes a while)
-    if(do_search):
-        
+    
+    #pickled = False
+    pickled_model = os.path.join(output_dir, "svm_classifier.pkl")
+    
+    if(os.path.exists(pickled_model) and os.path.isfile(pickled_model)):
+        clf = joblib.load(pickled_model)
+    
+    else:        
         cmin, cmax, cstep = -5,  17,  2
         cr = range(cmin,cmax,cstep)
         print(cr)
@@ -143,15 +152,8 @@ if __name__ == '__main__':
         print clf.get_params()
         print best_params
         
+        joblib.dump(clf, pickled_model)
            
-    pickled = False
-    pickled_model = "svm_classifier.pkl"
-    
-    if(os.path.exists(pickled_model) and os.path.isfile(pickled_model)):
-        pickled = True
-    
-    if(pickled):
-        clf = joblib.load(pickled_model)
 
     print clf
 
@@ -159,8 +161,6 @@ if __name__ == '__main__':
     clf.fit(tr_samples, tr_classes)
     print clf
     
-    if(not pickled and save_pkl):
-        joblib.dump(clf, pickled_model)
     
     #NOW TO TEST AGAINST HELD-OUT/TEST DATA
     te_samples = scaler.transform(te_samples)
