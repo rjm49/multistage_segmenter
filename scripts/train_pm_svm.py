@@ -15,8 +15,8 @@ from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics.classification import precision_recall_fscore_support, \
     classification_report
 
-from common import read_file, filter_data_rows, DIR, EVAL1_FILE_NORMED,\
-    PROSODIC_PREDICTION_FILE, PILOT_FILE_NORMED
+from common import read_file, filter_data_rows, DIR, TRAIN_FILE_DEFAULT,\
+    PROSODIC_PREDICTION_FILE, TEST_FILE_DEFAULT
 import numpy as np
 from svm.balance import sep_classes, shuff_trim_balance_classes
 from svm.plot_data_dist import plot_compare
@@ -24,7 +24,7 @@ import sys
 import shutil
 from operator import itemgetter
 
-save_pkl = False
+overwrite_pkl = True
 
 # Utility function to report best scores
 def report(grid_scores, n_top=3):
@@ -49,22 +49,16 @@ if __name__ == '__main__':
         out_file = args[4]
     else:
         base_dir = DIR
-        pm_dir = "default_pm"
-        data_file = EVAL1_FILE_NORMED
-        test_file = PILOT_FILE_NORMED
+        pm_dir = "pm_default"
+        data_file = TRAIN_FILE_DEFAULT
+        test_file = TEST_FILE_DEFAULT
         out_file = PROSODIC_PREDICTION_FILE
         do_search = True
 #         use_pilot = False
-        n_samples = 1000
+        n_samples = 500
         cache = 800
     
     print base_dir+"/"+data_file+" -SVM-> "+pm_dir+"/"+out_file
-    
-    #clear the output directory, or create it if it doesn't yet exist...
-    output_dir = os.path.join(base_dir, pm_dir)
-    if(os.path.exists(output_dir)):
-        shutil.rmtree(output_dir)
-    os.makedirs(output_dir)
     
     eval1 = read_file(os.path.join(base_dir, data_file), ',', skip_header=True)
     #sel = [12,13,14,15,21,22,23,24]
@@ -101,11 +95,23 @@ if __name__ == '__main__':
     best_params = None
     #override the defaults with the results of a grid search if desired (takes a while)
     
+    
+    prosodic_pred_file = os.path.join(base_dir, pm_dir ,out_file)
+    
+    
+        #clear the output directory, or create it if it doesn't yet exist...
+    output_dir = os.path.join(base_dir, pm_dir)
+    if(os.path.exists(prosodic_pred_file)):
+        os.remove(prosodic_pred_file)
+    
     #pickled = False
     pickled_model = os.path.join(output_dir, "svm_classifier.pkl")
     
-    if(os.path.exists(pickled_model) and os.path.isfile(pickled_model)):
+    print pickled_model
+    
+    if(os.path.exists(pickled_model) and os.path.isfile(pickled_model) and not overwrite_pkl):
         clf = joblib.load(pickled_model)
+        print "loaded pickled model..."
     
     else:        
         cmin, cmax, cstep = -5,  17,  2

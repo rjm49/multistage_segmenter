@@ -42,19 +42,16 @@ if len(args)>1:
     slm_dir = args[5]
     tr_file = args[6]
     te_file = args[7]
-    out_dir = args[8]
 else:
     batch_name = "default"
     base_dir = DIR
-    pm_dir = "default_pm"
-    lm_dir = "default_lm"
-    slm_dir = "default_slm"
+    pm_dir = "pm_default"
+    lm_dir = "lm_default"
+    slm_dir = "slm_default"
     tr_file = EVAL1_FILE_NORMED
     te_file = PILOT_FILE_NORMED
-    out_dir = "default_output"
-    
 
-    lmdir_global = os.path.join(base_dir, batch_name, lm_dir) # probably unwisely we're going for base/batch/lm
+    lmdir_global = os.path.join(base_dir, lm_dir) # probably unwisely we're going for base/batch/lm
     if(os.path.exists(lmdir_global)):
         shutil.rmtree(lmdir_global)
     os.makedirs(lmdir_global)
@@ -92,19 +89,21 @@ else:
     create_converter(lmdir_global)
     print "created converter."
     
-    fstarcsort(SLM_FST_FILE_GLOBAL, ilabel_sort=True)
-    print "composing CV o SLM..."
-    convfst = os.path.join(lmdir_global,CONV_FST)
-    fstcompose(convfst, SLM_FST_FILE_GLOBAL, JOINT_CV_SLM_FILE_GLOBAL)
-    #fstcompose(modfile,convfst,os.path.join(DIR,"lm_cv"))
-        
-    print "Done. Now composing LM o CVoSLM..."
-    fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
-    #fstcompose(os.path.join(DIR,"lm_cv"), SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL)
-    print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
+#     slm_file = os.path.join(base_dir,slm_dir,"slm.fst")
+#     
+#     fstarcsort(slm_file, ilabel_sort=True)
+#     print "composing CV o SLM..."
+#     convfst = os.path.join(lmdir_global,CONV_FST)
+#     fstcompose(convfst, slm_file, JOINT_CV_SLM_FILE_GLOBAL)
+#     #fstcompose(modfile,convfst,os.path.join(DIR,"lm_cv"))
+#         
+#     print "Done. Now composing LM o CVoSLM..."
+#     fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
+#     #fstcompose(os.path.join(DIR,"lm_cv"), SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL)
+#     print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
     #sys.stdin.read()
 
-    prob_rows = read_file(os.path.join(pm_dir, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
+    prob_rows = read_file(os.path.join(base_dir, pm_dir, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
     
     #generate pm
     generate_pm_text_files(lm_syms, te_rows, prob_rows) #this produces the fxt files on disc that can feed into the FST composition

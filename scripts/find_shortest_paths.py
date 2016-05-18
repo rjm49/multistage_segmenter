@@ -5,7 +5,6 @@ Created on Feb 24, 2016
 '''
 import errno
 import glob, os
-from pickle import SHORT_BINSTRING
 import shutil
 
 from common import DIR, PM_SUB_DIR, \

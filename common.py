@@ -17,12 +17,12 @@ SHP_SUB_DIR = "all_shortest"
 OUTS_SUB_DIR = "all_output"
 GOLD_SUB_DIR = "gold_standard"
 #PILOT_FILE = "pilot-prosodicFeats.csv"
-PILOT_FILE_NORMED = "pilot-prosodicFeats_norm.csv"
-#PILOT_FILE_NORMED = "eval1-prosodicFeats_norm_test.csv"
+TEST_FILE_DEFAULT = "pilot-prosodicFeats_norm.csv"
+#TEST_FILE_DEFAULT = "eval1-prosodicFeats_norm_test.csv"
 #PROBFILE = "predictions.dat"
-EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm.csv"
-#EVAL1_FILE_NORMED = "eval1-prosodicFeats_norm_train.csv"
-#EVAL1_FILE_NORMED = "switchboard-prosodicFeats_norm_train.csv"
+TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm.csv"
+#TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm_train.csv"
+#TRAIN_FILE_DEFAULT = "switchboard-prosodicFeats_norm_train.csv"
 
 #TEST_FILE="switchboard-prosodicFeats_norm_train.csv"
 TRAIN_FILE="switchboard-prosodicFeats_norm_train.csv"
@@ -51,14 +51,14 @@ EPS = "<epsilon>"
 PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
 
 def resolve_filenames():
-    lmdir = "eval1n"
-    lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
-    print "using ",lmdir
-    lmdir_global = os.path.join(DIR,lmdir)
+    slm_dir = "eval1n"
+    slm_dir = raw_input("Type in LM dir or hit return to use default [%s]" % slm_dir) or slm_dir
+    print "using ",slm_dir
+    lmdir_global = os.path.join(DIR,slm_dir)
     all_syms = os.path.join(lmdir_global,SYM_FILE)
     lm_syms = os.path.join(lmdir_global,LM_SYM_FILE)
-    tr_file = os.path.join(lmdir_global,EVAL1_FILE_NORMED)
-    te_file = os.path.join(lmdir_global,PILOT_FILE_NORMED)
+    tr_file = os.path.join(lmdir_global,TRAIN_FILE_DEFAULT)
+    te_file = os.path.join(lmdir_global,TEST_FILE_DEFAULT)
     
 
 
@@ -109,19 +109,19 @@ def filter_data_rows(in_list, keep_headers=False, sel=range(7,30)):
     else:
         return (samples, classes)
 
-def load_symbol_table(lm_dir, fname=SYM_FILE):
-    symfile = os.path.join(lm_dir, fname)
+def load_symbol_table(slm_dir, fname=SYM_FILE):
+    symfile = os.path.join(slm_dir, fname)
     syms = []
     rows = read_file(symfile, " ", skip_header=False)
     for r in rows:
         syms.append(r[0])
     return syms
 
-def save_symbol_table(syms, lm_dir, fname=SYM_FILE):
+def save_symbol_table(syms, slm_dir, fname=SYM_FILE):
     #now write the accompanying symbol table
-    symfile = os.path.join(lm_dir,fname)
+    symfile = os.path.join(slm_dir,fname)
     syms = list(syms)
-    symf = codecs.open(os.path.join(lm_dir,fname), 'w')
+    symf = codecs.open(os.path.join(slm_dir,fname), 'w')
     symf.truncate()
     syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
     syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant

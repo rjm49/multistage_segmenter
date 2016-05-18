@@ -20,7 +20,7 @@ def open_wfile(odir,transcript_id):
     return fhandle
 
 if __name__ == '__main__':
-    lmdir = raw_input("enter language model name: [%s]" % "eval1n") or "eval1n"
+    lmdir = raw_input("enter language model name: [%s]" % "lm_default") or "lm_default"
     te_file = raw_input("enter test file name: [%s]" % PILOT_FILE_NORMED) or PILOT_FILE_NORMED
     te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
     

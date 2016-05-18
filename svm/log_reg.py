@@ -7,8 +7,8 @@ from sklearn.grid_search import RandomizedSearchCV
 from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.metrics.classification import classification_report
 
-from common import DIR, EVAL1_FILE_NORMED, read_file, \
-    PROSODIC_PREDICTION_FILE, filter_data_rows, PILOT_FILE_NORMED
+from common import DIR, TRAIN_FILE_DEFAULT, read_file, \
+    PROSODIC_PREDICTION_FILE, filter_data_rows, TEST_FILE_DEFAULT
 import numpy as np
 
 
@@ -19,7 +19,7 @@ test_with_pilot = True
 if __name__ == '__main__':
 ## eval1 training set
     print "\nLoading BULATS eval1 training data"
-    eval1 = read_file(os.path.join(DIR,EVAL1_FILE_NORMED), ',', skip_header=True)
+    eval1 = read_file(os.path.join(DIR,TRAIN_FILE_DEFAULT), ',', skip_header=True)
     pred_file = open(os.path.join(DIR,PROSODIC_PREDICTION_FILE),"w")
     #sel = [12,13,14,15,21,22,23,24]
     sel = range(7,30)
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     
     if(test_with_pilot):
         print "\nLoading BULATS pilot test data"
-        pilot = read_file(os.path.join(DIR,PILOT_FILE_NORMED), ',', skip_header=False)
+        pilot = read_file(os.path.join(DIR,TEST_FILE_DEFAULT), ',', skip_header=False)
         pilot_samples, pilot_classes, pilot_headers = filter_data_rows(pilot, sel=sel, keep_headers=True)
         X_train = train_samples
         y_train = train_classes

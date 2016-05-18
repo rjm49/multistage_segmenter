@@ -48,6 +48,7 @@ def open_wfile(odir,transcript_id):
 
 if __name__ == '__main__':
     lmdir = "eval1n"
+    
     te_file = raw_input("enter test file name: [%s]" % PILOT_FILE_NORMED) or PILOT_FILE_NORMED
     te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
     generate_gold_files(te_rows)

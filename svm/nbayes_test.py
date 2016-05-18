@@ -8,15 +8,15 @@ from sklearn.naive_bayes import GaussianNB
 
 import grid_search as searcher
 import matplotlib.pyplot as plt
-from common import read_file, DIR, EVAL1_FILE_NORMED, \
-    filter_data_rows, PILOT_FILE_NORMED
+from common import read_file, DIR, TRAIN_FILE_DEFAULT, \
+    filter_data_rows, TEST_FILE_DEFAULT
 import numpy as np
 
 
 if __name__ == '__main__':
 ## eval1 training set
     print "\nLoading BULATS eval1 training data"
-    eval1file = os.path.join(DIR,EVAL1_FILE_NORMED)
+    eval1file = os.path.join(DIR,TRAIN_FILE_DEFAULT)
     eval1 = read_file(eval1file, ',', skip_header=True) 
     sel = range(7,30)
     samples, classes = filter_data_rows(eval1, sel=sel)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     
     ## pilot test set
     print "\nLoading BULATS pilot test data"
-    pilotfile = os.path.join(DIR,PILOT_FILE_NORMED)
+    pilotfile = os.path.join(DIR,TEST_FILE_DEFAULT)
     pilot = read_file(pilotfile, ',', skip_header=True) 
     samps_raw, tclasses = filter_data_rows(pilot, sel=sel)
     

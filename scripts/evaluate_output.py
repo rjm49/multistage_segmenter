@@ -7,7 +7,7 @@ import codecs
 import glob, os
 
 from common import DIR, PM_SUB_DIR, \
-     PILOT_FILE_NORMED, GOLD_SUB_DIR, read_file, load_symbol_table, \
+     TEST_FILE_DEFAULT, GOLD_SUB_DIR, read_file, load_symbol_table, \
     LM_SYM_FILE, OUTS_SUB_DIR, BREAK
 from lm_gen import fstcompose
 from pm.pm_utils import generate_pm_text_files, \

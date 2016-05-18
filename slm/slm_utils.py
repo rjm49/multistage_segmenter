@@ -17,12 +17,12 @@ from common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
 import subprocess as sp
 
 
-def create_converter(lmdir):
+def create_converter(slm_dir):
     #print "creating converter...."
-    syms = load_symbol_table(lmdir)
-    symfile = os.path.join(lmdir,SYM_FILE)
-    convfxt = os.path.join(lmdir,CONV_FXT)
-    convfst = os.path.join(lmdir,CONV_FST)
+    syms = load_symbol_table(slm_dir)
+    symfile = os.path.join(slm_dir,SYM_FILE)
+    convfxt = os.path.join(slm_dir,CONV_FXT)
+    convfst = os.path.join(slm_dir,CONV_FST)
     
     ofile = codecs.open(convfxt, 'w')
     
@@ -42,7 +42,8 @@ def create_converter(lmdir):
     #print "done...."    
     
 
-def generate_slm(training_rows, lm_dir, do_plot=True):
+def generate_slm(training_rows, slm_dir, do_plot=True):
+    slm_fxt = os.path.join(slm_dir, "slm.fxt")
     slength_counts = Counter()
     slen=1
     for r in training_rows:
@@ -53,22 +54,22 @@ def generate_slm(training_rows, lm_dir, do_plot=True):
         else:
 #             print "adding slen=",(slen+1)
             slength_counts[slen]+=1
-            slen = 1    
+            slen = 1   
     els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
     #print els
     x_vals = range(0, max(els)+1)
     
     (shape, loc, scale) = gamma.fit(els, floc=0)
     gam_gen = gamma(shape, loc, scale) #use these model params to build a new gamma distrib/n generator
-    write_slm(x_vals, gam_gen)
+    write_slm(slm_fxt, x_vals, gam_gen)
     if do_plot:
         plot_graph(x_vals, gam_gen, els)
-    compile_slm(lm_dir) #this last step compiles the slm to binary .fst format
+    compile_slm(slm_dir) #this last step compiles the slm to binary .fst format
 
-def write_slm(x_vals, gam_gen):
+def write_slm(slm_file, x_vals, gam_gen):
     if not write_slm:
         return
-    lfile = codecs.open(SLM_FXT_FILE_GLOBAL,"w")
+    lfile = codecs.open(slm_file,"w")
     lfile.truncate()
     
     maxp = 0
@@ -96,10 +97,12 @@ def write_slm(x_vals, gam_gen):
     lfile.flush() 
     lfile.close()
     
-def compile_slm(lm_dir):
-    symfile = os.path.join(lm_dir,SYM_FILE)
+def compile_slm(slm_dir):
+    slm_fxt = os.path.join(slm_dir,"slm.fxt")
+    slm_fst = os.path.join(slm_dir,"slm.fst")
+    symfile = os.path.join(slm_dir,SYM_FILE)
     #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
-    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols", SLM_FXT_FILE_GLOBAL, SLM_FST_FILE_GLOBAL])
+    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols", slm_fxt, slm_fst])
     
 def plot_graph(x_vals, gam_gen, els):
     fig, ax = plt.subplots(1, 1)

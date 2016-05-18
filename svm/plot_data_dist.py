@@ -90,6 +90,6 @@ def plot_compare(samples, classes, headers):
     plt.show()
     
 if __name__ == '__main__':
-    all_rows = read_file(os.path.join(DIR,EVAL1_FILE_NORMED), ',', skip_header=False)
+    all_rows = read_file(os.path.join(DIR,TRAIN_FILE_DEFAULT), ',', skip_header=False)
     (samples, classes, headers) = filter_data_rows(all_rows, keep_headers=True)
     plot_compare(samples, classes, headers)
