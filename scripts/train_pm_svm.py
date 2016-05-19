@@ -108,12 +108,15 @@ if __name__ == '__main__':
     pickled_model = os.path.join(output_dir, "svm_classifier.pkl")
     
     print pickled_model
-    
-    if(os.path.exists(pickled_model) and os.path.isfile(pickled_model) and not overwrite_pkl):
+        
+    if(os.path.exists(pickled_model) and not overwrite_pkl):
         clf = joblib.load(pickled_model)
         print "loaded pickled model..."
     
-    else:        
+    else:
+        if not os.path.exists(output_dir): #output dir doesn't exist so make it
+            os.makedirs(output_dir)
+        
         cmin, cmax, cstep = -5,  17,  2
         cr = range(cmin,cmax,cstep)
         print(cr)
