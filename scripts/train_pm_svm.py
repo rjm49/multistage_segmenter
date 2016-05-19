@@ -26,6 +26,13 @@ from operator import itemgetter
 
 overwrite_pkl = True
 
+def dissect(data):
+    headers = [data[0][i] for i in sel]
+    words = [r[5] for r in data]
+    samples = [[float(r[i]) for i in sel] for r in data]
+    classes = [float(r[6]) for r in data]
+    return (headers, words, samples, classes)
+
 # Utility function to report best scores
 def report(grid_scores, n_top=3):
     top_scores = sorted(grid_scores, key=itemgetter(1), reverse=True)[:n_top]
@@ -55,62 +62,60 @@ if __name__ == '__main__':
         out_file = PROSODIC_PREDICTION_FILE
         do_search = True
 #         use_pilot = False
-        n_samples = 500
+        n_samples = 5000
         cache = 800
     
     print base_dir+"/"+data_file+" -SVM-> "+pm_dir+"/"+out_file
     
     eval1 = read_file(os.path.join(base_dir, data_file), ',', skip_header=True)
+    test_data = read_file(os.path.join(base_dir,test_file), ',', skip_header=True)
     #sel = [12,13,14,15,21,22,23,24]
     sel = range(7,30)
 
     if(n_samples>0):
         eval1 = eval1[0:n_samples]
     
-    headers = [eval1[0][i] for i in sel]
-    words = [r[5] for r in eval1]
-    samples = [[float(r[i]) for i in sel] for r in eval1]
-    classes = [float(r[6]) for r in eval1]
-        
-    print classes
-    p = sum(c==1.0 for c in classes) # count the positive instances
-    n = len(classes) - p # derive the negative instances
+    (tr_headers, tr_words, tr_samples, tr_classes) = dissect(eval1)
+    (te_headers, te_words, te_samples, te_classes) = dissect(test_data)
+    
+    print tr_classes
+    p = sum(c==1.0 for c in tr_classes) # count the positive instances
+    n = len(tr_classes) - p # derive the negative instances
     print "n=",n," p=",p
     wgt=float(n)/float(p) # cast and divide
     print "wgt=",wgt
     classWeight = { 1: wgt }
     
     
-    tr_samples, te_samples, tr_classes, te_classes = train_test_split(samples, classes, test_size=0.20, random_state=0, stratify=classes)
+    #tr_samples, te_samples, tr_classes, te_classes = train_test_split(samples, classes, test_size=0.20, random_state=0, stratify=classes)
                     
     scaler = preprocessing.StandardScaler().fit( np.array(tr_samples) )
 
     tr_samples = scaler.transform(tr_samples)
 
-    print tr_samples[0:10]
-    print tr_samples.mean(axis=0)
-    print tr_samples.std(axis=0)
-            
+#     print tr_samples[0:10]
+#     print tr_samples.mean(axis=0)
+#     print tr_samples.std(axis=0)
+             
     clf = None
     best_params = None
     #override the defaults with the results of a grid search if desired (takes a while)
     
     
+    #clear the existing predictions file
     prosodic_pred_file = os.path.join(base_dir, pm_dir ,out_file)
-    
-    
-        #clear the output directory, or create it if it doesn't yet exist...
-    output_dir = os.path.join(base_dir, pm_dir)
     if(os.path.exists(prosodic_pred_file)):
         os.remove(prosodic_pred_file)
     
     #pickled = False
+    output_dir = os.path.join(base_dir, pm_dir)
     pickled_model = os.path.join(output_dir, "svm_classifier.pkl")
     
     print pickled_model
     
     if(os.path.exists(pickled_model) and os.path.isfile(pickled_model) and not overwrite_pkl):
         clf = joblib.load(pickled_model)
+        clf.set_params(verbose=True)
         print "loaded pickled model..."
     
     else:        
@@ -138,14 +143,14 @@ if __name__ == '__main__':
                     ]
         
         estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True)
-        searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
+#         searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
         
         c_dist =  scipy.stats.expon(scale=100)
         gamma_dist = scipy.stats.expon(scale=.1)
                 
         param_dist={'C': c_dist, 'gamma': gamma_dist, 'class_weight':['balanced', classWeight]}
 
-#         searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=1000, n_jobs=-1, cv=5, verbose=True, scoring="recall")
+        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=1000, n_jobs=-1, cv=5, verbose=True, scoring="recall")
         
         
         searcher.fit(tr_samples,tr_classes)
@@ -183,7 +188,7 @@ if __name__ == '__main__':
     
     pred_file = open(os.path.join(base_dir, pm_dir ,out_file),"w")
     pred_file.write("labels 0 1\n") #this emulates an earlier file format for compatibility
-    for word, prob_tuple, guessed_class in zip(words,predictions,predicted_classes):
+    for word, prob_tuple, guessed_class in zip(te_words,predictions,predicted_classes):
         pred_file.write("%d %f %f %s\n" % (guessed_class,prob_tuple[0],prob_tuple[1],word))
 
     pred_file.close()
