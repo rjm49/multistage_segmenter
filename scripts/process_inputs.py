@@ -10,7 +10,7 @@ from common import CONV_FST, JOINT_CV_SLM_FILE_GLOBAL, \
     JOINT_LM_CV_SLM_FILE_GLOBAL, DIR, PM_SUB_DIR, LM_RAW, COMP_SUB_DIR, \
     SHP_SUB_DIR, OUTS_SUB_DIR
 import lm_gen
-import find_shortest_paths
+from scripts import find_shortest_paths
 
 def process_inputs(input_dir, lm_file, out_dir):
     if(not os.path.exists(input_dir)):
