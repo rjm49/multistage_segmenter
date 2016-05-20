@@ -23,6 +23,7 @@ from svm.plot_data_dist import plot_compare
 import sys
 import shutil
 from operator import itemgetter
+import random
 
 overwrite_pkl = True
 
@@ -62,7 +63,7 @@ if __name__ == '__main__':
         out_file = PROSODIC_PREDICTION_FILE
         do_search = True
 #         use_pilot = False
-        n_samples = 5000
+        n_samples = 2000
         cache = 800
     
     print base_dir+"/"+data_file+" -SVM-> "+pm_dir+"/"+out_file
@@ -73,8 +74,8 @@ if __name__ == '__main__':
     sel = range(7,30)
 
     if(n_samples>0):
-        eval1 = eval1[0:n_samples]
-    
+        eval1 = random.sample(eval1, n_samples)
+        
     (tr_headers, tr_words, tr_samples, tr_classes) = dissect(eval1)
     (te_headers, te_words, te_samples, te_classes) = dissect(test_data)
     
@@ -137,30 +138,41 @@ if __name__ == '__main__':
         print('gamma_range', gamma_range)
         
         tuned_parameters = [
-                    {   'kernel': ['rbf'],
+                    {
                         'gamma': gamma_range,
                         'C': c_range,
-                        'class_weight':['balanced', classWeight],
-                    },
-                     
-                    ]
+                    },   
+                ]
         
-        estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True)
-#         searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
+        estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True, class_weight=classWeight)
+        #searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
         
         c_dist =  scipy.stats.expon(scale=100)
-        gamma_dist = scipy.stats.expon(scale=.1)
-                
-        param_dist={'C': c_dist, 'gamma': gamma_dist, 'class_weight':['balanced', classWeight]}
-
-        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=1000, n_jobs=-1, cv=5, verbose=True, scoring="recall")
+        gamma_dist = scipy.stats.expon(scale=.01)
         
+#         crvs= c_dist.rvs(size=100)
+#         print crvs
+#         print crvs.mean(axis=0)
+#         
+#         grvs = gamma_dist.rvs(size=100)
+#         print grvs
+#         print grvs.mean(axis=0)
         
-        searcher.fit(tr_samples,tr_classes)
-        report(searcher.grid_scores_)
+        best = 0.0
+        for c in c_range:
+            for g in gamma_range:
+                param_dist={'C': scipy.stats.expon(scale=c), 'gamma': scipy.stats.expon(scale=g)}
+                searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=10, n_jobs=-1, cv=3, verbose=True, scoring="recall")
+                searcher.fit(tr_samples,tr_classes)
+                print "PARAMS:", c, g
+                report(searcher.grid_scores_)
                 
-        clf = searcher.best_estimator_
-        best_params = searcher.best_params_
+                #clf = searcher.best_estimator_
+                #best_params = searcher.best_params_
+                if(searcher.best_score_ > best):
+                    best = searcher.best_score_
+                    clf = searcher.best_estimator_
+                    best_params = searcher.best_params_
 
         print "COMPARING CLF PARAMS WITH BEST PARAMS (shd be same)"
         print clf.get_params()
@@ -173,6 +185,7 @@ if __name__ == '__main__':
 
     print "FITTING"     
     clf.fit(tr_samples, tr_classes)
+    clf.set_params(verbose=True)
     print clf
     
     

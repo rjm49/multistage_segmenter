@@ -10,12 +10,8 @@ import shutil
 from common import DIR, PM_SUB_DIR, \
     JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS, \
     BREAK
-from lm_gen import fstcompose
+from lm_gen import fstcompose, nshortest_path
 import subprocess as sp
-
-
-def fstshortestpath(inf, outf):
-    sp.call(["fstshortestpath",inf,outf])
 
 def fstprint(inf):
     op = sp.check_output(["fstprint",inf]) #call the print command and get the output as a byte string
@@ -88,7 +84,7 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
         shpf = os.path.join(shortpath_dir, fname)
         outf = os.path.join(strings_dir, fname)
         print "shortest path:",inf,"->",outf
-        fstshortestpath(inf, shpf)
+        nshortest_path(inf, shpf, 1)
         outstr = fstprint2(shpf)
         of = open(outf,"w")
         of.write(outstr)
