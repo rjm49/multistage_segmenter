@@ -17,13 +17,13 @@ save_pkl = False
 test_with_pilot = True
 
 if __name__ == '__main__':
-## eval1 training set
-    print "\nLoading BULATS eval1 training data"
-    eval1 = read_file(os.path.join(DIR,TRAIN_FILE_DEFAULT), ',', skip_header=True)
+## tr_data training set
+    print "\nLoading BULATS tr_data training data"
+    tr_data = read_file(os.path.join(DIR,TRAIN_FILE_DEFAULT), ',', skip_header=True)
     pred_file = open(os.path.join(DIR,PROSODIC_PREDICTION_FILE),"w")
     #sel = [12,13,14,15,21,22,23,24]
     sel = range(7,30)
-    train_samples, train_classes, train_headers = filter_data_rows(eval1, sel=sel, keep_headers=True)
+    train_samples, train_classes, train_headers = filter_data_rows(tr_data, sel=sel, keep_headers=True)
     
     if(test_with_pilot):
         print "\nLoading BULATS pilot test data"
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         X_test = pilot_samples
         y_test = pilot_classes
     else:
-        #don't use the pilot data, and instead hold out some of eval1 to test
+        #don't use the pilot data, and instead hold out some of tr_data to test
         X_train, X_test, y_train, y_test = train_test_split(train_samples, train_classes, test_size=0.80, random_state=0, stratify=train_classes)
         
     #samps_raw, tclasses = X_test, y_test

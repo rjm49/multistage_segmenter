@@ -55,36 +55,37 @@ def compare_rows(_recid, gold_rows, algo_rows):
 
 
 if __name__ == '__main__':
-    lmdir = "eval1n"
-    
-    gold_dir = os.path.join(DIR,GOLD_SUB_DIR)
-    #output_dir = os.path.join(DIR,OUTS_SUB_DIR)
-    
-    output_dirs = (OUTS_SUB_DIR, "pm_output", "pm_lm_output")
-    #output_dirs = ("pm_output",)
-    
 
+    base_dir = "/home/rjm49/mseg/"
+    batch_dir= os.path.join(base_dir,"Pb_Lb_Sb(heldout)")
+    
+    lmdir = "eval1n"   
+    gold_dir = os.path.join(batch_dir,"gold")    
+    output_dirs = ("pm_lm_slm", "pm_only", "pm_lm")
+    
     prF = "p,r,F"
     out_rows = []
 
-    report_fname = os.path.join(DIR,"segmenter_report.csv")
+    report_fname = os.path.join(batch_dir,"segmenter_report.csv")
     rfile = codecs.open(report_fname,"w")
     headers = "RECID,G#B,O#B,TPOS,FPOS,FNEG,(TNEG)"
 
     report = {}
     for d in output_dirs:
+        d = os.path.join(batch_dir,d,"output")
             
         print "dir is:", d
         gfps=gtps=gfns=gtns = 0.0
         totF=avF = 0.0
         n=0.0
             
-        outs = glob.glob(os.path.join(DIR, d,"*.fst"))
+        outs = glob.glob(os.path.join(d,"*.fst"))
+        print "found",len(outs),"output files in",d
         for outf in outs:
 #            print "algo_rows from:",outf
             recid = os.path.basename(outf)[:-4]
             goldf = recid+".gld"
-            algo_rows = codecs.open(os.path.join(DIR, d,outf), "r").read().splitlines()        
+            algo_rows = codecs.open(os.path.join(d,outf), "r").read().splitlines()        
             gold_rows = codecs.open(os.path.join(gold_dir,goldf), "r").read().splitlines()
             
             tup = compare_rows(recid, gold_rows, algo_rows)

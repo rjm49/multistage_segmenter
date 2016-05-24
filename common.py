@@ -16,12 +16,11 @@ COMP_SUB_DIR = "all_composed"
 SHP_SUB_DIR = "all_shortest"
 OUTS_SUB_DIR = "all_output"
 GOLD_SUB_DIR = "gold_standard"
-#PILOT_FILE = "pilot-prosodicFeats.csv"
-TEST_FILE_DEFAULT = "pilot-prosodicFeats_norm.csv"
-#TEST_FILE_DEFAULT = "eval1-prosodicFeats_norm_test.csv"
+#TEST_FILE_DEFAULT = "pilot-prosodicFeats_norm.csv"
+TEST_FILE_DEFAULT = "eval1-prosodicFeats_norm_test.csv"
 #PROBFILE = "predictions.dat"
-TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm.csv"
-#TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm_train.csv"
+#TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm.csv"
+TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm_train.csv"
 #TRAIN_FILE_DEFAULT = "switchboard-prosodicFeats_norm_train.csv"
 
 #TEST_FILE="switchboard-prosodicFeats_norm_train.csv"
@@ -109,19 +108,17 @@ def filter_data_rows(in_list, keep_headers=False, sel=range(7,30)):
     else:
         return (samples, classes)
 
-def load_symbol_table(slm_dir, fname=SYM_FILE):
-    symfile = os.path.join(slm_dir, fname)
+def load_symbol_table(fname):
     syms = []
-    rows = read_file(symfile, " ", skip_header=False)
+    rows = read_file(fname, " ", skip_header=False)
     for r in rows:
         syms.append(r[0])
     return syms
 
-def save_symbol_table(syms, slm_dir, fname=SYM_FILE):
+def save_symbol_table(syms, fname):
     #now write the accompanying symbol table
-    symfile = os.path.join(slm_dir,fname)
     syms = list(syms)
-    symf = codecs.open(os.path.join(slm_dir,fname), 'w')
+    symf = codecs.open(fname, 'w')
     symf.truncate()
     syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
     syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant
@@ -130,4 +127,4 @@ def save_symbol_table(syms, slm_dir, fname=SYM_FILE):
         
     symf.flush()
     symf.close()
-    print("wrote symbol table ", symfile)
+    print("wrote symbol table ", fname)

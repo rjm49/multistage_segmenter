@@ -24,12 +24,12 @@ if __name__ == '__main__':
     tr_file = raw_input("enter training file name: [%s]" % tr_file) or tr_file
     te_file = raw_input("enter test file name: [%s]" % TEST_FILE_DEFAULT) or TEST_FILE_DEFAULT
     
-    tr_rows = read_file(os.path.join(DIR, tr_file), ',', skip_header=True)
+    tr_data = read_file(os.path.join(DIR, tr_file), ',', skip_header=True)
     te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
-    rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
+    rawtext_file = generate_normed_text_file(tr_data, lmdir_global)
     
-    all_syms = set([r[5] for r in (tr_rows + te_rows)])
-    lm_syms = set([r[5] for r in tr_rows])
+    all_syms = set([r[5] for r in (tr_data + te_rows)])
+    lm_syms = set([r[5] for r in tr_data])
     
     save_symbol_table(all_syms, lmdir_global, SYM_FILE)
     save_symbol_table(lm_syms, lmdir_global, LM_SYM_FILE)

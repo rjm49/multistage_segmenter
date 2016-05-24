@@ -8,7 +8,7 @@ import glob, shutil
 import os
 
 from common import DIR, PM_SUB_DIR, UNK, \
-    EPS, BREAK
+    EPS, BREAK, LM_SYM_FILE
 from lm_gen import fstcompile
 
 
@@ -17,16 +17,16 @@ write_slm = True
 do_plot = False
 unkify = True
 
-def compile_pm_files(sym_dir):
-    pmt_glob = os.path.join(DIR,PM_SUB_DIR,"*.fxt")
+def compile_pm_files(batch_input_fst_dir, isymf, osymf):
+    pmt_glob = os.path.join(batch_input_fst_dir,"*.fxt")
     pm_text_file_list = glob.glob(pmt_glob)
     for f in pm_text_file_list:
         bin_name = f[:-3]+"fst"
 #         print "compiling", bin_name
-        fstcompile(f, bin_name, sym_dir)
-        print "compiled",bin_name
+        fstcompile(f, bin_name, isymf, osymf)
+        print "compiled",bin_name,"with isyms=",isymf," osyms=",osymf
 
-def generate_pm_text_files(known_syms, test_rows, prob_rows, max_count=-1):   
+def generate_pm_text_files(batch_input_fst_dir, known_syms, test_rows, prob_rows, max_count=-1):   
     if len(test_rows)!=len(prob_rows):
         print len(test_rows), "in data not equal to prob rows:", len(prob_rows)
         exit(1)
@@ -35,13 +35,12 @@ def generate_pm_text_files(known_syms, test_rows, prob_rows, max_count=-1):
         print "No data rows"
         exit(1)
         
-    pm_dir = os.path.join(DIR, PM_SUB_DIR)
-    shutil.rmtree(pm_dir, ignore_errors=True)
-    os.mkdir(pm_dir)
+    shutil.rmtree(batch_input_fst_dir, ignore_errors=True)
+    os.mkdir(batch_input_fst_dir)
     
     state=0
     transcript_id = test_rows[0][0]#[1:-1]
-    ofilename = os.path.join(pm_dir,transcript_id+".fxt")
+    ofilename = os.path.join(batch_input_fst_dir,transcript_id+".fxt")
     ofile = codecs.open(ofilename, 'w') if write_files else None
 
     rec_cnt=0
@@ -57,7 +56,7 @@ def generate_pm_text_files(known_syms, test_rows, prob_rows, max_count=-1):
             write_final_state_and_close(ofile, state)
             state=0
             if(write_files):
-                ofilename = os.path.join(DIR,PM_SUB_DIR,transcript_id+".fxt")
+                ofilename = os.path.join(batch_input_fst_dir,transcript_id+".fxt")
                 ofile = codecs.open(ofilename, 'w')
 
         np = float( log_probs[1] ) # pop the next probability value from our remaining prob_rows                

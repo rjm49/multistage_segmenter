@@ -6,23 +6,19 @@ Created on 30 Nov 2015
 
 import os
 
-from common import EVAL1_FILE_NORMED, read_file, DIR, \
-    PILOT_FILE_NORMED, save_symbol_table, JOINT_CV_SLM_FILE_GLOBAL, \
+from common import read_file, DIR, \
+    save_symbol_table, JOINT_CV_SLM_FILE_GLOBAL, \
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL, \
     CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE, \
-    LM_PRUNED
+    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT
 from lm_gen import fstcompose, compile_lm, \
     fstarcsort, generate_normed_text_file, ngramshrink
 from pm.pm_utils import compile_pm_files, \
     generate_pm_text_files
-from slm.slm_utils import create_converter
+from slm.slm_utils import create_converter, generate_slm
 import sys
 import json
 import shutil
-
-
-gen_ntxt = False
-tr_file, lmdir = EVAL1_FILE_NORMED, "eval1n"
 
 if __name__ == '__main__':
 
@@ -45,33 +41,37 @@ if len(args)>1:
 else:
     batch_name = "default"
     base_dir = DIR
-    pm_dir = "pm_default"
-    lm_dir = "lm_default"
-    slm_dir = "slm_default"
-    tr_file = EVAL1_FILE_NORMED
-    te_file = PILOT_FILE_NORMED
+#     pm_dir = "pm_default" currently not used
+    lm_dir = "eval1n_tr" #lm_default"
+    slm_dir = "eval1n_tr"  #"slm_default"
+    tr_file = TRAIN_FILE_DEFAULT
+    te_file = TEST_FILE_DEFAULT
 
-    lmdir_global = os.path.join(base_dir, lm_dir) # probably unwisely we're going for base/batch/lm
-    if(os.path.exists(lmdir_global)):
-        shutil.rmtree(lmdir_global)
-    os.makedirs(lmdir_global)
+    lm_dir= raw_input("enter LM name: [%s]" % lm_dir) or lm_dir
+    tr_file = raw_input("enter LM training file name: [%s]" % tr_file) or tr_file
+    te_file = raw_input("enter target test file name (for symbols): [%s]" % te_file) or te_file
 
-#     tr_file = raw_input("enter training file name: [%s]" % tr_file) or tr_file
-#     te_file = raw_input("enter test file name: [%s]" % PILOT_FILE_NORMED) or PILOT_FILE_NORMED
-    
+    #SECTION ONE: dedicated to creating the Language Model files    
+    lmdir_global = os.path.join(base_dir, lm_dir)
+#     if(os.path.exists(lmdir_global)):
+#         shutil.rmtree(lmdir_global)
+#     os.makedirs(lmdir_global)
+
     tr_rows = read_file(os.path.join(base_dir, tr_file), ',', skip_header=True)
     te_rows = read_file(os.path.join(base_dir, te_file), ',', skip_header=True)
-    rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
-    
-    all_syms = set([r[5] for r in (tr_rows + te_rows)])
     lm_syms = set([r[5] for r in tr_rows])
+    all_syms = set([r[5] for r in tr_rows+te_rows])
     
-    save_symbol_table(all_syms, lmdir_global, SYM_FILE)
-    save_symbol_table(lm_syms, lmdir_global, LM_SYM_FILE)
-     
+    save_symbol_table(lm_syms, os.path.join(lmdir_global, LM_SYM_FILE))
+    save_symbol_table(all_syms, os.path.join(base_dir, SYM_FILE))
+    
+    rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
+
     buildmod = "y"
     modfile = os.path.join(lmdir_global,"lm.mod")
     modpru = os.path.join(lmdir_global,LM_PRUNED)
+    
+    print "checking for LM file",modfile
     if(os.path.exists(modfile)):
         buildmod = raw_input("model file in "+lmdir_global+" already exists.  Overwrite? [n]").lower() or "n"
     
@@ -82,33 +82,16 @@ else:
         ngramshrink(modfile, modpru)
         #we don't use the unpruned modfile again, so switch over to the pruned version here
         modfile = modpru
-    
-    #generate_slm(tr_rows, lmdir_global, do_plot=True) # build the sentence length model, plot it so we can see it's sane
-    #raw_input("slm done - press key")
-    
+        
     create_converter(lmdir_global)
     print "created converter."
     
-#     slm_file = os.path.join(base_dir,slm_dir,"slm.fst")
-#     
-#     fstarcsort(slm_file, ilabel_sort=True)
-#     print "composing CV o SLM..."
-#     convfst = os.path.join(lmdir_global,CONV_FST)
-#     fstcompose(convfst, slm_file, JOINT_CV_SLM_FILE_GLOBAL)
-#     #fstcompose(modfile,convfst,os.path.join(DIR,"lm_cv"))
-#         
-#     print "Done. Now composing LM o CVoSLM..."
-#     fstcompose(modfile, JOINT_CV_SLM_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL) #TODO do this here?
-#     #fstcompose(os.path.join(DIR,"lm_cv"), SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL)
-#     print "Wrote LMoCVoSLM file:", JOINT_LM_CV_SLM_FILE_GLOBAL
-    #sys.stdin.read()
-
-    prob_rows = read_file(os.path.join(base_dir, pm_dir, PROSODIC_PREDICTION_FILE), ' ', skip_header=True)
-    
-    #generate pm
-    generate_pm_text_files(lm_syms, te_rows, prob_rows) #this produces the fxt files on disc that can feed into the FST composition
+    slm_dir = raw_input("Type in SLM dir or hit return to use default [%s]" % slm_dir) or slm_dir
+    slm_dir = os.path.join(base_dir,slm_dir)
         
-    compile_pm_files(sym_dir=lmdir_global)
-    print "compiled PM files."
+    print "using ",slm_dir
+
+    generate_slm(tr_rows, slm_dir, do_plot=False) # build the sentence length model, plot it so we can see it's sane
+    print "slm generated from", tr_file, "in", slm_dir
     
     print "all constituent system files now compiled"

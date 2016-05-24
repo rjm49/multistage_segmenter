@@ -6,7 +6,7 @@ Created on Dec 8, 2015
 import codecs
 import os
 
-from common import DIR, PM_SUB_DIR, BREAK, SYM_FILE
+from common import DIR, PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE
 import subprocess as sp
 
 
@@ -65,11 +65,11 @@ def generate_normed_text_file(data, lmdir_global):
     return filenm
 
 def ngramsymbols(infile, lmdir_global):
-    symfile = os.path.join(lmdir_global, SYM_FILE)
+    symfile = os.path.join(lmdir_global, LM_SYM_FILE)
     sp.call([cmd_ngramsymbols], stdin=open(infile), stdout=open(symfile,"w"))
 
 def farcompilestrings(ifile, lmdir_global):
-    symfile = os.path.join(lmdir_global, SYM_FILE)
+    symfile = os.path.join(lmdir_global, LM_SYM_FILE)
     ofile = os.path.join(lmdir_global, "lm.far")
     sp.call([cmd_farcompilestrings,"-symbols="+symfile,"-keep_symbols=1",ifile], stdout=open(ofile,"w"))
     return ofile
@@ -101,9 +101,8 @@ def ngramshrink(a,out):
     
 
 #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
-def fstcompile(txtf,binf, sym_dir):
-    symfile = os.path.join(sym_dir, SYM_FILE)
-    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols",txtf,binf])
+def fstcompile(txtf,binf, isyms, osyms):
+    sp.call(["fstcompile","--isymbols="+isyms,"--osymbols="+osyms, "--keep_isymbols", "--keep_osymbols",txtf,binf])
     
 def fstarcsort(f,ilabel_sort=True):
     sp.call(["fstarcsort","--sort_type="+("ilabel" if ilabel_sort else "olabel"),f,f])

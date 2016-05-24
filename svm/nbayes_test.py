@@ -14,12 +14,12 @@ import numpy as np
 
 
 if __name__ == '__main__':
-## eval1 training set
-    print "\nLoading BULATS eval1 training data"
+## tr_data training set
+    print "\nLoading BULATS tr_data training data"
     eval1file = os.path.join(DIR,TRAIN_FILE_DEFAULT)
-    eval1 = read_file(eval1file, ',', skip_header=True) 
+    tr_data = read_file(eval1file, ',', skip_header=True) 
     sel = range(7,30)
-    samples, classes = filter_data_rows(eval1, sel=sel)
+    samples, classes = filter_data_rows(tr_data, sel=sel)
         
     Xraw = samples
     scaler = preprocessing.StandardScaler().fit( np.array(Xraw) )    

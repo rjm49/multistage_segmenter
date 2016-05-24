@@ -20,7 +20,7 @@ def read_file(filename , n=0):
             break
         line = line.rstrip()  # remove trailing characters
         rowin = line.split(',')  # split on commas
-        listobj.append((rowin))  # append to eval1 list (list of lists)
+        listobj.append((rowin))  # append to tr_data list (list of lists)
         i+=1
     print "number of tokens loaded:", len(listobj)
     return listobj
@@ -97,10 +97,10 @@ if __name__ == '__main__':
     folder = "C:\\Users\\Russell\\Dropbox\\nlp_alta\\recreate_LG\\datafiles\\"
     n = 10000
 
-    ## eval1 training set
-    print "\nLoading BULATS eval1 training data"
-    eval1file = folder+'eval1-prosodicFeats.csv'
-    eval1 = read_file(eval1file, n)
+    ## tr_data training set
+    print "\nLoading BULATS tr_data training data"
+    eval1file = folder+'tr_data-prosodicFeats.csv'
+    tr_data = read_file(eval1file, n)
     
     ## pilot test set
     print "\nLoading BULATS pilot test data"
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     print "\nBuilding test and training feature sets..."
     ## build test and training feature sets
-    trainfeats = get_feats(eval1)
+    trainfeats = get_feats(tr_data)
     testfeats = get_feats(pilot)
     print "\nDone"
 

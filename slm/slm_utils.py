@@ -13,16 +13,18 @@ from scipy.stats import gamma, norm
 import matplotlib.pyplot as plt
 from common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
     SLM_FXT_FILE_GLOBAL, load_symbol_table, PM_SUB_DIR, UNK, \
-    SYM_FILE, CONV_FXT, CONV_FST
+    SYM_FILE, CONV_FXT, CONV_FST, LM_SYM_FILE
 import subprocess as sp
 
 
-def create_converter(slm_dir):
+def create_converter(lm_dir):
     #print "creating converter...."
-    syms = load_symbol_table(slm_dir)
-    symfile = os.path.join(slm_dir,SYM_FILE)
-    convfxt = os.path.join(slm_dir,CONV_FXT)
-    convfst = os.path.join(slm_dir,CONV_FST)
+    
+    symfile = os.path.join(lm_dir,LM_SYM_FILE)
+    syms = load_symbol_table(symfile)
+    dummy_symfile = os.path.join(lm_dir,"..","slm_sym.dat")
+    convfxt = os.path.join(lm_dir,CONV_FXT)
+    convfst = os.path.join(lm_dir,CONV_FST)
     
     ofile = codecs.open(convfxt, 'w')
     
@@ -37,8 +39,8 @@ def create_converter(slm_dir):
     #final state needed?
     ofile.flush()
     ofile.close()
-    #print "compiling...."
-    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols", convfxt, convfst])
+    print "compiling converter",convfst,"with isyms=",symfile,"and osyms=",dummy_symfile
+    sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+dummy_symfile, "--keep_isymbols", "--keep_osymbols", convfxt, convfst])
     #print "done...."    
     
 
@@ -100,7 +102,7 @@ def write_slm(slm_file, x_vals, gam_gen):
 def compile_slm(slm_dir):
     slm_fxt = os.path.join(slm_dir,"slm.fxt")
     slm_fst = os.path.join(slm_dir,"slm.fst")
-    symfile = os.path.join(slm_dir,SYM_FILE)
+    symfile = os.path.join(slm_dir,"..","slm_sym.dat")
     #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
     sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+symfile, "--keep_isymbols", "--keep_osymbols", slm_fxt, slm_fst])
     

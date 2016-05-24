@@ -75,10 +75,13 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
        
     #create/refresh the working directories 
     for d in (shortpath_dir, strings_dir):
+        print "re-making",d
         shutil.rmtree(d, ignore_errors=True)
-        os.mkdir(d)
+        os.makedirs(d)
     
-    fs = glob.glob(os.path.join(input_dir,"*.fst"))
+    descriptor = os.path.join(input_dir,"*.fst")
+    print "processing files matching:", descriptor
+    fs = glob.glob(descriptor)
     for inf in fs:
         fname = os.path.basename(inf)
         shpf = os.path.join(shortpath_dir, fname)
