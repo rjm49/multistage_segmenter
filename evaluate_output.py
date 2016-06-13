@@ -54,18 +54,18 @@ def compare_rows(_recid, gold_rows, algo_rows):
     return (_recid, nobrks_gold, nobrks_out, tps, fps, fns, tns, p,r,F)
 
 
-if __name__ == '__main__':
 
-    base_dir = "/home/rjm49/mseg/"
-    batch_dir= os.path.join(base_dir,"Pb_Lb_Sb(heldout)")
+#takes the full batch_dir path
+def eval_segmenter_output(batch_dir):
+
+#     base_dir = "/home/rjm49/mseg/"
+#     batch_dir= os.path.join(base_dir,"Pb_Lb_Sb(heldout)")
     
-    lmdir = "eval1n"   
     gold_dir = os.path.join(batch_dir,"gold")    
     output_dirs = ("pm_lm_slm", "pm_only", "pm_lm")
     
     prF = "p,r,F"
-    out_rows = []
-
+    
     report_fname = os.path.join(batch_dir,"segmenter_report.csv")
     rfile = codecs.open(report_fname,"w")
     headers = "RECID,G#B,O#B,TPOS,FPOS,FNEG,(TNEG)"
@@ -129,3 +129,6 @@ if __name__ == '__main__':
         rfile.write(outstr + "\n")
     rfile.flush()
     rfile.close()
+    
+if __name__ == '__main__':
+    pass

@@ -68,6 +68,35 @@ def generate_slm(training_rows, slm_dir, do_plot=True):
         plot_graph(x_vals, gam_gen, els)
     compile_slm(slm_dir) #this last step compiles the slm to binary .fst format
 
+
+def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
+    slm_fxt = os.path.join(slm_dir, "slm.fxt")
+    slength_counts = Counter()
+    slen=1
+    #print training_rows
+    for r in training_rows:
+        r = r.strip()
+        
+        print r
+        
+        segs = r.split(BREAK) # chop the line up into segments
+        for s in segs:
+            slen = len(s.split())
+            print slen
+            if slen:
+                slength_counts[slen]+=1
+                           
+    els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
+    print els
+    x_vals = range(0, max(els)+1)
+    
+    (shape, loc, scale) = gamma.fit(els, floc=0)
+    gam_gen = gamma(shape, loc, scale) #use these model params to build a new gamma distrib/n generator
+    write_slm(slm_fxt, x_vals, gam_gen)
+    if do_plot:
+        plot_graph(x_vals, gam_gen, els)
+    compile_slm(slm_dir) #this last step compiles the slm to binary .fst format
+
 def write_slm(slm_file, x_vals, gam_gen):
     if not write_slm:
         return

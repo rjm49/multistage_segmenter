@@ -6,7 +6,8 @@ Created on Dec 8, 2015
 import codecs
 import os
 
-from common import DIR, PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE
+from common import DIR, PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE,\
+    save_symbol_table, create_remap_table
 import subprocess as sp
 
 
@@ -16,19 +17,30 @@ cmd_ngramcount = "ngramcount"
 cmd_ngrammake = "ngrammake"
 cmd_fstcompose = "fstcompose"
 
-def compile_lm(ifile, lmdir_global):
+def compile_lm(raw_text_file, lmdir_global, lm_syms):
+    
+    #ngramsymbols(raw_text_file, lmdir_global)
+    symfile = os.path.join(lmdir_global, LM_SYM_FILE)
+
+    save_symbol_table(lm_syms, symfile)
+           
     #generate_normed_text_file(data)
     #raw_input("about to far compile - press key")
-    farfile = farcompilestrings(ifile, lmdir_global) #create test.far from the normed text file
+    farfile = farcompilestrings(raw_text_file, lmdir_global) #create test.far from the normed text file
     print "farcompiled strings"
     #raw_input("about to ngramcount - press key")
     cntfile = ngramcount(farfile, lmdir_global, 3) #hopefully this combines all the segments into a single set of unified counts
     print "counted ngrammes"
     #raw_input("about to ngrammake - press key")
     modfile = ngrammake(cntfile, lmdir_global) #this creates the ngram model file
+    
     print "made ngrammes"
-    return modfile
+    return modfile, symfile
 
+def remap_lm(lm_file, remap_file, osymfile):
+    sp.call(["fstrelabel","--relabel_opairs="+remap_file, lm_file, lm_file])
+    sp.call(["fstrelabel","--relabel_osymbols="+osymfile, lm_file, lm_file])
+    
 def generate_normed_text_file(data, lmdir_global):   
     rec_id = None
     seg_id = None
@@ -36,8 +48,9 @@ def generate_normed_text_file(data, lmdir_global):
     filenm = os.path.join(lmdir_global,"normed.txt")
     
     #if this file already exists, just return the full filename
-#     if(os.path.exists(filenm)):
-#         return filenm
+    if(os.path.exists(filenm)):
+        print filenm, "already exists.  Using existing file..."
+        return filenm
 
     try:
         os.makedirs(os.path.dirname(filenm))

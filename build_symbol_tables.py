@@ -11,8 +11,8 @@ from lm_gen import generate_normed_text_file
 
 
 gen_ntxt = False
-tr_file, slm_dir = TRAIN_FILE_DEFAULT, "eval1n"
-#tr_file, slm_dir = "test1.csv", "test1"
+tr_fname, slm_dir = TRAIN_FILE_DEFAULT, "eval1n"
+#tr_fname, slm_dir = "test1.csv", "test1"
 
 if __name__ == '__main__':
         
@@ -21,10 +21,10 @@ if __name__ == '__main__':
     print "using ",slm_dir
     lmdir_global = os.path.join(DIR,slm_dir)
     
-    tr_file = raw_input("enter training file name: [%s]" % tr_file) or tr_file
+    tr_fname = raw_input("enter training file name: [%s]" % tr_fname) or tr_fname
     te_file = raw_input("enter test file name: [%s]" % TEST_FILE_DEFAULT) or TEST_FILE_DEFAULT
     
-    tr_data = read_file(os.path.join(DIR, tr_file), ',', skip_header=True)
+    tr_data = read_file(os.path.join(DIR, tr_fname), ',', skip_header=True)
     te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
     rawtext_file = generate_normed_text_file(tr_data, lmdir_global)
     

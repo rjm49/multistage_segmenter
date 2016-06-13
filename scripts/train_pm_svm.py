@@ -25,7 +25,7 @@ import shutil
 from operator import itemgetter
 import random
 
-overwrite_pkl = False
+overwrite_pkl = True
 
 def dissect(data):
     headers = [data[0][i] for i in sel]
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         pm_dir = "pm_default"
         tr_file = TRAIN_FILE_DEFAULT
         test_fname = TEST_FILE_DEFAULT
-        do_search = True
+#         do_search = False
 #         use_pilot = False
         n_samples = 2000
         cache = 800
@@ -197,11 +197,11 @@ if __name__ == '__main__':
 
     print clf
 
-    print "FITTING"     
-    clf.fit(tr_samples, tr_classes)
-    clf.set_params(verbose=True)
-    print clf
-    
+#     print "FITTING"     
+#     clf.set_params(verbose=True)
+#     clf.fit(tr_samples, tr_classes)
+#     print clf
+     
     
     #NOW TO TEST AGAINST HELD-OUT/TEST DATA
     te_samples = scaler.transform(te_samples)

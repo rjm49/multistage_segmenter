@@ -56,7 +56,7 @@ def resolve_filenames():
     lmdir_global = os.path.join(DIR,slm_dir)
     all_syms = os.path.join(lmdir_global,SYM_FILE)
     lm_syms = os.path.join(lmdir_global,LM_SYM_FILE)
-    tr_file = os.path.join(lmdir_global,TRAIN_FILE_DEFAULT)
+    tr_fname = os.path.join(lmdir_global,TRAIN_FILE_DEFAULT)
     te_file = os.path.join(lmdir_global,TEST_FILE_DEFAULT)
     
 
@@ -110,7 +110,7 @@ def filter_data_rows(in_list, keep_headers=False, sel=range(7,30)):
 
 def load_symbol_table(fname):
     syms = []
-    rows = read_file(fname, " ", skip_header=False)
+    rows = read_file(fname, delim=None, skip_header=False)
     for r in rows:
         syms.append(r[0])
     return syms
@@ -123,8 +123,28 @@ def save_symbol_table(syms, fname):
     syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
     syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant
     for i,s in enumerate(syms):
-        symf.write("%s %d\n" % (s,i))
+        symf.write("%s\t%d\n" % (s,i))
         
     symf.flush()
     symf.close()
     print("wrote symbol table ", fname)
+    
+def create_remap_table(syms, fname):
+    #now write the accompanying symbol table
+    syms = list(syms)
+    
+    any_i = len(syms)+3
+     
+    symf = codecs.open(fname, 'w')
+    symf.truncate()
+    syms.insert(0, EPS) # the epsilon symbol needs to be the zeroth item in the table
+    syms.extend([BREAK,UNK,ANYWORD]) # we add our custom utility symbols at the end, their actual position is unimportant
+    for i,s in enumerate(syms):
+        if i==0 or s==BREAK:
+            symf.write("%d\t%d\n" % (i,i))       
+        else:
+            symf.write("%d\t%d\n" % (i,any_i))
+        
+    symf.flush()
+    symf.close()
+    print("wrote remap pairs table ", fname)

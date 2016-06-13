@@ -10,15 +10,16 @@ from common import read_file, DIR, \
     save_symbol_table, JOINT_CV_SLM_FILE_GLOBAL, \
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL, \
     CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE, \
-    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT
+    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, create_remap_table
 from lm_gen import fstcompose, compile_lm, \
-    fstarcsort, generate_normed_text_file, ngramshrink
+    fstarcsort, generate_normed_text_file, ngramshrink, remap_lm
 from pm.pm_utils import compile_pm_files, \
     generate_pm_text_files
 from slm.slm_utils import create_converter, generate_slm
 import sys
 import json
 import shutil
+import lm_gen
 
 if __name__ == '__main__':
 
@@ -49,7 +50,7 @@ else:
 
     lm_dir= raw_input("enter LM name: [%s]" % lm_dir) or lm_dir
     tr_file = raw_input("enter LM training file name: [%s]" % tr_file) or tr_file
-    te_file = raw_input("enter target test file name (for symbols): [%s]" % te_file) or te_file
+    #te_file = raw_input("enter target test file name (for symbols): [%s]" % te_file) or te_file
 
     #SECTION ONE: dedicated to creating the Language Model files    
     lmdir_global = os.path.join(base_dir, lm_dir)
@@ -58,15 +59,12 @@ else:
 #     os.makedirs(lmdir_global)
 
     tr_rows = read_file(os.path.join(base_dir, tr_file), ',', skip_header=True)
-    te_rows = read_file(os.path.join(base_dir, te_file), ',', skip_header=True)
-    lm_syms = set([r[5] for r in tr_rows])
-    all_syms = set([r[5] for r in tr_rows+te_rows])
-    
-    save_symbol_table(lm_syms, os.path.join(lmdir_global, LM_SYM_FILE))
-    save_symbol_table(all_syms, os.path.join(base_dir, SYM_FILE))
-    
-    rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
 
+    rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
+    
+    lm_syms = set([r[5] for r in tr_rows])
+    
+    
     buildmod = "y"
     modfile = os.path.join(lmdir_global,"lm.mod")
     modpru = os.path.join(lmdir_global,LM_PRUNED)
@@ -76,17 +74,25 @@ else:
         buildmod = raw_input("model file in "+lmdir_global+" already exists.  Overwrite? [n]").lower() or "n"
     
     if(not buildmod=="n"):
-        modfile = compile_lm(rawtext_file, lmdir_global)
+        (modfile, symfile) = compile_lm(rawtext_file, lmdir_global, lm_syms)
+        
         print "Created unpruned lang model file:", modfile
         print "Now pruning LM..."
         ngramshrink(modfile, modpru)
         #we don't use the unpruned modfile again, so switch over to the pruned version here
         modfile = modpru
         
-    create_converter(lmdir_global)
-    print "created converter."
+        remap_fname = os.path.join(lmdir_global,"lm_remap.dat")
+        create_remap_table(lm_syms, remap_fname)
+        
+        osymfile = os.path.join(base_dir,"slm_sym.dat")
+        remap_lm(modfile, remap_fname, osymfile)
+        print "remapped modfile output symbols"
+                
+    #create_converter(lmdir_global)
+    #print "created converter."
     
-    slm_dir = raw_input("Type in SLM dir or hit return to use default [%s]" % slm_dir) or slm_dir
+    slm_dir = raw_input("Type in SLM dir or hit return to match LM [%s]" % lm_dir) or lm_dir
     slm_dir = os.path.join(base_dir,slm_dir)
         
     print "using ",slm_dir

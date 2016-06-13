@@ -5,14 +5,33 @@ Created on 30 Nov 2015
 '''
 import json
 import os
-import sys
-
-from common import read_file, load_symbol_table, LM_SYM_FILE, LM_PRUNED, \
-    JOINT_LM_CV_SLM_FILE_GLOBAL, save_symbol_table, SYM_FILE
-from pm.pm_utils import generate_pm_text_files, compile_pm_files
-import process_inputs
-import find_shortest_paths
 import create_gold_files
+import find_shortest_paths
+import evaluate_output
+import lm_gen
+import shutil
+import glob
+
+from common import read_file, LM_SYM_FILE, load_symbol_table, SYM_FILE, \
+    save_symbol_table, LM_PRUNED
+from pm.pm_utils import generate_pm_text_files, compile_pm_files
+
+
+def process_inputs(input_dir, lm_file, out_dir):
+    if(not os.path.exists(input_dir)):
+        print "FST source directory",input_dir,"does not exist - can't continue analysis without it!"
+        exit(1)
+       
+    #create/refresh the working directory
+    print "remaking ", out_dir
+    shutil.rmtree(out_dir, ignore_errors=True)
+    os.makedirs(out_dir)
+    
+    fs = glob.glob(os.path.join(input_dir,"*.fst"))
+    for f in fs:
+        outf = os.path.join(out_dir ,os.path.basename(f))
+        lm_gen.fstcompose(f, lm_file, outf)
+        print "output:",outf
 
 if __name__ == '__main__':
 
@@ -24,6 +43,9 @@ if __name__ == '__main__':
     batches = config['batches']
 
     for batch in batches:
+        if(not batch['run_batch']):
+            continue
+        
         print "RUNNING BATCH", batch
         
         batch_dir = os.path.join(base_dir, batch['batch_dir'])
@@ -39,12 +61,20 @@ if __name__ == '__main__':
     
         te_rows = read_file(os.path.join(base_dir, te_file), ',', skip_header=True)
     
-        create_gold_files.generate_gold_files(os.path.join(batch_dir,"gold"), te_rows)
+        gold_dir = os.path.join(batch_dir, "gold")
+        create_gold_files.generate_gold_files(gold_dir, te_rows)
     
         #ONE: make speech_fsts from te_rows
         lmsym_fname = os.path.join(lm_dir,LM_SYM_FILE)
         lm_syms = load_symbol_table(lmsym_fname)
+        
+#         for s in lm_syms:
+#             print s
+#             
+#         raw_input("press owt")
+#             
         te_syms = [r[5] for r in te_rows]
+
         all_syms = set(lm_syms + te_syms)
         pmsym_fname = os.path.join(batch_dir, SYM_FILE)
         save_symbol_table(all_syms, pmsym_fname)
@@ -61,7 +91,8 @@ if __name__ == '__main__':
         
         #TWO: Assuming all the other model files are complete, we should be good to go
         
-        lang_mod = os.path.join(lm_dir,LM_PRUNED)
+        #lang_mod = os.path.join(lm_dir,LM_PRUNED)
+        lang_mod = os.path.join(lm_dir,"mod.pru")
         
         all_models_dir = os.path.join(batch_dir, "pm_lm_slm")
         all_models_in_dir = os.path.join(all_models_dir, "composed")
@@ -73,7 +104,7 @@ if __name__ == '__main__':
         pm_outs_dir = os.path.join(pm_only_dir, "output")
         
         pm_lm_dir = os.path.join(batch_dir, "pm_lm")
-        pm_lm_indir = os.path.join(pm_lm_dir, "composed")
+        pm_lm_in_dir = os.path.join(pm_lm_dir, "composed")
         pm_lm_shp_dir = os.path.join(pm_lm_dir, "shortest")
         pm_lm_outs_dir = os.path.join(pm_lm_dir, "output")
     
@@ -82,13 +113,18 @@ if __name__ == '__main__':
         find_shortest_paths.stringify_shortest_paths(batch_input_fst_dir, pm_shp_dir, pm_outs_dir)
         
         #now just use the pruned LM file without slen modifier
-        process_inputs.process_inputs(batch_input_fst_dir, lang_mod, pm_lm_dir)
-        find_shortest_paths.stringify_shortest_paths(pm_lm_dir, pm_lm_shp_dir, pm_lm_outs_dir)
+        process_inputs(batch_input_fst_dir, lang_mod, pm_lm_in_dir)
+        find_shortest_paths.stringify_shortest_paths(pm_lm_in_dir, pm_lm_shp_dir, pm_lm_outs_dir) #(input_dir, shortpath_dir, strings_dir
         
         #use combined LM and slen modifier
         slm_file = os.path.join(slm_dir,"slm.fst")
-        cv_file = os.path.join(lm_dir,"conv.fst")        
+        lm_slm = os.path.join(batch_dir,"lm_slm.fst") 
         
-        converter_fname = process_inputs.compose_converters(batch_dir, lang_mod, cv_file, slm_file)
-        process_inputs.process_inputs(batch_input_fst_dir, converter_fname, all_models_in_dir)
+        
+        lm_gen.fstarcsort(slm_file, ilabel_sort=True)
+        lm_gen.fstcompose(lang_mod, slm_file, lm_slm)
+                
+        process_inputs(batch_input_fst_dir, lm_slm, all_models_in_dir)
         find_shortest_paths.stringify_shortest_paths(all_models_in_dir, all_models_shp_dir, all_models_out_dir)
+        
+        evaluate_output.eval_segmenter_output(batch_dir)

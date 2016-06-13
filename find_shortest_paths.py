@@ -37,6 +37,8 @@ def fstprint(inf):
     
     
 def fstprint2(full_fname):
+    print "reading", full_fname
+    
     op = sp.check_output(["fstprint",full_fname]) #call the print command and get the output as a byte string
     #print op
     op = op.decode() #convert byte string into unicode
@@ -86,7 +88,8 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
         fname = os.path.basename(inf)
         shpf = os.path.join(shortpath_dir, fname)
         outf = os.path.join(strings_dir, fname)
-        print "shortest path:",inf,"->",outf
+        print "Finding shortest path:",inf,"->",outf
+        print "First, create temp file:", shpf
         nshortest_path(inf, shpf, 1)
         outstr = fstprint2(shpf)
         of = open(outf,"w")
