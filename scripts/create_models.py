@@ -10,12 +10,13 @@ from common import read_file, DIR, \
     save_symbol_table, JOINT_CV_SLM_FILE_GLOBAL, \
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL, \
     CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE, \
-    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, create_remap_table
+    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, create_remap_table, BREAK,\
+    UNK
 from lm_gen import fstcompose, compile_lm, \
     fstarcsort, generate_normed_text_file, ngramshrink, remap_lm
 from pm.pm_utils import compile_pm_files, \
     generate_pm_text_files
-from slm.slm_utils import create_converter, generate_slm
+from slm.slm_utils import create_converter, generate_slm, generate_slm_from_txt
 import sys
 import json
 import shutil
@@ -62,8 +63,12 @@ else:
 
     rawtext_file = generate_normed_text_file(tr_rows, lmdir_global)
     
-    lm_syms = set([r[5] for r in tr_rows])
+    #lm_syms = set([r[5] for r in tr_rows])
     
+    lm_txt = open(rawtext_file, "r").readlines()
+    lm_syms= set( open(rawtext_file, "r").read().split() )
+    if BREAK in lm_syms: lm_syms.remove(BREAK)
+    if UNK in lm_syms: lm_syms.remove(UNK)
     
     buildmod = "y"
     modfile = os.path.join(lmdir_global,"lm.mod")
@@ -74,11 +79,14 @@ else:
         buildmod = raw_input("model file in "+lmdir_global+" already exists.  Overwrite? [n]").lower() or "n"
     
     if(not buildmod=="n"):
-        (modfile, symfile) = compile_lm(rawtext_file, lmdir_global, lm_syms)
+        modfile = compile_lm(rawtext_file, lmdir_global, lm_syms)
         
         print "Created unpruned lang model file:", modfile
         print "Now pruning LM..."
         ngramshrink(modfile, modpru)
+        print "Now minimising LM..."
+        lm_gen.fstmin(modpru,modpru)
+        
         #we don't use the unpruned modfile again, so switch over to the pruned version here
         modfile = modpru
         
@@ -97,7 +105,8 @@ else:
         
     print "using ",slm_dir
 
-    generate_slm(tr_rows, slm_dir, do_plot=False) # build the sentence length model, plot it so we can see it's sane
+    generate_slm_from_txt(lm_txt, slm_dir, do_plot=False)
+    #generate_slm(tr_rows, slm_dir, do_plot=False) # build the sentence length model, plot it so we can see it's sane
     print "slm generated from", tr_file, "in", slm_dir
     
     print "all constituent system files now compiled"

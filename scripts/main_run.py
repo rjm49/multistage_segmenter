@@ -35,6 +35,7 @@ def process_inputs(input_dir, lm_file, out_dir):
 
 if __name__ == '__main__':
 
+    print "running main_run"
     config = None
     with open('sample_config.cfg') as data_file:    
         config = json.load(data_file)
@@ -123,6 +124,7 @@ if __name__ == '__main__':
         
         lm_gen.fstarcsort(slm_file, ilabel_sort=True)
         lm_gen.fstcompose(lang_mod, slm_file, lm_slm)
+        lm_gen.fstimmut(lm_slm, lm_slm)
                 
         process_inputs(batch_input_fst_dir, lm_slm, all_models_in_dir)
         find_shortest_paths.stringify_shortest_paths(all_models_in_dir, all_models_shp_dir, all_models_out_dir)

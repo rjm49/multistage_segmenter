@@ -35,7 +35,7 @@ def compile_lm(raw_text_file, lmdir_global, lm_syms):
     modfile = ngrammake(cntfile, lmdir_global) #this creates the ngram model file
     
     print "made ngrammes"
-    return modfile, symfile
+    return modfile
 
 def remap_lm(lm_file, remap_file, osymfile):
     sp.call(["fstrelabel","--relabel_opairs="+remap_file, lm_file, lm_file])
@@ -84,7 +84,7 @@ def ngramsymbols(infile, lmdir_global):
 def farcompilestrings(ifile, lmdir_global):
     symfile = os.path.join(lmdir_global, LM_SYM_FILE)
     ofile = os.path.join(lmdir_global, "lm.far")
-    sp.call([cmd_farcompilestrings,"-symbols="+symfile,"-keep_symbols=1",ifile], stdout=open(ofile,"w"))
+    sp.call([cmd_farcompilestrings, "-symbols="+symfile,"-keep_symbols=1",ifile], stdout=open(ofile,"w"))
     return ofile
     
 #ngramcount -order=5 earnest.far >earnest.cnts
@@ -112,6 +112,13 @@ def ngramshrink(a,out):
 #ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru
     sp.call(["ngramshrink","-method=relative_entropy","-theta=0.0015",a],stdout=open(out,'w'))
     
+def fstmin(a,out):
+#ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru
+    sp.call(["fstminimize",a,out])
+    
+def fstimmut(a,out):
+#ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru
+    sp.call(["fstconvert","-fst_type=const",a,out])
 
 #fstcompile --isymbols=isyms.txt --osymbols=osyms.txt text.fst binary.fst
 def fstcompile(txtf,binf, isyms, osyms):

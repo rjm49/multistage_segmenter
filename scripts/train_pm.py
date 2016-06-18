@@ -9,7 +9,7 @@ import os
 
 import scipy.stats
 from sklearn import svm, datasets, preprocessing
-from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import train_test_split, StratifiedShuffleSplit
 from sklearn.externals import joblib
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics.classification import precision_recall_fscore_support, \
@@ -24,6 +24,7 @@ import sys
 import shutil
 from operator import itemgetter
 import random
+from sklearn.linear_model.logistic import LogisticRegression
 
 overwrite_pkl = True
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
         test_fname = TEST_FILE_DEFAULT
 #         do_search = False
 #         use_pilot = False
-        n_samples = 2000
+        n_samples = 6000
         cache = 800
     
     pm_dir= raw_input("enter PM name: [%s]" % pm_dir) or pm_dir
@@ -70,7 +71,14 @@ if __name__ == '__main__':
     tr_data = read_file(os.path.join(base_dir, tr_file), ',', skip_header=True)
     
     test_fname = raw_input("enter file to test on: [%s]" % test_fname) or test_fname
-    out_fname = test_fname+"-probabilities.dat"
+
+    use_lr = bool(raw_input("use logistic regression [False]?")) or False
+
+    if not use_lr:
+        out_fname = test_fname+"-probabilities.dat"
+    else: 
+        out_fname = test_fname+"-probabilities-LR.dat" 
+
     out_file = os.path.join(base_dir, pm_dir, out_fname)
     #clear extant predictions file
     if(os.path.exists(out_file)):
@@ -85,11 +93,10 @@ if __name__ == '__main__':
     #sel = [12,13,14,15,21,22,23,24]
     sel = range(7,30)
 
-    if(n_samples>0):
-        tr_data = random.sample(tr_data, n_samples)
-        
     (tr_headers, tr_words, tr_samples, tr_classes) = dissect(tr_data)
     (te_headers, te_words, te_samples, te_classes) = dissect(test_data)
+       
+    tr_samples, notused, tr_classes, notusedc =  train_test_split(tr_samples, tr_classes, train_size=n_samples, stratify=tr_classes) 
     
     p = sum(c==1.0 for c in tr_classes) # count the positive instances
     n = len(tr_classes) - p # derive the negative instances
@@ -104,9 +111,6 @@ if __name__ == '__main__':
     scaler = preprocessing.StandardScaler().fit( np.array(tr_samples) )
     tr_samples = scaler.transform(tr_samples)
 
-#     print tr_samples[0:10]
-#     print tr_samples.mean(axis=0)
-#     print tr_samples.std(axis=0)
              
     clf = None
     best_params = None
@@ -144,44 +148,17 @@ if __name__ == '__main__':
         
         print('gamma_range', gamma_range)
         
-        tuned_parameters = [
-                    {
-                        'gamma': gamma_range,
-                        'C': c_range,
-                    },   
-                ]
-        
-        estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True, class_weight='balanced')
-        #searcher = GridSearchCV(estr, tuned_parameters, cv=5, n_jobs=-1, scoring='recall', verbose=True)
-        
         c_dist =  scipy.stats.expon(scale=100)
         gamma_dist = scipy.stats.expon(scale=.01)
         
-#         crvs= c_dist.rvs(size=100)
-#         print crvs
-#         print crvs.mean(axis=0)
-#         
-#         grvs = gamma_dist.rvs(size=100)
-#         print grvs
-#         print grvs.mean(axis=0)
+        if use_lr:
+            estr = LogisticRegression(class_weight='balanced')
+            param_dist={'C': c_dist }
+        else:
+            estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True, class_weight='balanced' )
+            param_dist={'C': c_dist, 'gamma': gamma_dist}
         
-#         best = 0.0
-#         for c in c_range:
-#             for g in gamma_range:
-#                 param_dist={'C': scipy.stats.expon(scale=c), 'gamma': scipy.stats.expon(scale=g)}
-#                 searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=50, n_jobs=-1, cv=4, verbose=True, scoring="recall")
-#                 searcher.fit(tr_samples,tr_classes)
-#                 print "PARAMS:", c, g
-#                 report(searcher.grid_scores_)
-#                 
-#                 #clf = searcher.best_estimator_
-#                 #best_params = searcher.best_params_
-#                 if(searcher.best_score_ > best):
-#                     best = searcher.best_score_
-#                     clf = searcher.best_estimator_
-#                     best_params = searcher.best_params_
-
-        param_dist={'C': c_dist, 'gamma': gamma_dist}
+        
         searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, cv=5, verbose=True, scoring="recall")
         searcher.fit(tr_samples,tr_classes)
         report(searcher.grid_scores_)
@@ -214,7 +191,7 @@ if __name__ == '__main__':
     print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(te_samples),(te_classes != predicted_classes).sum()))
     print(classification_report(te_classes, predicted_classes))
 
-    print len(clf.support_vectors_)
+    if not use_lr : print len(clf.support_vectors_)
     
     pred_file = open(out_file,"w")
     pred_file.write("labels 0 1\n") #this emulates an earlier file format for compatibility
