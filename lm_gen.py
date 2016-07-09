@@ -110,7 +110,7 @@ def fstcompose(a,b, out):
     
 def ngramshrink(a,out):
 #ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru
-    sp.call(["ngramshrink","-method=relative_entropy","-theta=0.0015",a],stdout=open(out,'w'))
+    sp.call(["ngramshrink","-method=relative_entropy","-theta=1.0e-5",a],stdout=open(out,'w'))
     
 def fstmin(a,out):
 #ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru

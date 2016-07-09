@@ -80,7 +80,7 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
         print "re-making",d
         shutil.rmtree(d, ignore_errors=True)
         os.makedirs(d)
-    
+        
     descriptor = os.path.join(input_dir,"*.fst")
     print "processing files matching:", descriptor
     fs = glob.glob(descriptor)
@@ -95,8 +95,32 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
         of = open(outf,"w")
         of.write(outstr)
         of.flush()
-        of.close()
-        
+        of.close()    
+
+
+def convert_to_single_file(match_str, input_dir):
+    descriptor = os.path.join(input_dir,match_str)
+    print "processing files matching:", descriptor
+    fs = glob.glob(descriptor)
+    txfile = open(os.path.join(input_dir,"all.txt"), "w")
+    outlines = []
+    for inf in sorted(fs):
+        #fname = os.path.basename(inf)
+        f= open(inf)  
+        outstr = ""
+        for ln in f:
+            tup = ln.split()
+            #txfile.write(tup[0]+" ")
+            outstr += tup[0]+" "
+            #print tup[1]
+            if tup[1]=='1':
+                outstr += "<break> "
+                #txfile.write("<break> ")
+        outlines.append(outstr)
+    txfile.writelines(outlines)
+    txfile.close()
+    print "wrote",txfile
+    return " ".join(outlines)
 
 if __name__ == '__main__':
 #     lmdir = "eval1n"

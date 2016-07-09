@@ -73,18 +73,25 @@ def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
     slm_fxt = os.path.join(slm_dir, "slm.fxt")
     slength_counts = Counter()
     slen=1
+    maxl=0
     #print training_rows
     for r in training_rows:
         r = r.strip()
-        
-        print r
-        
+               
         segs = r.split(BREAK) # chop the line up into segments
         for s in segs:
             slen = len(s.split())
-            print slen
+
+            if slen > maxl:
+                print "new max length = ", slen
+                maxl = slen
+                print "from seg: ", s
+                print "from row: ", r
+
             if slen:
                 slength_counts[slen]+=1
+
+    #_ = raw_input("hit key")
                            
     els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
     print els
@@ -104,7 +111,8 @@ def write_slm(slm_file, x_vals, gam_gen):
     lfile.truncate()
     
     maxp = 0
-    
+
+    p_acc= 0    
     for i in x_vals:
         #prob of being length i = p(i)
         
@@ -112,21 +120,30 @@ def write_slm(slm_file, x_vals, gam_gen):
         #states 1-(L-1) have arcs OUT, EPS, and BREAK
         #state (L-1) has arc EPS and BREAK
 
+        p_i = gam_gen.pdf(i) if i>0 else 0.0
+        print "p("+str(i)+")=", p_i
+        p_acc += p_i
+        
         lfile.write("%d %d %s %s\n" % (i,i,EPS,EPS))
         if(i < max(x_vals)): #unless we're in the final state...
-            score_gt_i = -math.log( 1-gam_gen.cdf(i) )
+            #score_gt_i = -math.log( 1-gam_gen.cdf(i) )
+            score_gt_i = -math.log( 1-p_i )
             lfile.write("%d %d %s %s %s\n" % (i,i+1,ANYWORD,ANYWORD,str(score_gt_i)))
         if(i>0):
-            p_i = gam_gen.pdf(i)
             if(p_i>maxp):
                 maxp = p_i
                 print "new max p=",str(maxp)," at slen ",str(i)
-            score_i = -math.log(gam_gen.pdf(i))
+
+            #score_i = -math.log(gam_gen.pdf(i))
+            score_i = -math.log( p_i ) 
             lfile.write("%d 0 %s %s %s\n" % (i,BREAK,BREAK,str(score_i))) #arc back    
-    #lfile.write("0 0") #final state=0 with penalty=zero
-    lfile.write("0")
+
+    lfile.write("0 0") #final state=0 with penalty=zero
     lfile.flush() 
     lfile.close()
+    
+    print "p_acc total=", p_acc
+    #_ = raw_input("hit key")
     
 def compile_slm(slm_dir):
     slm_fxt = os.path.join(slm_dir,"slm.fxt")

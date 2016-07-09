@@ -62,7 +62,7 @@ if __name__ == '__main__':
         test_fname = TEST_FILE_DEFAULT
 #         do_search = False
 #         use_pilot = False
-        n_samples = 6000
+        n_samples = -1
         cache = 800
     
     pm_dir= raw_input("enter PM name: [%s]" % pm_dir) or pm_dir
@@ -75,11 +75,15 @@ if __name__ == '__main__':
     use_lr = bool(raw_input("use logistic regression [False]?")) or False
 
     if not use_lr:
+        n_samples = 6000
         out_fname = test_fname+"-probabilities.dat"
+        report_fname = test_fname+"-report.txt"
     else: 
-        out_fname = test_fname+"-probabilities-LR.dat" 
+        out_fname = test_fname+"-probabilities.dat"
+        report_fname = test_fname+"-report-LR.txt"
 
     out_file = os.path.join(base_dir, pm_dir, out_fname)
+    report_fname = os.path.join(base_dir, pm_dir, report_fname)
     #clear extant predictions file
     if(os.path.exists(out_file)):
         os.remove(out_file)
@@ -91,12 +95,14 @@ if __name__ == '__main__':
     test_data = read_file(os.path.join(base_dir, test_fname), ',', skip_header=True)
     
     #sel = [12,13,14,15,21,22,23,24]
-    sel = range(7,30)
+    #sel = range(7,30)
+    sel = [8,21,29, 24,25,27]
 
     (tr_headers, tr_words, tr_samples, tr_classes) = dissect(tr_data)
     (te_headers, te_words, te_samples, te_classes) = dissect(test_data)
        
-    tr_samples, notused, tr_classes, notusedc =  train_test_split(tr_samples, tr_classes, train_size=n_samples, stratify=tr_classes) 
+    if n_samples>0:
+        tr_samples, notused, tr_classes, notusedc =  train_test_split(tr_samples, tr_classes, train_size=n_samples, stratify=tr_classes) 
     
     p = sum(c==1.0 for c in tr_classes) # count the positive instances
     n = len(tr_classes) - p # derive the negative instances
@@ -153,25 +159,25 @@ if __name__ == '__main__':
         
         if use_lr:
             estr = LogisticRegression(class_weight='balanced')
+#             estr = LogisticRegression()
             param_dist={'C': c_dist }
         else:
-            estr = svm.SVC(kernel='rbf', cache_size=cache, probability=True, class_weight='balanced' )
-            param_dist={'C': c_dist, 'gamma': gamma_dist}
+            estr = svm.SVC(kernel='rbf', cache_size=800, probability=True, class_weight='balanced' )
+            #estr = svm.LinearSVC(class_weight='balanced')
+            param_dist={'C': c_dist , 'gamma': gamma_dist}
+            
         
-        
-        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, cv=5, verbose=True, scoring="recall")
+        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, cv=5, verbose=True, scoring="recall_weighted")
         searcher.fit(tr_samples,tr_classes)
         report(searcher.grid_scores_)
-        clf = searcher.best_estimator_
-                            
+        clf = searcher.best_estimator_         
 
         print "COMPARING CLF PARAMS WITH BEST PARAMS (shd be same)"
         print clf.get_params()
         print best_params
         
         joblib.dump(clf, pickled_model)
-           
-
+        
     print clf
 
 #     print "FITTING"     
@@ -186,12 +192,19 @@ if __name__ == '__main__':
     print "no test cases", len(te_samples)
     
     predictions = -1.0 * clf.predict_log_proba(te_samples) #this is a list of pairs of probs in form [ [1-p, p],  ... ]
+    #predictions = -1.0 * clf.decision_function(te_samples)
+    print predictions
     predicted_classes = clf.predict(te_samples)
     
     print("TEST: Number of mislabelled points out of a total %d points : %d" % (len(te_samples),(te_classes != predicted_classes).sum()))
     print(classification_report(te_classes, predicted_classes))
 
-    if not use_lr : print len(clf.support_vectors_)
+    
+    rpt = open(report_fname, "w")
+    rpt.write(classification_report(te_classes, predicted_classes))
+    rpt.write("\n")
+    rpt.close()
+    print "wrote report file", rpt
     
     pred_file = open(out_file,"w")
     pred_file.write("labels 0 1\n") #this emulates an earlier file format for compatibility

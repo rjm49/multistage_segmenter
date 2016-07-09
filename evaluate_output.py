@@ -12,6 +12,7 @@ from common import DIR, PM_SUB_DIR, \
 from lm_gen import fstcompose
 from pm.pm_utils import generate_pm_text_files, \
     compile_pm_files
+from pip._vendor.pyparsing import WordStart
 
 
 #this lets us compare the contents of two files
@@ -129,6 +130,49 @@ def eval_segmenter_output(batch_dir):
         rfile.write(outstr + "\n")
     rfile.flush()
     rfile.close()
+    
+#takes the full batch_dir path
+def multi_col_report(batch_dir, output_dirs=("pm_only", "pm_lm", "pm_lm_slm")):
+
+#     base_dir = "/home/rjm49/mseg/"
+#     batch_dir= os.path.join(base_dir,"Pb_Lb_Sb(heldout)")
+    
+    gold_dir = os.path.join(batch_dir,"gold")
+    
+    prF = "p,r,F"
+    
+    report = []
+    
+    goldfiles = sorted( glob.glob(os.path.join(gold_dir,"*.gld")) )
+    for gf in goldfiles:
+        rec_id = os.path.basename(gf)[:-4]
+        rec_dic = {}
+        rec_dic["rec_id"] = rec_id
+        gold_rows = codecs.open(os.path.join(gold_dir,gf), "r").read().splitlines()
+        words = []
+        gold_classes= []
+        for gr in gold_rows:
+            gtup = gr.split()
+            words.append(gtup[0])
+            gold_classes.append(gtup[1])
+        rec_dic["words"] = words
+        rec_dic["gold"]= gold_classes
+        report.append(rec_dic)
+    
+    for d in output_dirs:
+        full_d = os.path.join(batch_dir,d,"output")
+            
+        for rec in report:
+            rec_id = rec['rec_id']
+            algo_rows = codecs.open(os.path.join(full_d,rec_id+".fst"), "r").read().splitlines()
+            algo_classes = [x.split()[1] for x in algo_rows]
+            rec[d] = algo_classes
+
+#     for rec in report:
+#         print rec
+
+    return report
+
     
 if __name__ == '__main__':
     pass

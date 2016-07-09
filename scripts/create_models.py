@@ -84,8 +84,8 @@ else:
         print "Created unpruned lang model file:", modfile
         print "Now pruning LM..."
         ngramshrink(modfile, modpru)
-        print "Now minimising LM..."
-        lm_gen.fstmin(modpru,modpru)
+        #print "Now minimising LM..."
+        #lm_gen.fstmin(modpru,modpru)
         
         #we don't use the unpruned modfile again, so switch over to the pruned version here
         modfile = modpru
@@ -105,7 +105,7 @@ else:
         
     print "using ",slm_dir
 
-    generate_slm_from_txt(lm_txt, slm_dir, do_plot=False)
+    generate_slm_from_txt(lm_txt, slm_dir, do_plot=True)
     #generate_slm(tr_rows, slm_dir, do_plot=False) # build the sentence length model, plot it so we can see it's sane
     print "slm generated from", tr_file, "in", slm_dir
     
