@@ -6,7 +6,7 @@ Created on 30 Nov 2015
 '''
 import os
 
-from common import TRAIN_FILE_DEFAULT, DIR, read_file
+from mseg.common import TRAIN_FILE_DEFAULT, DIR, read_file
 from slm.slm_utils import generate_slm
 
 gen_ntxt = False

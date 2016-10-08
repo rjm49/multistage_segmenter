@@ -7,10 +7,10 @@ import errno
 import glob, os
 import shutil
 
-from common import DIR, PM_SUB_DIR, \
+from mseg.common import DIR, PM_SUB_DIR, \
     JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS, \
     BREAK
-from lm_gen import fstcompose, nshortest_path
+from mseg.lm_utils import fstcompose, nshortest_path
 import subprocess as sp
 
 def fstprint(inf):

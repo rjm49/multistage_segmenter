@@ -5,18 +5,18 @@ Created on 30 Nov 2015
 '''
 import json
 import os
-import create_gold_files
-import find_shortest_paths
-import evaluate_output
-import lm_gen
+from mseg import create_gold_files
+from mseg import find_shortest_paths
+from mseg import evaluate_output
+from mseg import lm_utils
 import shutil
 import glob
 
-from common import read_file, LM_SYM_FILE, load_symbol_table, SYM_FILE, \
-    save_symbol_table, LM_PRUNED, ANYWORD
-from pm.pm_utils import generate_pm_text_files, compile_pm_files
-from find_shortest_paths import convert_to_single_file
-import bleu_break_scorer
+from mseg.common import read_file, LM_SYM_FILE, load_symbol_table, SYM_FILE, \
+    save_symbol_table, ANYWORD
+from mseg.pm_utils import generate_pm_text_files, compile_pm_files
+from mseg.find_shortest_paths import convert_to_single_file
+from mseg import bleu_break_scorer
 import nltk
 
 #nltk.download()
@@ -37,7 +37,7 @@ def process_inputs(input_dir, lm_file, out_dir):
     fs = glob.glob(os.path.join(input_dir,"*.fst"))
     for f in fs:
         outf = os.path.join(out_dir ,os.path.basename(f))
-        lm_gen.fstcompose(f, lm_file, outf)
+        lm_utils.fstcompose(f, lm_file, outf)
         print "output:",outf
 
 if __name__ == '__main__':
@@ -111,7 +111,7 @@ if __name__ == '__main__':
             
             probability_file = os.path.join(pm_dir, (te_file+"-probabilities.dat"))
             if not os.path.exists(probability_file):
-                print "NO PROBABILITY FILE FOUND AT ", probability_file, " - you need to create this first with train_pm_svm.py"
+                print "NO PROBABILITY FILE FOUND AT ", probability_file, " - you need to create this first with train_pm.py"
                 continue #go onto the next batch TODO should create prob file here!
             
             prob_rows = read_file(probability_file, ' ', skip_header=True)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
             
             if eq_chance:
                 slm_file = os.path.join(slm_dir,"slm.fst")
-                lm_gen.fstarcsort(slm_file, ilabel_sort=True)
+                lm_utils.fstarcsort(slm_file, ilabel_sort=True)
 
                 process_inputs(batch_input_fst_dir, slm_file, pm_slm_in_dir)
                 find_shortest_paths.stringify_shortest_paths(pm_slm_in_dir, pm_slm_shp_dir, pm_slm_outs_dir)

@@ -6,9 +6,9 @@ Created on Feb 24, 2016
 import codecs
 import glob, os
 
-from common import DIR, PM_SUB_DIR, \
+from mseg.common import DIR, PM_SUB_DIR, \
      GOLD_SUB_DIR, read_file, TEST_FILE_DEFAULT
-from lm_gen import fstcompose
+from mseg.lm_utils import fstcompose
 
 
 def generate_gold_files(odir, rows):

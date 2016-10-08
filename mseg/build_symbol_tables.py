@@ -5,9 +5,9 @@ Created on 30 Nov 2015
 '''
 import os
 
-from common import LM_SYM_FILE, SYM_FILE, TRAIN_FILE_DEFAULT, \
+from mseg.common import LM_SYM_FILE, SYM_FILE, TRAIN_FILE_DEFAULT, \
     DIR, TEST_FILE_DEFAULT, read_file, save_symbol_table
-from lm_gen import generate_normed_text_file
+from mseg.lm_utils import generate_normed_text_file
 
 
 gen_ntxt = False

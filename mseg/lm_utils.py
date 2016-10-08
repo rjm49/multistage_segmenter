@@ -6,7 +6,7 @@ Created on Dec 8, 2015
 import codecs
 import os
 
-from common import DIR, PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE,\
+from mseg.common import DIR, PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE,\
     save_symbol_table, create_remap_table
 import subprocess as sp
 

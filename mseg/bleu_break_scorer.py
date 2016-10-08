@@ -4,7 +4,7 @@ Created on Jun 18, 2016
 @author: rjm49
 '''
 from math import exp, log
-from common import BREAK
+from mseg.common import BREAK
 
 #set max n-gram length
 

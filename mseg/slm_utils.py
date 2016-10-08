@@ -11,7 +11,7 @@ import os
 from scipy.stats import gamma, norm
 
 import matplotlib.pyplot as plt
-from common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
+from mseg.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
     SLM_FXT_FILE_GLOBAL, load_symbol_table, PM_SUB_DIR, UNK, \
     SYM_FILE, CONV_FXT, CONV_FST, LM_SYM_FILE
 import subprocess as sp

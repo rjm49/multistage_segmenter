@@ -6,10 +6,10 @@ Created on Feb 24, 2016
 import codecs
 import glob, os
 
-from common import DIR, PM_SUB_DIR, GOLD_SUB_DIR, read_file, load_symbol_table, \
+from mseg.common import DIR, PM_SUB_DIR, GOLD_SUB_DIR, read_file, load_symbol_table, \
     LM_SYM_FILE, PROSODIC_PREDICTION_FILE, TEST_FILE_DEFAULT
-from lm_gen import fstcompose
-from pm.pm_utils import generate_pm_text_files, \
+from mseg.lm_utils import fstcompose
+from mseg.pm_utils import generate_pm_text_files, \
     compile_pm_files
 
 

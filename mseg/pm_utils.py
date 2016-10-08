@@ -7,9 +7,9 @@ import codecs
 import glob, shutil
 import os
 
-from common import DIR, PM_SUB_DIR, UNK, \
+from mseg.common import DIR, PM_SUB_DIR, UNK, \
     EPS, BREAK, LM_SYM_FILE
-from lm_gen import fstcompile
+from mseg.lm_utils import fstcompile
 import math
 
 

@@ -4,23 +4,24 @@ Created on 30 Nov 2015
 @author: Russell
 '''
 
+import json
 import os
+import shutil
+import sys
 
-from common import read_file, DIR, \
+from mseg import lm_utils
+from mseg.common import read_file, DIR, \
     save_symbol_table, JOINT_CV_SLM_FILE_GLOBAL, \
     SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL, \
     CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE, \
-    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, create_remap_table, BREAK,\
+    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, create_remap_table, BREAK, \
     UNK
-from lm_gen import fstcompose, compile_lm, \
+from mseg.lm_utils import fstcompose, compile_lm, \
     fstarcsort, generate_normed_text_file, ngramshrink, remap_lm
-from pm.pm_utils import compile_pm_files, \
+from mseg.pm_utils import compile_pm_files, \
     generate_pm_text_files
-from slm.slm_utils import create_converter, generate_slm, generate_slm_from_txt
-import sys
-import json
-import shutil
-import lm_gen
+from mseg.slm_utils import create_converter, generate_slm, generate_slm_from_txt
+
 
 if __name__ == '__main__':
 
@@ -86,7 +87,7 @@ else:
         print "Now pruning LM..."
         ngramshrink(modfile, modpru)
         #print "Now minimising LM..."
-        #lm_gen.fstmin(modpru,modpru)
+        #lm_utils.fstmin(modpru,modpru)
         
         #we don't use the unpruned modfile again, so switch over to the pruned version here
         modfile = modpru

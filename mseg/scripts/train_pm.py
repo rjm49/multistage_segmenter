@@ -15,7 +15,7 @@ from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics.classification import precision_recall_fscore_support, \
     classification_report
 
-from common import read_file, filter_data_rows, DIR, TRAIN_FILE_DEFAULT,\
+from mseg.common import read_file, filter_data_rows, DIR, TRAIN_FILE_DEFAULT,\
     PROSODIC_PREDICTION_FILE, TEST_FILE_DEFAULT
 import numpy as np
 from svm.balance import sep_classes, shuff_trim_balance_classes

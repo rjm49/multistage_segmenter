@@ -3,25 +3,24 @@ Created on 30 Nov 2015
 
 @author: Russell
 '''
+import glob
 import json
 import os
-import create_gold_files
-import find_shortest_paths
-import evaluate_output
-import lm_gen
 import shutil
-import glob
+import sys
 
-from common import read_file, LM_SYM_FILE, load_symbol_table, SYM_FILE, \
-    save_symbol_table, LM_PRUNED, ANYWORD
-from pm.pm_utils import generate_pm_text_files, compile_pm_files
-from find_shortest_paths import convert_to_single_file
-import bleu_break_scorer
 import nltk
-import MCReportProcessor
+
+from mseg import bleu_break_scorer, lm_utils, create_gold_files, \
+    find_shortest_paths, evaluate_output
+from mseg.common import read_file, LM_SYM_FILE, load_symbol_table, SYM_FILE, \
+    save_symbol_table
+from mseg.find_shortest_paths import convert_to_single_file
+from mseg.pm_utils import generate_pm_text_files, compile_pm_files
+from mseg.scripts import MCReportProcessor
+
 
 #nltk.download()
-
 do_build = True
 #eq_chance=  False
 compose_lm_slm = True
@@ -60,10 +59,11 @@ def process_inputs(input_dir, lm_file, out_dir):
     fs = glob.glob(os.path.join(input_dir,"*.fst"))
     for f in fs:
         outf = os.path.join(out_dir ,os.path.basename(f))
-        lm_gen.fstcompose(f, lm_file, outf)
+        lm_utils.fstcompose(f, lm_file, outf)
         print "output:",outf
 
-if __name__ == '__main__':
+
+def main(argv):
     print "running main_run"
     config = None
     with open('sample_config.cfg') as data_file:
@@ -189,9 +189,9 @@ if __name__ == '__main__':
             lm_slm = os.path.join(batch_dir,"lm_slm.fst") 
             
             if compose_lm_slm:
-                lm_gen.fstarcsort(slm_file, ilabel_sort=True)
-                lm_gen.fstcompose(lang_mod, slm_file, lm_slm)
-                lm_gen.fstimmut(lm_slm, lm_slm)
+                lm_utils.fstarcsort(slm_file, ilabel_sort=True)
+                lm_utils.fstcompose(lang_mod, slm_file, lm_slm)
+                lm_utils.fstimmut(lm_slm, lm_slm)
                      
                 process_inputs(batch_input_fst_dir, lm_slm, all_models_in_dir)
             
@@ -251,3 +251,6 @@ if __name__ == '__main__':
         bfile.close()
         
         print "Wrote bleu scores to file: ", bfile
+        
+if __name__ == '__main__':
+    main(sys.argv[1:])
