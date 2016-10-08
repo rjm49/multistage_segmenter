@@ -67,6 +67,9 @@ def eval_segmenter_output(batch_dir):
     
     prF = "p,r,F"
     
+    gprf_fname = os.path.join(batch_dir, os.path.basename(batch_dir)+"-gprf.txt")
+    gprf_file = codecs.open(gprf_fname,"w")
+    
     report_fname = os.path.join(batch_dir,"segmenter_report.csv")
     rfile = codecs.open(report_fname,"w")
     headers = "RECID,G#B,O#B,TPOS,FPOS,FNEG,(TNEG)"
@@ -118,6 +121,8 @@ def eval_segmenter_output(batch_dir):
         gF = 0 if (gp+gr==0) else (2*gp*gr / (gp+gr))
         print "Total: - gp/gr/gF:",gp,gr,gF
     
+        gprf_file.write("for %s gp/gr/gF= %f %f %f \n" % (d, gp, gr, gF) )
+    
         # check also the average (mean) F across files    
 
     rfile.write(headers+"\n")
@@ -131,6 +136,8 @@ def eval_segmenter_output(batch_dir):
     rfile.flush()
     rfile.close()
     
+    gprf_file.close()
+        
 #takes the full batch_dir path
 def multi_col_report(batch_dir, output_dirs=("pm_only", "pm_lm", "pm_lm_slm")):
 

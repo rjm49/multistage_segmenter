@@ -18,12 +18,35 @@ from pm.pm_utils import generate_pm_text_files, compile_pm_files
 from find_shortest_paths import convert_to_single_file
 import bleu_break_scorer
 import nltk
+import MCReportProcessor
 
 #nltk.download()
 
 do_build = True
-eq_chance=  False
+#eq_chance=  False
+compose_lm_slm = True
 
+def write_bleus_to_file(R, cands, bfile, order=4, strict=True):
+    smode = "strict" if strict else "lax"    
+    bfile.write("BLEU-%d SCORES (%s)\n" % (order, smode))
+    for cpair in cands:
+        c_name = cpair[0]
+        C = cpair[1]
+        bleu_pair = bleu_break_scorer.getBLEU(C, R, N=order, strict=strict)
+        
+        
+#         print c_name, order, smode, bleu_pair
+        
+        bfile.write("%s = %f \n" % (c_name, bleu_pair[0]))
+#         bfile.write("Mod'd prec'ns:\n")
+        for p in enumerate(bleu_pair[1]):
+            bfile.write("p_%d=%f " % (p[0]+1, p[1]))
+        BP = bleu_pair[2]
+        if(BP<1.0):
+            bfile.write("Brev pen=%f\n" % BP)
+        bfile.write("\n")
+    bfile.write("- - - - -\n")
+    
 def process_inputs(input_dir, lm_file, out_dir):
     if(not os.path.exists(input_dir)):
         print "FST source directory",input_dir,"does not exist - can't continue analysis without it!"
@@ -43,7 +66,7 @@ def process_inputs(input_dir, lm_file, out_dir):
 if __name__ == '__main__':
     print "running main_run"
     config = None
-    with open('sample_config.cfg') as data_file:    
+    with open('sample_config.cfg') as data_file:
         config = json.load(data_file)
         
     base_dir = config['base_dir']
@@ -136,14 +159,12 @@ if __name__ == '__main__':
                     for tag in tags:
                         emission_vals.append(tag[1])
                 
-                _ = raw_input("hit key")
-            elif eq_chance:
-                emission_vals = [ANYWORD for t in te_rows]
+                #_ = raw_input("hit key")
             else:
                 emission_vals = [t[5] for t in te_rows]
                         
         
-            generate_pm_text_files(batch_input_fst_dir, lm_syms, te_rows, prob_rows, max_count=-1, emission_values=emission_vals, equal_chance=eq_chance, pm_weight=pm_weight)
+            generate_pm_text_files(batch_input_fst_dir, lm_syms, te_rows, prob_rows, max_count=-1, emission_values=emission_vals, pm_weight=pm_weight)
             
             compile_pm_files(batch_input_fst_dir, pmsym_fname, lmsym_fname)
             
@@ -154,54 +175,28 @@ if __name__ == '__main__':
 #             lang_mod = os.path.join(lm_dir,"lm.mod")
 
                     
-            print "joined up cretinous dir names"
+            print "joined up working dir names"
    
             find_shortest_paths.stringify_shortest_paths(batch_input_fst_dir, pm_shp_dir, pm_outs_dir)
             
-            if eq_chance:
-                slm_file = os.path.join(slm_dir,"slm.fst")
-                lm_gen.fstarcsort(slm_file, ilabel_sort=True)
-
-                process_inputs(batch_input_fst_dir, slm_file, pm_slm_in_dir)
-                find_shortest_paths.stringify_shortest_paths(pm_slm_in_dir, pm_slm_shp_dir, pm_slm_outs_dir)
-
-                R = convert_to_single_file("*.gld", gold_dir)        
-                
-                PMSLM_C = convert_to_single_file("*.fst", pm_slm_outs_dir)
-
-                bleu_PM = bleu_break_scorer.getBLEU(PMSLM_C, R)
-
-                mc_report = evaluate_output.multi_col_report(batch_dir)
-                mcrfile = open(os.path.join(batch_dir, "pmslm_report.csv"),"w")
-                for r in mc_report:
-                    rec_id = r["rec_id"]
-                    words = r["words"]
-                    gold = r["gold"]
-                    pm_slm = r["pm_slm"]
-                
-                    mcrfile.write("recording, word, gold, pm_slm\n")
-                    for tok in zip(words, gold, pm_slm):
-                        s = ",".join(tok)
-                        s = rec_id + "," + s + "\n"
-                        mcrfile.write(s)
-                mcrfile.close()
-
+  
+            #now just use the pruned LM file without slen modifier
+            process_inputs(batch_input_fst_dir, lang_mod, pm_lm_in_dir)
+            find_shortest_paths.stringify_shortest_paths(pm_lm_in_dir, pm_lm_shp_dir, pm_lm_outs_dir) #(input_dir, shortpath_dir, strings_dir
             
-            else:
-                #now just use the pruned LM file without slen modifier
-                process_inputs(batch_input_fst_dir, lang_mod, pm_lm_in_dir)
-                find_shortest_paths.stringify_shortest_paths(pm_lm_in_dir, pm_lm_shp_dir, pm_lm_outs_dir) #(input_dir, shortpath_dir, strings_dir
-                
-                #use combined LM and slen modifier
-                slm_file = os.path.join(slm_dir,"slm.fst")
-                lm_slm = os.path.join(batch_dir,"lm_slm.fst") 
-                
+            #use combined LM and slen modifier
+            slm_file = os.path.join(slm_dir,"slm.fst")
+            lm_slm = os.path.join(batch_dir,"lm_slm.fst") 
+            
+            if compose_lm_slm:
                 lm_gen.fstarcsort(slm_file, ilabel_sort=True)
                 lm_gen.fstcompose(lang_mod, slm_file, lm_slm)
                 lm_gen.fstimmut(lm_slm, lm_slm)
-                        
+                     
                 process_inputs(batch_input_fst_dir, lm_slm, all_models_in_dir)
-                find_shortest_paths.stringify_shortest_paths(all_models_in_dir, all_models_shp_dir, all_models_out_dir)
+            
+        print "doing find shortest paths..."
+        find_shortest_paths.stringify_shortest_paths(all_models_in_dir, all_models_shp_dir, all_models_out_dir)
 
         R = convert_to_single_file("*.gld", gold_dir)        
         C = convert_to_single_file("*.fst", all_models_out_dir)
@@ -209,9 +204,14 @@ if __name__ == '__main__':
         PM_C = convert_to_single_file("*.fst", pm_outs_dir)
         PMLM_C = convert_to_single_file("*.fst", pm_lm_outs_dir)
         
+        cands = (("PM", PM_C),
+                 ("PM_LM",PMLM_C),
+                 ("PM_LM_SLM",C))
+        
         evaluate_output.eval_segmenter_output(batch_dir)
         
         mc_report = evaluate_output.multi_col_report(batch_dir)
+        
         mcrfile = open(os.path.join(batch_dir, "mc_report.csv"),"w")
         for r in mc_report:
             rec_id = r["rec_id"]
@@ -222,49 +222,32 @@ if __name__ == '__main__':
             pm_lm_slm = r["pm_lm_slm"]
         
             mcrfile.write("recording, word, gold, pm_only, pm_lm, pm_lm_slm\n")
-            for tok in zip(words, gold, pm, pm_lm, pm_lm_slm):
-                s = ",".join(tok)
+            for row in zip(words, gold, pm, pm_lm, pm_lm_slm):
+                s = ",".join(row)
                 s = rec_id + "," + s + "\n"
                 mcrfile.write(s)
         mcrfile.close()
-                        
 
-        bleu = bleu_break_scorer.getBLEU(C, R, N=4)
-        bleu_PM = bleu_break_scorer.getBLEU(PM_C, R, N=4)
-        bleu_PMLM = bleu_break_scorer.getBLEU(PMLM_C, R, N=4)
+        bfile = open(os.path.join(batch_dir, batch_name+"-SCORES.txt"),"w")
+        bfile.write(batch_name+"\n\n");
         
-        print "BLEU-4"
-        print "PM", bleu_PM[0]
-        print "PM_LM", bleu_PMLM[0]
-        print "PM_LM_SLM", bleu[0]
+        write_bleus_to_file(R, cands, bfile, 4, strict=True)
+        write_bleus_to_file(R, cands, bfile, 4, strict=False)
+        write_bleus_to_file(R, cands, bfile, 3, strict=True)
+        write_bleus_to_file(R, cands, bfile, 3, strict=False)
 
-        bleu3 = bleu_break_scorer.getBLEU(C, R, N=3)
-        bleu_PM3 = bleu_break_scorer.getBLEU(PM_C, R, N=3)
-        bleu_PMLM3 = bleu_break_scorer.getBLEU(PMLM_C, R, N=3)
-               
-        print "BLEU-3"
-        print "PM", bleu_PM3[0]
-        print "PM_LM", bleu_PMLM3[0]
-        print "PM_LM_SLM", bleu3[0]    
-        
-        bfile = open(os.path.join(batch_dir, batch_name+"-BLEUs.txt"),"w")
-        bfile.write("Quadrigram BLEU4 scores\n")
-        bfile.write("pm BLEU4 = %f \n" % bleu_PM[0])
-        bfile.write("pm_lm BLEU4 = %f \n" % bleu_PMLM[0])
-        bfile.write("combined BLEU4 = %f \n" % bleu[0])
-        bfile.write("\nmodified precisions\n")
-        bfile.write("pm  = %s \n" % (bleu_PM[1],))
-        bfile.write("pm_lm  = %s \n" % (bleu_PMLM[1],))
-        bfile.write("combined  = %s \n" % (bleu[1],))
-        bfile.write("\n")
-        bfile.write("Trigram BLEU3 scores\n")
-        bfile.write("pm BLEU3 = %f \n" % bleu_PM3[0])
-        bfile.write("pm_lm BLEU3 = %f \n" % bleu_PMLM3[0])
-        bfile.write("combined BLEU3 = %f \n" % bleu3[0])
-        bfile.write("\nmodified precisions\n")
-        bfile.write("pm  = %s \n" % (bleu_PM3[1],))
-        bfile.write("pm_lm  = %s \n" % (bleu_PMLM3[1],))
-        bfile.write("combined  = %s \n" % (bleu3[1],))
-        
+        #create a list of {0,1} values to show break or no break
+        #golds=[r["gold"] for r in mc_report]
+        golds=[ int(item) for r in mc_report for item in r['gold']]
+        for m in ("pm_only", "pm_lm", "pm_lm_slm"):        
+            hyps=[int(item) for r in mc_report for item in r[m]]
+            prF = MCReportProcessor.get_prF(golds, hyps)
+            cnts = MCReportProcessor.get_counts(golds, hyps)
+            b_acc = MCReportProcessor.get_baseline_accuracy(golds, hyps)
+            acc = MCReportProcessor.get_accuracy(golds, hyps)
+            bfile.write("prF (%s)=%s\n" % (m,str(prF)))
+            bfile.write("acc (%s)=%s with delta=%s\n" % (m,str(acc),str(acc-b_acc)))
+            bfile.write("- - - - - -\n")
         bfile.close()
         
+        print "Wrote bleu scores to file: ", bfile

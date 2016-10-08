@@ -17,7 +17,7 @@ cmd_ngramcount = "ngramcount"
 cmd_ngrammake = "ngrammake"
 cmd_fstcompose = "fstcompose"
 
-def compile_lm(raw_text_file, lmdir_global, lm_syms):
+def compile_lm(raw_text_file, lmdir_global, lm_syms, ngo):
     
     #ngramsymbols(raw_text_file, lmdir_global)
     symfile = os.path.join(lmdir_global, LM_SYM_FILE)
@@ -29,7 +29,7 @@ def compile_lm(raw_text_file, lmdir_global, lm_syms):
     farfile = farcompilestrings(raw_text_file, lmdir_global) #create test.far from the normed text file
     print "farcompiled strings"
     #raw_input("about to ngramcount - press key")
-    cntfile = ngramcount(farfile, lmdir_global, 3) #hopefully this combines all the segments into a single set of unified counts
+    cntfile = ngramcount(farfile, lmdir_global, ngo) #hopefully this combines all the segments into a single set of unified counts
     print "counted ngrammes"
     #raw_input("about to ngrammake - press key")
     modfile = ngrammake(cntfile, lmdir_global) #this creates the ngram model file
@@ -42,9 +42,6 @@ def remap_lm(lm_file, remap_file, osymfile):
     sp.call(["fstrelabel","--relabel_osymbols="+osymfile, lm_file, lm_file])
     
 def generate_normed_text_file(data, lmdir_global):   
-    rec_id = None
-    seg_id = None
-    first = True
     filenm = os.path.join(lmdir_global,"normed.txt")
     
     #if this file already exists, just return the full filename
@@ -58,22 +55,41 @@ def generate_normed_text_file(data, lmdir_global):
         print "could not make dirs"
         
     writer = codecs.open(filenm, 'w')
-   
-    print 'writing file',filenm
+    
+    rec_ids = []
     for r in data:
-        if rec_id!=r[0] or seg_id!=r[1]:
-            if not first:
-                trailer = '\n' if (rec_id!=r[0]) else ' ' #a trailing space for new seg, a newline for new recprding
-                writer.write(BREAK+trailer) #finish off the segment
-            else:
-                first=False
-            rec_id = r[0]
-            seg_id = r[1]
-        w = r[5]
-        writer.write(w+' ')
-    writer.write(BREAK)
-    writer.write('\n<unk>\n')
-    writer.flush()
+        if r[0] not in rec_ids:
+            rec_ids.append(r[0])
+
+    for rec_id in rec_ids:
+        rec = [r for r in data if r[0]==rec_id ]
+        outs = ""
+        print rec_id, "recording length=",len(rec)
+        for s in rec:
+            outs += s[5]+" "
+            if int(s[6])==1:
+                outs += "<break> "
+        outs = outs.strip() + "\n"
+        writer.write(outs)
+    writer.write('<unk>\n')
+ 
+    #_ = raw_input("hit key...")
+   
+#     print 'writing file',filenm
+#     for r in data:
+#         if rec_id!=r[0] or seg_id!=r[1]:
+#             if not first:
+#                 trailer = '\n' if (rec_id!=r[0]) else ' ' #a trailing space for new seg, a newline for new recprding
+#                 writer.write(BREAK+trailer) #finish off the segment
+#             else:
+#                 first=False
+#             rec_id = r[0]
+#             seg_id = r[1]
+#         w = r[5]
+#         writer.write(w+' ')
+#     writer.write(BREAK)
+#     writer.write('\n<unk>\n')
+#     writer.flush()
     writer.close()
     return filenm
 

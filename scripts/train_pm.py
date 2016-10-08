@@ -95,8 +95,8 @@ if __name__ == '__main__':
     test_data = read_file(os.path.join(base_dir, test_fname), ',', skip_header=True)
     
     #sel = [12,13,14,15,21,22,23,24]
-    #sel = range(7,30)
-    sel = [8,21,29, 24,25,27]
+    sel = range(7,30)
+    #sel = [8,21,29, 24,25,27]
 
     (tr_headers, tr_words, tr_samples, tr_classes) = dissect(tr_data)
     (te_headers, te_words, te_samples, te_classes) = dissect(test_data)
@@ -167,7 +167,8 @@ if __name__ == '__main__':
             param_dist={'C': c_dist , 'gamma': gamma_dist}
             
         
-        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, cv=5, verbose=True, scoring="recall_weighted")
+        #searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, cv=5, verbose=True ) #, scoring="recall")
+        searcher = RandomizedSearchCV(estr, param_distributions=param_dist, n_iter=100, n_jobs=-1, verbose=True, scoring="recall")
         searcher.fit(tr_samples,tr_classes)
         report(searcher.grid_scores_)
         clf = searcher.best_estimator_         

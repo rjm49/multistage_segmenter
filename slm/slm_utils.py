@@ -77,7 +77,7 @@ def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
     #print training_rows
     for r in training_rows:
         r = r.strip()
-               
+        
         segs = r.split(BREAK) # chop the line up into segments
         for s in segs:
             slen = len(s.split())
@@ -86,7 +86,7 @@ def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
                 print "new max length = ", slen
                 maxl = slen
                 print "from seg: ", s
-                print "from row: ", r
+#                print "from row: ", r
 
             if slen:
                 slength_counts[slen]+=1
@@ -122,11 +122,12 @@ def write_slm(slm_file, x_vals, gam_gen):
 
         p_i = gam_gen.pdf(i) if i>0 else 0.0
         print "p("+str(i)+")=", p_i
-        p_acc += p_i
+        #p_acc += p_i
+        p_acc = gam_gen.cdf(i)
         
-        lfile.write("%d %d %s %s\n" % (i,i,EPS,EPS))
+        #lfile.write("%d %d %s %s\n" % (i,i,EPS,EPS))
         if(i < max(x_vals)): #unless we're in the final state...
-            #score_gt_i = -math.log( 1-gam_gen.cdf(i) )
+#             score_gt_i = -math.log( 1.0-p_acc)
             score_gt_i = -math.log( 1-p_i )
             lfile.write("%d %d %s %s %s\n" % (i,i+1,ANYWORD,ANYWORD,str(score_gt_i)))
         if(i>0):

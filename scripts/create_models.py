@@ -51,6 +51,7 @@ else:
 
     lm_dir= raw_input("enter LM name: [%s]" % lm_dir) or lm_dir
     tr_file = raw_input("enter LM training file name: [%s]" % tr_file) or tr_file
+    ngo = int(raw_input("enter ngram order: [%s]" % 4) or 4)
     #te_file = raw_input("enter target test file name (for symbols): [%s]" % te_file) or te_file
 
     #SECTION ONE: dedicated to creating the Language Model files    
@@ -79,7 +80,7 @@ else:
         buildmod = raw_input("model file in "+lmdir_global+" already exists.  Overwrite? [n]").lower() or "n"
     
     if(not buildmod=="n"):
-        modfile = compile_lm(rawtext_file, lmdir_global, lm_syms)
+        modfile = compile_lm(rawtext_file, lmdir_global, lm_syms, ngo)
         
         print "Created unpruned lang model file:", modfile
         print "Now pruning LM..."

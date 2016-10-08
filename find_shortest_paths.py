@@ -80,7 +80,7 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
         print "re-making",d
         shutil.rmtree(d, ignore_errors=True)
         os.makedirs(d)
-        
+    
     descriptor = os.path.join(input_dir,"*.fst")
     print "processing files matching:", descriptor
     fs = glob.glob(descriptor)
