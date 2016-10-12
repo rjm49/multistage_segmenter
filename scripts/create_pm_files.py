@@ -3,14 +3,13 @@ Created on Feb 24, 2016
 
 @author: rjm49
 '''
-import codecs
-import glob, os
+import codecs, os
 
-from mseg.common import DIR, PM_SUB_DIR, GOLD_SUB_DIR, read_file, load_symbol_table, \
+from mseg.common import DIR, read_file, load_symbol_table, \
     LM_SYM_FILE, PROSODIC_PREDICTION_FILE, TEST_FILE_DEFAULT
-from mseg.lm_utils import fstcompose
 from mseg.pm_utils import generate_pm_text_files, \
     compile_pm_files
+import sys
 
 
 def open_wfile(odir,transcript_id):
@@ -18,7 +17,7 @@ def open_wfile(odir,transcript_id):
     fhandle = codecs.open(ofilename, 'w')
     return fhandle
 
-if __name__ == '__main__':
+def main(argv):
     lmdir = raw_input("enter language model name: [%s]" % "lm_default") or "lm_default"
     pmdir = raw_input("enter prosodic model name: [%s]" % "pm_default") or "pm_default"
     te_file = raw_input("enter test file name: [%s]" % TEST_FILE_DEFAULT) or TEST_FILE_DEFAULT
@@ -30,3 +29,6 @@ if __name__ == '__main__':
 
     generate_pm_text_files(lm_syms, te_rows, prob_rows, max_count=-1)
     compile_pm_files(sym_dir=lmdir_global)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

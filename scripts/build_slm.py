@@ -7,7 +7,7 @@ Created on 30 Nov 2015
 import os
 
 from mseg.common import TRAIN_FILE_DEFAULT, DIR, read_file
-from slm.slm_utils import generate_slm
+from mseg.slm_utils import generate_slm
 
 gen_ntxt = False
 tr_file, slm_dir = TRAIN_FILE_DEFAULT, "eval1n"

@@ -4,27 +4,21 @@ Created on May 16, 2016
 
 @author: rjm49
 '''
-
-import os
-
-import scipy.stats
-from sklearn import svm, datasets, preprocessing
-from sklearn.cross_validation import train_test_split, StratifiedShuffleSplit
-from sklearn.externals import joblib
-from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
-from sklearn.metrics.classification import precision_recall_fscore_support, \
-    classification_report
-
-from mseg.common import read_file, filter_data_rows, DIR, TRAIN_FILE_DEFAULT,\
-    PROSODIC_PREDICTION_FILE, TEST_FILE_DEFAULT
-import numpy as np
-from svm.balance import sep_classes, shuff_trim_balance_classes
-from svm.plot_data_dist import plot_compare
-import sys
-import shutil
 from operator import itemgetter
-import random
+import os
+import sys
+
+from numpy.random.mtrand import np
+import scipy.stats
+from sklearn import preprocessing, svm
+from sklearn.cross_validation import train_test_split
+from sklearn.externals import joblib
+from sklearn.grid_search import RandomizedSearchCV
 from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.metrics.classification import classification_report
+
+from mseg.common import DIR, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, read_file
+
 
 overwrite_pkl = True
 

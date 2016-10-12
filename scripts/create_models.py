@@ -22,33 +22,19 @@ from mseg.pm_utils import compile_pm_files, \
     generate_pm_text_files
 from mseg.slm_utils import create_converter, generate_slm, generate_slm_from_txt
 
-
-if __name__ == '__main__':
-
+def main(argv):
     print "Number of arguments:", len(sys.argv), 'arguments.'
     print "Argument List:", str(sys.argv)
-    args = sys.argv
 
 #     config = None
 #     with open('sample_config.cfg') as data_file:    
 #         config = json.load(data_file)
 
-if len(args)>1: 
-    batch_name = args[1]
-    base_dir = args[2]
-    pm_dir = args[3]
-    lm_dir = args[4]
-    slm_dir = args[5]
-    tr_file = args[6]
-    te_file = args[7]
-else:
-    batch_name = "default"
+
     base_dir = DIR
 #     pm_dir = "pm_default" currently not used
     lm_dir = "eval1n_tr" #lm_default"
-    slm_dir = "eval1n_tr"  #"slm_default"
     tr_file = TRAIN_FILE_DEFAULT
-    te_file = TEST_FILE_DEFAULT
 
     lm_dir= raw_input("enter LM name: [%s]" % lm_dir) or lm_dir
     tr_file = raw_input("enter LM training file name: [%s]" % tr_file) or tr_file
@@ -112,3 +98,6 @@ else:
     print "slm generated from", tr_file, "in", slm_dir
     
     print "all constituent system files now compiled"
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
