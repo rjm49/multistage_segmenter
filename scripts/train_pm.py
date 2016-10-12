@@ -18,14 +18,15 @@ from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.metrics.classification import classification_report
 
 from mseg.common import DIR, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, read_file
+import argparse
 
 
 overwrite_pkl = True
 
-def dissect(data):
-    headers = [data[0][i] for i in sel]
+def dissect(data, selection_columns):
+    headers = [data[0][i] for i in selection_columns]
     words = [r[5] for r in data]
-    samples = [[float(r[i]) for i in sel] for r in data]
+    samples = [[float(r[i]) for i in selection_columns] for r in data]
     classes = [float(r[6]) for r in data]
     return (headers, words, samples, classes)
 
@@ -40,33 +41,44 @@ def report(grid_scores, n_top=3):
         print("Parameters: {0}".format(score.parameters))
         print("")
 
-if __name__ == '__main__':
+def main(args):
 ## tr_data training set
-    args = sys.argv
+    parser = argparse.ArgumentParser()
+    parser.add_argument("base_dir", nargs='?', default= os.path.join(os.getcwd(),"mseg_workspace"), help="this is the working directory, all sub dirs live under it")
+    parser.add_argument("pm_dir", nargs='?', default="pm_default", help="this is the directory in which to store the prosodic model file")
+    parser.add_argument("training_file", nargs='?', default=TRAIN_FILE_DEFAULT, help="name of CSV file that contains correctly annotated training examples")
+    parser.add_argument("test_file", nargs='?', default=TEST_FILE_DEFAULT, help="name of CSV file that contains mysterious cases that must be tested")
+    parser.add_argument("-lr", "--logistic_regression", default=False, action="store_true", help="use logistic regression classifier (default is RBF-SVM)")
+    args = parser.parse_args()
+
+    base_dir = args.base_dir
+    pm_dir = args.pm_dir
+    tr_file = args.training_file
+    test_fname = args.test_file
+    use_lr = args.logistic_regression
     
-    if(len(args)==4):
-        base_dir = args[0]
-        pm_dir = args[1]
-        tr_file = args[2]
-        test_fname = args[3]
-    else:
-        base_dir = DIR
-        pm_dir = "pm_default"
-        tr_file = TRAIN_FILE_DEFAULT
-        test_fname = TEST_FILE_DEFAULT
-#         do_search = False
-#         use_pilot = False
-        n_samples = -1
-        cache = 800
+#     if(len(args)==3):
+#         base_dir = args[0]
+#         pm_dir = args[1]
+#         tr_file = args[2]
+#         test_fname = args[3]
+#     else:
+#         base_dir = DIR
+#         pm_dir = "pm_default"
+#         tr_file = TRAIN_FILE_DEFAULT
+#         test_fname = TEST_FILE_DEFAULT
+# #         do_search = False
+# #         use_pilot = False
+    n_samples = -1
+    cache = 800
     
-    pm_dir= raw_input("enter PM name: [%s]" % pm_dir) or pm_dir
-    tr_file = raw_input("enter PM training file name: [%s]" % tr_file) or tr_file
+#     pm_dir= raw_input("enter PM name: [%s]" % pm_dir) or pm_dir
+#     tr_file = raw_input("enter PM training file name: [%s]" % tr_file) or tr_file
     
     tr_data = read_file(os.path.join(base_dir, tr_file), ',', skip_header=True)
     
-    test_fname = raw_input("enter file to test on: [%s]" % test_fname) or test_fname
-
-    use_lr = bool(raw_input("use logistic regression [False]?")) or False
+#     test_fname = raw_input("enter file to test on: [%s]" % test_fname) or test_fname
+#     use_lr = bool(raw_input("use logistic regression [False]?")) or False
 
     if not use_lr:
         n_samples = 6000
@@ -92,8 +104,8 @@ if __name__ == '__main__':
     sel = range(7,30)
     #sel = [8,21,29, 24,25,27]
 
-    (tr_headers, tr_words, tr_samples, tr_classes) = dissect(tr_data)
-    (te_headers, te_words, te_samples, te_classes) = dissect(test_data)
+    (tr_headers, tr_words, tr_samples, tr_classes) = dissect(tr_data, sel)
+    (te_headers, te_words, te_samples, te_classes) = dissect(test_data, sel)
        
     if n_samples>0:
         tr_samples, notused, tr_classes, notusedc =  train_test_split(tr_samples, tr_classes, train_size=n_samples, stratify=tr_classes) 
@@ -208,3 +220,7 @@ if __name__ == '__main__':
 
     pred_file.close()
     print "wrote predictions file:",pred_file
+    
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
