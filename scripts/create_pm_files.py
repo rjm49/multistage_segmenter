@@ -29,6 +29,7 @@ def main(argv):
 
     generate_pm_text_files(lm_syms, te_rows, prob_rows, max_count=-1)
     compile_pm_files(sym_dir=lmdir_global)
+    print "Prosodic Model (PM) files created"
 
 if __name__ == '__main__':
     main(sys.argv[1:])

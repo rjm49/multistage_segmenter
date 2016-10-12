@@ -1,7 +1,7 @@
 '''
 Created on 30 Nov 2015
 
-@author: Russell
+@author: Russell Moore (rjm49@cam.ac.uk)
 '''
 import argparse
 import glob
@@ -25,6 +25,8 @@ import mseg.reporting_utils as report_utils
 do_build = True
 #eq_chance=  False
 compose_lm_slm = True
+SYMBOL_COL = 5
+
 
 def write_bleus_to_file(R, cands, bfile, order=4, strict=True):
     smode = "strict" if strict else "lax"    
@@ -63,6 +65,23 @@ def process_inputs(input_dir, lm_file, out_dir):
         lm_utils.fstcompose(f, lm_file, outf)
         print "output:",outf
 
+
+def posify(te_rows):
+    segs = []
+    for t in te_rows:
+        if not t[0] in segs:
+            segs.append(t[0])
+    
+    emission_vals = []
+    for seg in segs:
+        ws = [t[SYMBOL_COL] for t in te_rows if t[0] == seg]
+        ws = [x.upper() if (len(x) == 1 and x != 'a') else x for x in ws]
+        print "For seg=", seg, "got these tokens:", ws
+        tags = nltk.pos_tag(ws)
+        print "tags=", tags
+        for tag in tags:
+            emission_vals.append(tag[1])
+    return emission_vals
 
 def main(args):
     parser = argparse.ArgumentParser()
@@ -128,13 +147,8 @@ def main(args):
             #ONE: make speech_fsts from te_rows
             lmsym_fname = os.path.join(lm_dir,LM_SYM_FILE)
             lm_syms = load_symbol_table(lmsym_fname)
-            
-    #         for s in lm_syms:
-    #             print s
-    #             
-    #         raw_input("press owt")
-    #             
-            te_syms = [r[5] for r in te_rows]
+              
+            te_syms = [r[SYMBOL_COL] for r in te_rows]
     
             all_syms = set(lm_syms + te_syms)
             pmsym_fname = os.path.join(batch_dir, SYM_FILE)
@@ -148,28 +162,12 @@ def main(args):
             prob_rows = read_file(probability_file, ' ', skip_header=True)
         
             if use_pos_tags:
-                segs = []
-                for t in te_rows:
-                    if not t[0] in segs:
-                        segs.append(t[0])
-
-                emission_vals = []
-                for seg in segs:
-                    ws = [t[5] for t in te_rows if t[0]==seg ]
-                    ws = [x.upper() if (len(x)==1 and x!='a') else x for x in ws]
-                    print "For seg=",seg,"got these tokens:",ws
-                    tags = nltk.pos_tag(ws)
-                    print "tags=",tags
-                    for tag in tags:
-                        emission_vals.append(tag[1])
-                
-                #_ = raw_input("hit key")
+                emission_vals = posify(te_rows)
             else:
-                emission_vals = [t[5] for t in te_rows]
+                emission_vals = te_syms
                         
         
             generate_pm_text_files(batch_input_fst_dir, lm_syms, te_rows, prob_rows, max_count=-1, emission_values=emission_vals, pm_weight=pm_weight)
-            
             compile_pm_files(batch_input_fst_dir, pmsym_fname, lmsym_fname)
             
             #TWO: Assuming all the other model files are complete, we should be good to go

@@ -17,6 +17,11 @@ from mseg.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
 import subprocess as sp
 
 
+def create_slm_sym_file(fname):
+    f = codecs.open(fname, "w")
+    f.write("<epsilon> 0\n<break> 1\n<unk> 2\n<w> 3\n")
+    f.close()
+
 def create_converter(lm_dir):
     #print "creating converter...."
     

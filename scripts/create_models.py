@@ -3,44 +3,30 @@ Created on 30 Nov 2015
 
 @author: Russell
 '''
-
-import json
 import os
-import shutil
 import sys
 
-from mseg import lm_utils
-from mseg.common import read_file, DIR, \
-    save_symbol_table, JOINT_CV_SLM_FILE_GLOBAL, \
-    SLM_FST_FILE_GLOBAL, JOINT_LM_CV_SLM_FILE_GLOBAL, \
-    CONV_FST, LM_SYM_FILE, PROSODIC_PREDICTION_FILE, SYM_FILE, \
-    LM_PRUNED, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, create_remap_table, BREAK, \
-    UNK
-from mseg.lm_utils import fstcompose, compile_lm, \
-    fstarcsort, generate_normed_text_file, ngramshrink, remap_lm
-from mseg.pm_utils import compile_pm_files, \
-    generate_pm_text_files
-from mseg.slm_utils import create_converter, generate_slm, generate_slm_from_txt
-
-def main(argv):
-    print "Number of arguments:", len(sys.argv), 'arguments.'
-    print "Argument List:", str(sys.argv)
-
-#     config = None
-#     with open('sample_config.cfg') as data_file:    
-#         config = json.load(data_file)
+from mseg.common import DIR, TRAIN_FILE_DEFAULT, read_file, BREAK, UNK, \
+    LM_PRUNED, create_remap_table
+from mseg.lm_utils import generate_normed_text_file, compile_lm, remap_lm, ngramshrink
+from mseg.slm_utils import generate_slm_from_txt, create_slm_sym_file
+import argparse
 
 
-    base_dir = DIR
+def main(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("base_dir", nargs='?', default= os.path.join(os.getcwd(),"mseg_workspace"), help="this is the working directory, all sub dirs live under it")
+    parser.add_argument("lm_dir", nargs='?', default="lm_default", help="this is the directory in which to store the Language Model (LM) files")
+    parser.add_argument("training_file", nargs='?', default=TRAIN_FILE_DEFAULT, help="name of CSV file that contains correctly annotated training examples")
+    parser.add_argument("-o", "--order", type=int, default=4, help="sets the n-gramme order of the LM (default=4)")
+    args = parser.parse_args()
+    
+    base_dir = args.base_dir
 #     pm_dir = "pm_default" currently not used
-    lm_dir = "eval1n_tr" #lm_default"
-    tr_file = TRAIN_FILE_DEFAULT
-
-    lm_dir= raw_input("enter LM name: [%s]" % lm_dir) or lm_dir
-    tr_file = raw_input("enter LM training file name: [%s]" % tr_file) or tr_file
-    ngo = int(raw_input("enter ngram order: [%s]" % 4) or 4)
-    #te_file = raw_input("enter target test file name (for symbols): [%s]" % te_file) or te_file
-
+    lm_dir = args.lm_dir
+    tr_file = args.training_file
+    ngo = args.order
+    
     #SECTION ONE: dedicated to creating the Language Model files    
     lmdir_global = os.path.join(base_dir, lm_dir)
 #     if(os.path.exists(lmdir_global)):
@@ -81,17 +67,22 @@ def main(argv):
         remap_fname = os.path.join(lmdir_global,"lm_remap.dat")
         create_remap_table(lm_syms, remap_fname)
         
+        
         osymfile = os.path.join(base_dir,"slm_sym.dat")
+        create_slm_sym_file(osymfile)
         remap_lm(modfile, remap_fname, osymfile)
         print "remapped modfile output symbols"
                 
     #create_converter(lmdir_global)
     #print "created converter."
     
-    slm_dir = raw_input("Type in SLM dir or hit return to match LM [%s]" % lm_dir) or lm_dir
-    slm_dir = os.path.join(base_dir,slm_dir)
-        
-    print "using ",slm_dir
+#     slm_dir = raw_input("Type in SLM dir or hit return to match LM [%s]" % lm_dir) or lm_dir
+#     slm_dir = os.path.join(base_dir,slm_dir)
+#         
+#     print "using ",slm_dir
+
+    #put the SLM model into the same directory as its corresponding LM
+    slm_dir = os.path.join(base_dir, lm_dir)
 
     generate_slm_from_txt(lm_txt, slm_dir, do_plot=True)
     #generate_slm(tr_rows, slm_dir, do_plot=False) # build the sentence length model, plot it so we can see it's sane
