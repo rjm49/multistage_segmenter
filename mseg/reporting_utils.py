@@ -1,13 +1,8 @@
 '''
-Created on Jul 10, 2016
+Created on Oct 12, 2016
 
 @author: rjm49
 '''
-
-import os
-
-base_dir = "/home/rjm49/Dropbox/nlp_alta/recreate_LG/outputs/"
-batch_dir = "alt_LMs/5.0e1r6LR_swb_e14"
 
 def get_prF(gold, hyps):
     (tp,tn,fp,fn) = get_counts(gold,hyps)
@@ -53,8 +48,6 @@ def get_counts(gold, hyps):
             tn +=1
     return (tp, tn, fp, fn)
 
-
-
 def mini_summary(name, gold, hyps):
     print "STATS FOR ", name
     print "(tp,tn,fp,fn)=", get_counts(gold, hyps)
@@ -64,29 +57,3 @@ def mini_summary(name, gold, hyps):
     print "acc=", acc
     b_acc = get_baseline_accuracy(gold, hyps)
     print "b_acc=", b_acc
-
-
-
-if __name__ == '__main__':
-        mcrfile = open(os.path.join(base_dir, batch_dir, "mc_report.csv"),"r")
-        
-        mc_rows = [line.rstrip('\n') for line in mcrfile]
-        
-        print mc_rows
-        header_row = mc_rows[0]
-        
-        rows = [r.split(',') for r in mc_rows if r!=header_row]
-        
-        #print rows
-        
-        rec_id =[ r[0] for r in rows]
-        words = [ r[1] for r in rows]
-        gold = [ int(r[2]) for r in rows]
-        pm = [ int(r[3]) for r in rows]
-        pm_lm = [ int(r[4]) for r in rows]
-        pm_lm_slm = [ int(r[5]) for r in rows]
-        
-        print batch_dir
-        mini_summary("pm", gold, pm)
-        mini_summary("pm_lm", gold, pm_lm)
-        mini_summary("pm_lm_slm", gold, pm_lm_slm)

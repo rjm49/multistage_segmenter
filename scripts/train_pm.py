@@ -104,18 +104,18 @@ def main(args):
     sel = range(7,30)
     #sel = [8,21,29, 24,25,27]
 
-    (tr_headers, tr_words, tr_samples, tr_classes) = dissect(tr_data, sel)
-    (te_headers, te_words, te_samples, te_classes) = dissect(test_data, sel)
+    (_, _, tr_samples, tr_classes) = dissect(tr_data, sel)
+    (_, te_words, te_samples, te_classes) = dissect(test_data, sel)
        
     if n_samples>0:
-        tr_samples, notused, tr_classes, notusedc =  train_test_split(tr_samples, tr_classes, train_size=n_samples, stratify=tr_classes) 
+        tr_samples, _, tr_classes, _ =  train_test_split(tr_samples, tr_classes, train_size=n_samples, stratify=tr_classes) 
     
     p = sum(c==1.0 for c in tr_classes) # count the positive instances
     n = len(tr_classes) - p # derive the negative instances
     print "n=",n," p=",p
     wgt=float(n)/float(p) # cast and divide
     print "wgt=",wgt
-    classWeight = { 1: wgt }
+#     classWeight = { 1: wgt }
     
     
     #tr_samples, te_samples, tr_classes, te_classes = train_test_split(samples, classes, test_size=0.20, random_state=0, stratify=classes)

@@ -3,6 +3,7 @@ Created on 30 Nov 2015
 
 @author: Russell
 '''
+import argparse
 import glob
 import json
 import os
@@ -17,7 +18,7 @@ from mseg.common import read_file, LM_SYM_FILE, load_symbol_table, SYM_FILE, \
     save_symbol_table
 from mseg.find_shortest_paths import convert_to_single_file
 from mseg.pm_utils import generate_pm_text_files, compile_pm_files
-from mseg.scripts import MCReportProcessor
+import mseg.reporting_utils as report_utils
 
 
 #nltk.download()
@@ -63,10 +64,14 @@ def process_inputs(input_dir, lm_file, out_dir):
         print "output:",outf
 
 
-def main(argv):
+def main(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config_file", nargs='?', default= os.path.join(os.getcwd(),"mseg_config.cfg"), help="configuration file for the multistage segmenter")
+    args = parser.parse_args()
+    
     print "running main_run"
-    config = None
-    with open('sample_config.cfg') as data_file:
+    config_fname = args.config_file
+    with open(config_fname) as data_file:
         config = json.load(data_file)
         
     base_dir = config['base_dir']
@@ -137,7 +142,7 @@ def main(argv):
             
             probability_file = os.path.join(pm_dir, (te_file+"-probabilities.dat"))
             if not os.path.exists(probability_file):
-                print "NO PROBABILITY FILE FOUND AT ", probability_file, " - you need to create this first with train_pm_svm.py"
+                print "No prosodic probability file found: ", probability_file, " - you need to create this first with train_pm.py"
                 continue #go onto the next batch TODO should create prob file here!
             
             prob_rows = read_file(probability_file, ' ', skip_header=True)
@@ -148,7 +153,6 @@ def main(argv):
                     if not t[0] in segs:
                         segs.append(t[0])
 
-                cntr = 0
                 emission_vals = []
                 for seg in segs:
                     ws = [t[5] for t in te_rows if t[0]==seg ]
@@ -231,20 +235,19 @@ def main(argv):
         bfile = open(os.path.join(batch_dir, batch_name+"-SCORES.txt"),"w")
         bfile.write(batch_name+"\n\n");
         
-        write_bleus_to_file(R, cands, bfile, 4, strict=True)
-        write_bleus_to_file(R, cands, bfile, 4, strict=False)
-        write_bleus_to_file(R, cands, bfile, 3, strict=True)
-        write_bleus_to_file(R, cands, bfile, 3, strict=False)
+        #report BLEU-like scores for 4- and 3-grammes in both strict and lax counting modes
+        for o in (4,3):
+            for s in (True,False):
+                write_bleus_to_file(R, cands, bfile, o, strict=s)
 
         #create a list of {0,1} values to show break or no break
         #golds=[r["gold"] for r in mc_report]
         golds=[ int(item) for r in mc_report for item in r['gold']]
         for m in ("pm_only", "pm_lm", "pm_lm_slm"):        
             hyps=[int(item) for r in mc_report for item in r[m]]
-            prF = MCReportProcessor.get_prF(golds, hyps)
-            cnts = MCReportProcessor.get_counts(golds, hyps)
-            b_acc = MCReportProcessor.get_baseline_accuracy(golds, hyps)
-            acc = MCReportProcessor.get_accuracy(golds, hyps)
+            prF = report_utils.get_prF(golds, hyps)
+            b_acc = report_utils.get_baseline_accuracy(golds, hyps)
+            acc = report_utils.get_accuracy(golds, hyps)
             bfile.write("prF (%s)=%s\n" % (m,str(prF)))
             bfile.write("acc (%s)=%s with delta=%s\n" % (m,str(acc),str(acc-b_acc)))
             bfile.write("- - - - - -\n")
