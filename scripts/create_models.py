@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 '''
 Created on 30 Nov 2015
 
 @author: Russell
 '''
+import argparse
 import os
 import sys
 
@@ -10,7 +12,6 @@ from mseg.common import DIR, TRAIN_FILE_DEFAULT, read_file, BREAK, UNK, \
     LM_PRUNED, create_remap_table
 from mseg.lm_utils import generate_normed_text_file, compile_lm, remap_lm, ngramshrink
 from mseg.slm_utils import generate_slm_from_txt, create_slm_sym_file
-import argparse
 
 
 def main(args):

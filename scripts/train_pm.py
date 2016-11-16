@@ -4,6 +4,7 @@ Created on May 16, 2016
 
 @author: rjm49
 '''
+import argparse
 from operator import itemgetter
 import os
 import sys
@@ -17,8 +18,7 @@ from sklearn.grid_search import RandomizedSearchCV
 from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.metrics.classification import classification_report
 
-from mseg.common import DIR, TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, read_file
-import argparse
+from mseg.common import TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, read_file
 
 
 overwrite_pkl = True
