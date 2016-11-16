@@ -21,7 +21,6 @@ from mseg.find_shortest_paths import convert_to_single_file
 from mseg.pm_utils import generate_pm_text_files, compile_pm_files
 import mseg.reporting_utils as report_utils
 
-
 #nltk.download()
 do_build = True
 #eq_chance=  False
@@ -85,8 +84,10 @@ def posify(te_rows):
     return emission_vals
 
 def main(args):
+
+    default_cfg = os.path.join(os.getcwd(),"mseg_config.cfg")
     parser = argparse.ArgumentParser()
-    parser.add_argument("config_file", nargs='?', default= os.path.join(os.getcwd(),"mseg_config.cfg"), help="configuration file for the multistage segmenter")
+    parser.add_argument("config_file", nargs='?', default=default_cfg, help="configuration file for the multistage segmenter")
     args = parser.parse_args()
     
     print "running main_run"
@@ -128,12 +129,6 @@ def main(args):
         pm_lm_in_dir = os.path.join(pm_lm_dir, "composed")
         pm_lm_shp_dir = os.path.join(pm_lm_dir, "shortest")
         pm_lm_outs_dir = os.path.join(pm_lm_dir, "output")
-
-        pm_slm_dir = os.path.join(batch_dir, "pm_slm")
-        pm_slm_in_dir = os.path.join(pm_lm_dir, "composed")
-        pm_slm_shp_dir = os.path.join(pm_lm_dir, "shortest")
-        pm_slm_outs_dir = os.path.join(pm_lm_dir, "output")
-
 
         if(do_build): 
             #lmdir_global = os.path.join(base_dir,lm_dir)

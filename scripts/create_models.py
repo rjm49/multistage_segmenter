@@ -15,8 +15,10 @@ from mseg.slm_utils import generate_slm_from_txt, create_slm_sym_file
 
 
 def main(args):
+    default_bdir = os.path.join(os.getcwd(),"mseg_workspace")
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument("base_dir", nargs='?', default= os.path.join(os.getcwd(),"mseg_workspace"), help="this is the working directory, all sub dirs live under it")
+    parser.add_argument("base_dir", nargs='?', default= default_bdir, help="this is the working directory, all files and subdirs live under it; default is the current folder, i.e. "+default_bdir)
     parser.add_argument("lm_dir", nargs='?', default="lm_default", help="this is the directory in which to store the Language Model (LM) files")
     parser.add_argument("training_file", nargs='?', default=TRAIN_FILE_DEFAULT, help="name of CSV file that contains correctly annotated training examples")
     parser.add_argument("-o", "--order", type=int, default=4, help="sets the n-gramme order of the LM (default=4)")
