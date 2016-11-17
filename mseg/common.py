@@ -4,13 +4,8 @@ Created on 3 Sep 2015
 @author: Russell
 '''
 import codecs
-import os
 
-if(os.name=="nt"):
-    DIR = "C:\\Users\\Russell\\mseg"
-else:
-    DIR = "/home/rjm49/mseg"
-
+WORKSPACE = "workspace"
 PM_SUB_DIR = "pm_fsts"
 COMP_SUB_DIR = "all_composed"
 SHP_SUB_DIR = "all_shortest"
@@ -31,14 +26,6 @@ LM_SYM_FILE="lm_sym.dat"
 CONV_FST="conv.fst"
 CONV_FXT="conv.fxt"
 
-#SYM_FILE_GLOBAL = os.path.join(DIR,"vsys.sym")
-SLM_FXT_FILE_GLOBAL = os.path.join(DIR,"slm.fxt")
-SLM_FST_FILE_GLOBAL = os.path.join(DIR,"slm.fst")
-#CONV_FXT_FILE_GLOBAL = os.path.join(DIR,"lm_slm_converter.fxt")
-#CONV_FST_FILE_GLOBAL = os.path.join(DIR,"lm_slm_converter.fst")
-JOINT_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"cv_slm.fst")
-JOINT_LM_CV_SLM_FILE_GLOBAL = os.path.join(DIR,"lm_cv_slm.fst")
-
 LM_RAW = "lm.mod"
 LM_PRUNED = "mod.pru"
 
@@ -49,20 +36,6 @@ EPS = "<epsilon>"
 
 PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
 
-def resolve_filenames():
-    slm_dir = "eval1n"
-    slm_dir = raw_input("Type in LM dir or hit return to use default [%s]" % slm_dir) or slm_dir
-    print "using ",slm_dir
-    lmdir_global = os.path.join(DIR,slm_dir)
-    all_syms = os.path.join(lmdir_global,SYM_FILE)
-    lm_syms = os.path.join(lmdir_global,LM_SYM_FILE)
-    tr_fname = os.path.join(lmdir_global,TRAIN_FILE_DEFAULT)
-    te_file = os.path.join(lmdir_global,TEST_FILE_DEFAULT)
-    
-
-
-def full_path(fname):
-    return os.path.join(DIR,fname)
 
 ## method to load data
 def read_file(filename, delim=',', skip_header=False):
