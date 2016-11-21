@@ -8,7 +8,7 @@ Note that there are no Windows versions of OpenFST or OpenGRM; you will need a U
 We recommend you use virtualenv to keep your python installations nicely insulated from one another.  Mseg will work without it, but installing experimental code to your system's default python instance is not a very good idea.
 
 # Mseg installation:
-Download the contents of the <github.com/rjm49/multistage_segmenter> repository to a local folder on your system (you can either download a tar file or clone the repo).
+Download the contents of the <https://github.com/rjm49/multistage_segmenter> repository to a local folder on your system (you can either download a tar file or clone the repo).
 
 In the repo top level, you will find a `requirements.txt`
 Install the required python packages by running: `pip install -r requirements.txt`
@@ -28,7 +28,7 @@ Create a workspace directory anywhere convenient on your system e.g. `~/mseg_wor
 There are `default_train.csv` and `default_test.csv` files supplied with the source (in `default_files/` ).  It's recommended that you put these into your workspace while you're setting up.  The system will pick them up automatically when you run any of the primary scripts.
 
 ## Configuration file
-We chose to go the `config file` route with mseg.  There is just one (JSON - see <json.org>) config file.  A default version called `mseg_config.cfg` is supplied with the source: You can rename it but mostly there's no need. In this file, set the `base_dir` entry so it points to your workspace directory.  This is important, since all scripts use it.  The config file is sought in the "current working directory" by default, but can be specified to the mseg scripts via the command line.
+We chose to go the `config file` route with mseg.  There is just one (JSON - see <http://json.org>) config file.  A default version called `mseg_config.cfg` is supplied with the source: You can rename it but mostly there's no need. In this file, set the `base_dir` entry so it points to your workspace directory.  This is important, since all scripts use it.  The config file is sought in the "current working directory" by default, but can be specified to the mseg scripts via the command line.
 
 # Primary scripts
 There are three primary scripts that run the segmenter, all in the `scripts/` directory.  These are:
