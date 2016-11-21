@@ -56,6 +56,7 @@ def process_inputs(input_dir, lm_file, out_dir):
        
     #create/refresh the working directory
     print "remaking ", out_dir
+    #_ = raw_input("hit key")
     shutil.rmtree(out_dir, ignore_errors=True)
     os.makedirs(out_dir)
     

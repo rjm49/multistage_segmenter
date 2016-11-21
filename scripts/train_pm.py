@@ -18,7 +18,9 @@ from sklearn.grid_search import RandomizedSearchCV
 from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.metrics.classification import classification_report
 
-from mseg.common import TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, read_file
+from mseg.common import TRAIN_FILE_DEFAULT, TEST_FILE_DEFAULT, read_file,\
+    WORKSPACE, get_basedir
+import json
 
 
 overwrite_pkl = True
@@ -43,17 +45,25 @@ def report(grid_scores, n_top=3):
 
 def main(args):
 ## tr_data training set
-    default_bdir = os.path.join(os.getcwd(),"mseg_workspace")
+    
+#     default_bdir = get_basedir()
+    default_cfg = os.path.join(os.getcwd(),"mseg_config.cfg")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("base_dir", nargs='?', default= default_bdir, help="this is the working directory, all files and subdirs live under it; default is the current folder, i.e. "+default_bdir)
-    parser.add_argument("pm_dir", nargs='?', default="pm_default", help="this is the directory in which to store the prosodic model file; default is base_dir/pm_default")
+    parser.add_argument("config_file", nargs='?', default=default_cfg, help="configuration file for the multistage segmenter")
+    #parser.add_argument("base_dir", nargs='?', default= default_bdir, help="this is the working directory, all files and subdirs live under it; default is the current folder, i.e. "+default_bdir)
+    parser.add_argument("pm_dir", nargs='?', default="pm_default", help="this is the name/subdir for the prosodic model; default is base_dir/pm_default")
     parser.add_argument("training_file", nargs='?', default=TRAIN_FILE_DEFAULT, help="name of CSV file that contains correctly annotated training examples (so it is the <file> part of base_dir/<file>)")
     parser.add_argument("test_file", nargs='?', default=TEST_FILE_DEFAULT, help="name of CSV file that contains mysterious cases that must be tested  (so it is the <file> part of base_dir/<file>)")
     parser.add_argument("-lr", "--logistic_regression", default=False, action="store_true", help="use logistic regression classifier (default is RBF-SVM)")
     args = parser.parse_args()
 
-    base_dir = args.base_dir
+
+    config_fname = args.config_file
+    with open(config_fname) as data_file:
+        config = json.load(data_file)
+    base_dir = config['base_dir']
+    
     pm_dir = args.pm_dir
     tr_file = args.training_file
     test_fname = args.test_file

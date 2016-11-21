@@ -8,23 +8,30 @@ import argparse
 import os
 import sys
 
-from mseg.common import DIR, TRAIN_FILE_DEFAULT, read_file, BREAK, UNK, \
-    LM_PRUNED, create_remap_table
+from mseg.common import TRAIN_FILE_DEFAULT, read_file, BREAK, UNK, \
+    LM_PRUNED, create_remap_table, get_basedir
 from mseg.lm_utils import generate_normed_text_file, compile_lm, remap_lm, ngramshrink
 from mseg.slm_utils import generate_slm_from_txt, create_slm_sym_file
+import json
 
 
 def main(args):
-    default_bdir = os.path.join(os.getcwd(),"mseg_workspace")
+#     default_bdir = get_basedir()
+    default_cfg = os.path.join(os.getcwd(),"mseg_config.cfg")
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("base_dir", nargs='?', default= default_bdir, help="this is the working directory, all files and subdirs live under it; default is the current folder, i.e. "+default_bdir)
+    #parser.add_argument("base_dir", nargs='?', default= default_bdir, help="this is the working directory, all files and subdirs live under it; default is the current folder, i.e. "+default_bdir)
+    parser.add_argument("config_file", nargs='?', default=default_cfg, help="configuration file for the multistage segmenter")
     parser.add_argument("lm_dir", nargs='?', default="lm_default", help="this is the directory in which to store the Language Model (LM) files")
     parser.add_argument("training_file", nargs='?', default=TRAIN_FILE_DEFAULT, help="name of CSV file that contains correctly annotated training examples")
     parser.add_argument("-o", "--order", type=int, default=4, help="sets the n-gramme order of the LM (default=4)")
     args = parser.parse_args()
     
-    base_dir = args.base_dir
+    config_fname = args.config_file
+    with open(config_fname) as data_file:
+        config = json.load(data_file)
+    base_dir = config['base_dir']
+    
 #     pm_dir = "pm_default" currently not used
     lm_dir = args.lm_dir
     tr_file = args.training_file

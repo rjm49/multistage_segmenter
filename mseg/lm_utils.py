@@ -6,7 +6,7 @@ Created on Dec 8, 2015
 import codecs
 import os
 
-from mseg.common import DIR, PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE,\
+from mseg.common import PM_SUB_DIR, BREAK, SYM_FILE, LM_SYM_FILE,\
     save_symbol_table, create_remap_table
 import subprocess as sp
 
@@ -120,9 +120,8 @@ def ngrammake(ifile, lmdir_global):
 
 #fstcompose a.fst b.fst out.fst 
 def fstcompose(a,b, out):
-    cmpfile = os.path.join(DIR,PM_SUB_DIR, out)
-    print "composing",a,b,"->",cmpfile
-    sp.call([cmd_fstcompose, a, b, cmpfile])
+    print "composing",a,b,"->",out
+    sp.call([cmd_fstcompose, a, b, out])
     
 def ngramshrink(a,out):
 #ngramshrink -method=relative_entropy -theta=0.00015 eval1n/lm.mod  >eval1n/lm.pru

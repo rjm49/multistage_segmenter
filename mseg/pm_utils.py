@@ -7,11 +7,9 @@ import codecs
 import glob, shutil
 import os
 
-from mseg.common import DIR, PM_SUB_DIR, UNK, \
-    EPS, BREAK, LM_SYM_FILE
+from mseg.common import UNK, \
+    EPS, BREAK
 from mseg.lm_utils import fstcompile
-import math
-
 
 write_files = True
 write_slm = True

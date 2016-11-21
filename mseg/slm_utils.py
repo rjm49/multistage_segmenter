@@ -8,12 +8,12 @@ from collections import Counter
 import math
 import os
 
-from scipy.stats import gamma, norm
+from scipy.stats import gamma
 
 import matplotlib.pyplot as plt
-from mseg.common import DIR, ANYWORD, EPS, BREAK, SLM_FST_FILE_GLOBAL, \
-    SLM_FXT_FILE_GLOBAL, load_symbol_table, PM_SUB_DIR, UNK, \
-    SYM_FILE, CONV_FXT, CONV_FST, LM_SYM_FILE
+from mseg.common import ANYWORD, EPS, BREAK, \
+    load_symbol_table, UNK, \
+     CONV_FXT, CONV_FST, LM_SYM_FILE
 import subprocess as sp
 
 

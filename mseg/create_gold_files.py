@@ -3,13 +3,9 @@ Created on Feb 24, 2016
 
 @author: rjm49
 '''
-import codecs
-import glob, os
+import codecs, os
 
-from mseg.common import DIR, PM_SUB_DIR, \
-     GOLD_SUB_DIR, read_file, TEST_FILE_DEFAULT
-from mseg.lm_utils import fstcompose
-
+from mseg.common import read_file, TEST_FILE_DEFAULT, get_basedir
 
 def generate_gold_files(odir, rows):
 
@@ -48,6 +44,7 @@ def open_wfile(odir,transcript_id):
 if __name__ == '__main__':
     lmdir = "eval1n"
     
+    base_dir = get_basedir()
     te_file = raw_input("enter test file name: [%s]" % TEST_FILE_DEFAULT) or TEST_FILE_DEFAULT
-    te_rows = read_file(os.path.join(DIR, te_file), ',', skip_header=True)
+    te_rows = read_file(os.path.join(base_dir, te_file), ',', skip_header=True)
     generate_gold_files(te_rows)

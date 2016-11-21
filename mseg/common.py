@@ -4,6 +4,7 @@ Created on 3 Sep 2015
 @author: Russell
 '''
 import codecs
+import os
 
 WORKSPACE = "workspace"
 PM_SUB_DIR = "pm_fsts"
@@ -12,10 +13,10 @@ SHP_SUB_DIR = "all_shortest"
 OUTS_SUB_DIR = "all_output"
 GOLD_SUB_DIR = "gold_standard"
 #TEST_FILE_DEFAULT = "pilot-prosodicFeats_norm.csv"
-TEST_FILE_DEFAULT = "eval1-prosodicFeats_norm_test.csv"
+TEST_FILE_DEFAULT = "default_test.csv"
 #PROBFILE = "predictions.dat"
 #TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm.csv"
-TRAIN_FILE_DEFAULT = "eval1-prosodicFeats_norm_train.csv"
+TRAIN_FILE_DEFAULT = "default_train.csv"
 #TRAIN_FILE_DEFAULT = "switchboard-prosodicFeats_norm_train.csv"
 
 #TEST_FILE="switchboard-prosodicFeats_norm_train.csv"
@@ -36,6 +37,8 @@ EPS = "<epsilon>"
 
 PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
 
+def get_basedir():
+    return os.path.join(os.getcwd(), os.pardir, WORKSPACE)
 
 ## method to load data
 def read_file(filename, delim=',', skip_header=False):

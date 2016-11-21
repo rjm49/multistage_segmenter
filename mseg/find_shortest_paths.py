@@ -7,10 +7,10 @@ import errno
 import glob, os
 import shutil
 
-from mseg.common import DIR, PM_SUB_DIR, \
-    JOINT_LM_CV_SLM_FILE_GLOBAL, COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS, \
-    BREAK
-from mseg.lm_utils import fstcompose, nshortest_path
+from mseg.common import PM_SUB_DIR, \
+    COMP_SUB_DIR, SHP_SUB_DIR, OUTS_SUB_DIR, EPS, \
+    BREAK, get_basedir
+from mseg.lm_utils import nshortest_path
 import subprocess as sp
 
 def fstprint(inf):
@@ -127,18 +127,21 @@ if __name__ == '__main__':
     print "This script will find the shortest paths through the combined-model sentence FSTs"
 #     lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
 #     print "using ",lmdir
-#     lmdir_global = os.path.join(DIR,lmdir)
-    cmp_dir = os.path.join(DIR,COMP_SUB_DIR)
-    shp_dir = os.path.join(DIR,SHP_SUB_DIR)
-    outs_dir = os.path.join(DIR, OUTS_SUB_DIR)
-    pm_dir = os.path.join(DIR, PM_SUB_DIR)
+#     lmdir_global = os.path.join(base_dir,lmdir)
 
-    pmshp_dir = os.path.join(DIR, "pm_shortest")
-    pmouts_dir = os.path.join(DIR, "pm_output")
+    base_dir = get_basedir()
+
+    cmp_dir = os.path.join(base_dir,COMP_SUB_DIR)
+    shp_dir = os.path.join(base_dir,SHP_SUB_DIR)
+    outs_dir = os.path.join(base_dir, OUTS_SUB_DIR)
+    pm_dir = os.path.join(base_dir, PM_SUB_DIR)
+
+    pmshp_dir = os.path.join(base_dir, "pm_shortest")
+    pmouts_dir = os.path.join(base_dir, "pm_output")
     
-    pmlm_indir = os.path.join(DIR, "pm_lm_composed")
-    pmlmshp_dir = os.path.join(DIR, "pm_lm_shortest")
-    pmlmouts_dir = os.path.join(DIR, "pm_lm_output")
+    pmlm_indir = os.path.join(base_dir, "pm_lm_composed")
+    pmlmshp_dir = os.path.join(base_dir, "pm_lm_shortest")
+    pmlmouts_dir = os.path.join(base_dir, "pm_lm_output")
     
     print "reading from", cmp_dir
     print "shortest path FSTs to", shp_dir

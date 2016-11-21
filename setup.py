@@ -10,4 +10,4 @@ setup(name='mseg',
       scripts=['scripts/train_pm.py','scripts/main_run.py','scripts/create_models.py'],
 )
 
-os.system('rm -rf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
+#os.system('rm -rf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')

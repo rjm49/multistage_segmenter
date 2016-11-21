@@ -6,15 +6,6 @@ Created on Feb 24, 2016
 import codecs
 import glob, os
 
-from mseg.common import DIR, PM_SUB_DIR, \
-     TEST_FILE_DEFAULT, GOLD_SUB_DIR, read_file, load_symbol_table, \
-    LM_SYM_FILE, OUTS_SUB_DIR, BREAK
-from mseg.lm_utils import fstcompose
-from mseg.pm_utils import generate_pm_text_files, \
-    compile_pm_files
-from pip._vendor.pyparsing import WordStart
-
-
 #this lets us compare the contents of two files
 def compare_rows(_recid, gold_rows, algo_rows):
     fps=tps=fns=tns = 0.0 #reset our counters for each record, as floats
