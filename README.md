@@ -1,8 +1,8 @@
 Welcome to the README for the Multistage Segmenter!
 
 # Prerequisites:
-You need OpenFST and OpenGRM installed on your system.  The commands for these must be on your path so that you can call them from any directory.
-Note that there are no Windows versions of OpenFST or OpenGRM; you will need a Unix-like operating system to run this code.
+You need [OpenFST](http://www.openfst.org) and [OpenGRM](http://www.opengrm.org) installed on your system.  The commands for these must be on your path so that you can call them from any directory.
+Note that although Windows versions of these packages exist, mseg itself has only been tested on unix-type operating systems and may not play nicely with these ports.
 
 # Virtual Environment:
 We recommend you use virtualenv to keep your python installations nicely insulated from one another.  Mseg will work without it, but installing experimental code to your system's default python instance is not a very good idea.
@@ -38,4 +38,4 @@ There are three primary scripts that run the segmenter, all in the `scripts/` di
 
 Each one of the primary scripts can take a --usage flag to get info on the parameters it can take.
 
-The default configuration file already has a batch set up ("test_batch", the first entry in the `batches` list) and so it should be possible to run all three scripts in order and (if the base_dir is configured) get output that should appear in the `test_batch` directory.
+The default configuration file already has a batch set up ("test_batch", the first entry in the `batches` list) and so it should be possible to run all three scripts in order and (if the base_dir is configured) see some output, that should appear in the `test_batch` directory.
