@@ -13,7 +13,7 @@ Download the contents of the <https://github.com/rjm49/multistage_segmenter> rep
 In the repo top level, you will find a `requirements.txt`
 Install the required python packages by running: `pip install -r requirements.txt`
 
-You can then install mseg itself.  Do this by running: `pip install --no-index --find-links [path/to/repo/dir]`
+You can then install mseg itself.  Do this by running: `pip install --no-index --find-links -e [path/to/repo/dir]`
 (If you are in the root of the repo then you can replace the path with a single dot ".")
 
 Run `pip --list` to ensure mseg has installed.
