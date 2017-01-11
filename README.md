@@ -16,7 +16,7 @@ Install the required python packages by running: `pip install -r requirements.tx
 You can then install mseg itself.  Do this by running: `pip install --no-index --find-links -e [path/to/repo/dir]`
 (If you are in the root of the repo then you can replace the path with a single dot ".")
 
-Run `pip --list` to ensure mseg has installed.
+Run `pip list` to ensure mseg has installed.
 
 # Mseg configuration:
 There are still a couple of things you need to do to run mseg.
