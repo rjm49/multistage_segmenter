@@ -44,37 +44,37 @@ def create_converter(lm_dir):
     #final state needed?
     ofile.flush()
     ofile.close()
-    print "compiling converter",convfst,"with isyms=",symfile,"and osyms=",dummy_symfile
+    print("compiling converter",convfst,"with isyms=",symfile,"and osyms=",dummy_symfile)
     sp.call(["fstcompile","--isymbols="+symfile,"--osymbols="+dummy_symfile, "--keep_isymbols", "--keep_osymbols", convfxt, convfst])
     #print "done...."    
     
 
-def generate_slm(training_rows, slm_dir, do_plot=True):
-    slm_fxt = os.path.join(slm_dir, "slm.fxt")
-    slength_counts = Counter()
-    slen=1
-    for r in training_rows:
-        #print r
-        is_boundary = int(r[6])
-        if(not is_boundary):
-            slen += 1
-        else:
-#             print "adding slen=",(slen+1)
-            slength_counts[slen]+=1
-            slen = 1   
-    els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
-    #print els
-    x_vals = range(0, max(els)+1)
+# def generate_slm(training_rows, slm_dir, do_plot=True):
+#     slm_fxt = os.path.join(slm_dir, "slm.fxt")
+#     slength_counts = Counter()
+#     slen=1
+#     for r in training_rows:
+#         #print r
+#         is_boundary = int(r[6])
+#         if(not is_boundary):
+#             slen += 1
+#         else:
+# #             print "adding slen=",(slen+1)
+#             slength_counts[slen]+=1
+#             slen = 1   
+#     els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
+#     #print els
+#     x_vals = range(0, max(els)+1)
     
-    (shape, loc, scale) = gamma.fit(els, floc=0)
-    gam_gen = gamma(shape, loc, scale) #use these model params to build a new gamma distrib/n generator
-    write_slm(slm_fxt, x_vals, gam_gen)
-    if do_plot:
-        plot_graph(x_vals, gam_gen, els)
-    compile_slm(slm_dir) #this last step compiles the slm to binary .fst format
+#     (shape, loc, scale) = gamma.fit(els, floc=0)
+#     gam_gen = gamma(shape, loc, scale) #use these model params to build a new gamma distrib/n generator
+#     write_slm(slm_fxt, x_vals, gam_gen)
+#     if do_plot:
+#         plot_graph(x_vals, gam_gen, els)
+#     compile_slm(slm_dir) #this last step compiles the slm to binary .fst format
 
 
-def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
+def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):       
     slm_fxt = os.path.join(slm_dir, "slm.fxt")
     slength_counts = Counter()
     slen=1
@@ -88,9 +88,9 @@ def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
             slen = len(s.split())
 
             if slen > maxl:
-                print "new max length = ", slen
+                print("new max length = ", slen)
                 maxl = slen
-                print "from seg: ", s
+#                 print("from seg: ", s)
 #                print "from row: ", r
 
             if slen:
@@ -99,7 +99,7 @@ def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
     #_ = raw_input("hit key")
                            
     els = list( slength_counts.elements() ) #Counter.elements() returns iterator that iterates across n instances of each element e where slength_counts[e]=n .. we make this into a list for plotting
-    print els
+#     print(els)
     x_vals = range(0, max(els)+1)
     
     (shape, loc, scale) = gamma.fit(els, floc=0)
@@ -112,6 +112,12 @@ def generate_slm_from_txt(training_rows, slm_dir, do_plot=True):
 def write_slm(slm_file, x_vals, gam_gen):
     if not write_slm:
         return
+    
+    try:
+        os.makedirs(os.path.dirname(slm_file))
+    except OSError:
+        print("could not make dirs")
+    
     lfile = codecs.open(slm_file,"w")
     lfile.truncate()
     
@@ -126,7 +132,7 @@ def write_slm(slm_file, x_vals, gam_gen):
         #state (L-1) has arc EPS and BREAK
 
         p_i = gam_gen.pdf(i) if i>0 else 0.0
-        print "p("+str(i)+")=", p_i
+#         print("p("+str(i)+")=", p_i)
         #p_acc += p_i
         p_acc = gam_gen.cdf(i)
         
@@ -138,7 +144,7 @@ def write_slm(slm_file, x_vals, gam_gen):
         if(i>0):
             if(p_i>maxp):
                 maxp = p_i
-                print "new max p=",str(maxp)," at slen ",str(i)
+                print("new max p=",str(maxp)," at slen ",str(i))
 
             #score_i = -math.log(gam_gen.pdf(i))
             score_i = -math.log( p_i ) 
@@ -148,7 +154,7 @@ def write_slm(slm_file, x_vals, gam_gen):
     lfile.flush() 
     lfile.close()
     
-    print "p_acc total=", p_acc
+    print("p_acc total=", p_acc)
     #_ = raw_input("hit key")
     
 def compile_slm(slm_dir):
@@ -166,7 +172,7 @@ def plot_graph(x_vals, gam_gen, els):
     for i in x_vals:
         #xv = (rv.cdf(i+1)-rv.cdf(i)) * len(els)
         xv = gam_gen.pdf(i) * len(els)
-        print gam_gen.pdf(i), sum(els)
+#         print(gam_gen.pdf(i), sum(els))
         exp_vals.append(xv)
    
     ax.plot(x_vals, exp_vals, 'r-', lw=2, label='gamma dist')

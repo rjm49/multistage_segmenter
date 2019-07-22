@@ -78,18 +78,18 @@ def eval_segmenter_output(batch_dir):
     for d in output_dirs:
         d = os.path.join(batch_dir,d,"output")
             
-        print "dir is:", d
+        print("dir is:", d)
         gfps=gtps=gfns=gtns = 0.0
         totF=avF = 0.0
         n=0.0
             
         outs = glob.glob(os.path.join(d,"*.fst"))
-        print "found",len(outs),"output files in",d
+        print("found",len(outs),"output files in",d)
         for outf in outs:
 #            print "algo_rows from:",outf
             recid = os.path.basename(outf)[:-4]
             goldf = recid+".gld"
-            algo_rows = codecs.open(os.path.join(d,outf), "r").read().splitlines()        
+            algo_rows = codecs.open(os.path.join(outf), "r").read().splitlines()        
             gold_rows = codecs.open(os.path.join(gold_dir,goldf), "r").read().splitlines()
             
             tup = compare_rows(recid, gold_rows, algo_rows)
@@ -113,13 +113,13 @@ def eval_segmenter_output(batch_dir):
         headers = headers + ", "+ d + ": " + prF
     
         avF = totF/n
-        print "for",d,"average F=",avF
+        print("for",d,"average F=",avF)
                
         #calculate global versions of p,r,F i.e. if we assume there is just a single unified string of tokens
         gp = 1.0 if (gtps+gfps==0) else (gtps / (gtps + gfps)) #cases found / (cases found + wrongly assumed cases)
         gr = 1.0 if (gtps+gfns==0) else (gtps / (gtps + gfns)) #cases found / (cases found + cases not found)    
         gF = 0 if (gp+gr==0) else (2*gp*gr / (gp+gr))
-        print "Total: - gp/gr/gF:",gp,gr,gF
+        print("Total: - gp/gr/gF:",gp,gr,gF)
     
         gprf_file.write("for %s gp/gr/gF= %f %f %f \n" % (d, gp, gr, gF) )
     
@@ -127,8 +127,7 @@ def eval_segmenter_output(batch_dir):
 
     rfile.write(headers+"\n")
     
-    keys = report.keys()
-    keys.sort()
+    keys = sorted(list(report.keys()))
     
     for k in keys:
         outstr = ",".join(map(str,report[k]))
@@ -155,7 +154,8 @@ def multi_col_report(batch_dir, output_dirs=("pm_only", "pm_lm", "pm_lm_slm")):
         rec_id = os.path.basename(gf)[:-4]
         rec_dic = {}
         rec_dic["rec_id"] = rec_id
-        gold_rows = codecs.open(os.path.join(gold_dir,gf), "r").read().splitlines()
+        print("gold file:",gf)
+        gold_rows = codecs.open(os.path.join(".",gf), "r").read().splitlines()
         words = []
         gold_classes= []
         for gr in gold_rows:
@@ -167,10 +167,11 @@ def multi_col_report(batch_dir, output_dirs=("pm_only", "pm_lm", "pm_lm_slm")):
         report.append(rec_dic)
     
     for d in output_dirs:
-        full_d = os.path.join(batch_dir,d,"output")
+        full_d = os.path.join(batch_dir, d,"output")
             
         for rec in report:
             rec_id = rec['rec_id']
+#             algo_rows = codecs.open(os.path.join(full_d,rec_id+".fst"), "r").read().splitlines()
             algo_rows = codecs.open(os.path.join(full_d,rec_id+".fst"), "r").read().splitlines()
             algo_classes = [x.split()[1] for x in algo_rows]
             rec[d] = algo_classes

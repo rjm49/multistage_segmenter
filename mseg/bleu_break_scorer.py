@@ -71,19 +71,13 @@ def get_ngrams_in_cand(C, n, breaks_only=False, louche_mode=False):
         if (not breaks_only) or (louche_mode and (BREAK in g)) or g[-1]==BREAK:
             output.add(g)
       
-    print "candidate "+str(n)+"-grams: ",output
+    print("candidate "+str(n)+"-grams: ",output)
     return output #shd now be the set of all (n)-grams in C 
-
     
-if __name__ == '__main__':
-    print "calculating BLEU for test sentences"
-    
-    C = "the cat sat on the mat <break> the dog sat <break> by the door eating <break> a bone"
-#     C = "the cat sat on the mat <break> the dog sat by the door eating a bone"
-    R = "the cat sat on the mat <break> the dog sat by the door eating <break> a bone"
-    
-    print getBLEU(C, R, strict=False)
-    print getBLEU(C, R, strict=True)
-    
-    
-    
+# if __name__ == '__main__':
+#     print("calculating BLEU for test sentences")
+#     C = "the cat sat on the mat <break> the dog sat <break> by the door eating <break> a bone"
+# #     C = "the cat sat on the mat <break> the dog sat by the door eating a bone"
+#     R = "the cat sat on the mat <break> the dog sat by the door eating <break> a bone"
+#     print getBLEU(C, R, strict=False)
+#     print getBLEU(C, R, strict=True)

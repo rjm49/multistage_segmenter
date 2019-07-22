@@ -18,34 +18,34 @@ write_slm = True
 do_plot = False
 unkify = True
 
-def compile_pm_files(batch_input_fst_dir, isymf, osymf):
-    pmt_glob = os.path.join(batch_input_fst_dir,"*.fxt")
+def compile_pm_files(pm_dir, isymf, osymf):
+    pmt_glob = os.path.join(pm_dir,"*.fxt")
     pm_text_file_list = glob.glob(pmt_glob)
     for f in pm_text_file_list:
         bin_name = f[:-3]+"fst"
-#         print "compiling", bin_name
+        print("compiling", bin_name)
         fstcompile(f, bin_name, isymf, osymf)
-        print "compiled",bin_name,"with isyms=",isymf," osyms=",osymf
+        print("compiled",bin_name,"with isyms=",isymf," osyms=",osymf)
 
-def generate_pm_text_files(batch_input_fst_dir, known_syms, test_rows, prob_rows, max_count=-1, emission_values=None, pm_weight=1.0):   
-    if len(test_rows)!=len(prob_rows):
-        print len(test_rows), "in data not equal to prob rows:", len(prob_rows)
+def generate_pm_text_files(pm_dir, known_syms, rows, prob_rows, max_count=-1, emission_values=None, pm_weight=1.0):   
+    if len(rows)!=len(prob_rows):
+        print(len(rows), "in data not equal to prob rows:", len(prob_rows))
         exit(1)
 
-    if(len(test_rows)==0):
-        print "No data rows"
+    if(len(rows)==0):
+        print("No data rows")
         exit(1)
         
-    shutil.rmtree(batch_input_fst_dir, ignore_errors=True)
-    os.mkdir(batch_input_fst_dir)
+    shutil.rmtree(pm_dir, ignore_errors=True)
+    os.mkdir(pm_dir)
     
     state=0
-    transcript_id = test_rows[0][0]#[1:-1]
-    ofilename = os.path.join(batch_input_fst_dir,transcript_id+".fxt")
+    transcript_id = rows[0][0]#[1:-1]
+    ofilename = os.path.join(pm_dir,transcript_id+".fxt")
     ofile = codecs.open(ofilename, 'w') if write_files else None
 
     rec_cnt=0
-    for r,log_probs,o_val in zip(test_rows, prob_rows, emission_values):
+    for r,log_probs,o_val in zip(rows, prob_rows, emission_values):
         next_transcript_id = r[0]
         w = r[5]#[1:-1]
         if(next_transcript_id != transcript_id):
@@ -57,7 +57,7 @@ def generate_pm_text_files(batch_input_fst_dir, known_syms, test_rows, prob_rows
             write_final_state_and_close(ofile, state)
             state=0
             if(write_files):
-                ofilename = os.path.join(batch_input_fst_dir,transcript_id+".fxt")
+                ofilename = os.path.join(pm_dir,transcript_id+".fxt")
                 ofile = codecs.open(ofilename, 'w')
 
         np = pm_weight * float( log_probs[1] ) # pop the next probability value from our remaining prob_rows                
@@ -71,6 +71,8 @@ def generate_pm_text_files(batch_input_fst_dir, known_syms, test_rows, prob_rows
         state += 2 # we advance the state counter two steps because each "link" writes two arcs
     write_final_state_and_close(ofile, state)
     #saveSymbolTable(lm_symbol_table)
+    print("wrote {} prosodic model txt files to {}".format(len(rows),pm_dir))
+
     
 def writeLink(ofile, symbols,state,w,o,p,np):
     #symbols = load_symbol_table()
@@ -101,4 +103,4 @@ def write_final_state_and_close(ofile,state):
     ofile.write("%d 0" % state)
     ofile.flush()
     ofile.close()
-    print "wrote",ofile
+#     print("wrote",ofile)

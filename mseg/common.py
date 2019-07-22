@@ -52,7 +52,7 @@ PROSODIC_PREDICTION_FILE = "prosodic_predictions.dat"
 def resolve_filenames():
     slm_dir = "eval1n"
     slm_dir = raw_input("Type in LM dir or hit return to use default [%s]" % slm_dir) or slm_dir
-    print "using ",slm_dir
+    print("using ",slm_dir)
     lmdir_global = os.path.join(DIR,slm_dir)
     all_syms = os.path.join(lmdir_global,SYM_FILE)
     lm_syms = os.path.join(lmdir_global,LM_SYM_FILE)
@@ -75,7 +75,7 @@ def read_file(filename, delim=',', skip_header=False):
         line = line.rstrip()  # remove trailing characters
         rowin = line.split(delim)  # split on commas
         listobj.append((rowin))  # append to eval1 list (list of lists)
-    print "number of tokens loaded:", len(listobj)
+    print("number of tokens loaded:", len(listobj))
     return listobj
 
 def filter_data_rows(in_list, keep_headers=False, sel=range(7,30)):

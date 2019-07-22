@@ -14,7 +14,7 @@ from mseg.lm_utils import fstcompose
 def generate_gold_files(odir, rows):
 
     if(len(rows)==0):
-        print "No data rows"
+        print("No data rows")
         exit(1)
         
     if(not os.path.exists(odir)):
@@ -31,14 +31,14 @@ def generate_gold_files(odir, rows):
             transcript_id = next_transcript_id
             ofile.flush()
             ofile.close()
-            print "wrote",ofile
+#             print("wrote",ofile)
             ofile = open_wfile(odir, transcript_id)
         ofile.write(w+"\t"+b+"\n")
 #         if(b):
 #             ofile.write("<break>\n")
     ofile.flush()
     ofile.close()
-    print "wrote",ofile
+    print("wrote {} gold files to {}".format(len(rows),odir))
 
 def open_wfile(odir,transcript_id):
     ofilename = os.path.join(odir,transcript_id+".gld")

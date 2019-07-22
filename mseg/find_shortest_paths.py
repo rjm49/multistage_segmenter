@@ -37,7 +37,7 @@ def fstprint(inf):
     
     
 def fstprint2(full_fname):
-    print "reading", full_fname
+    print("reading", full_fname)
     
     op = sp.check_output(["fstprint",full_fname]) #call the print command and get the output as a byte string
     #print op
@@ -72,24 +72,25 @@ def fstprint2(full_fname):
     
 def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):    
     if(not os.path.exists(input_dir)):
-        print "FST source directory",input_dir,"does not exist - can't continue analysis without it!"
-        exit(1)
+        print("FST source directory",input_dir,"does not exist - can't continue analysis without it!")
+        assert(False)
        
     #create/refresh the working directories 
     for d in (shortpath_dir, strings_dir):
-        print "re-making",d
+        print("stringify sp: re-making",d)
         shutil.rmtree(d, ignore_errors=True)
         os.makedirs(d)
     
     descriptor = os.path.join(input_dir,"*.fst")
-    print "processing files matching:", descriptor
+    print("processing files matching:", descriptor)
     fs = glob.glob(descriptor)
+    print(len(fs),"files found")
     for inf in fs:
         fname = os.path.basename(inf)
         shpf = os.path.join(shortpath_dir, fname)
         outf = os.path.join(strings_dir, fname)
-        print "Finding shortest path:",inf,"->",outf
-        print "First, create temp file:", shpf
+        print("Finding shortest path:",inf,"->",outf)
+        print("First, create temp file:", shpf)
         nshortest_path(inf, shpf, 1)
         outstr = fstprint2(shpf)
         of = open(outf,"w")
@@ -100,7 +101,7 @@ def stringify_shortest_paths(input_dir, shortpath_dir, strings_dir):
 
 def convert_to_single_file(match_str, input_dir):
     descriptor = os.path.join(input_dir,match_str)
-    print "processing files matching:", descriptor
+    print("processing files matching:", descriptor)
     fs = glob.glob(descriptor)
     txfile = open(os.path.join(input_dir,"all.txt"), "w")
     outlines = []
@@ -119,12 +120,12 @@ def convert_to_single_file(match_str, input_dir):
         outlines.append(outstr)
     txfile.writelines(outlines)
     txfile.close()
-    print "wrote",txfile
+    print("wrote",txfile)
     return " ".join(outlines)
 
 if __name__ == '__main__':
 #     lmdir = "eval1n"
-    print "This script will find the shortest paths through the combined-model sentence FSTs"
+    print("This script will find the shortest paths through the combined-model sentence FSTs")
 #     lmdir = raw_input("Type in LM dir or hit return to use default [%s]" % lmdir) or lmdir
 #     print "using ",lmdir
 #     lmdir_global = os.path.join(DIR,lmdir)
@@ -140,9 +141,9 @@ if __name__ == '__main__':
     pmlmshp_dir = os.path.join(DIR, "pm_lm_shortest")
     pmlmouts_dir = os.path.join(DIR, "pm_lm_output")
     
-    print "reading from", cmp_dir
-    print "shortest path FSTs to", shp_dir
-    print "segmented strings to", outs_dir
+    print("reading from", cmp_dir)
+    print("shortest path FSTs to", shp_dir)
+    print("segmented strings to", outs_dir)
 
     dirs = ((cmp_dir, shp_dir, outs_dir), (pm_dir, pmshp_dir, pmouts_dir), (pmlm_indir, pmlmshp_dir, pmlmouts_dir))
     try:
@@ -152,7 +153,7 @@ if __name__ == '__main__':
 #                     #print "removing",d 
 #                     shutil.rmtree(d)
                 os.makedirs(d)
-                print "made",d
+                print("made",d)
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
@@ -160,9 +161,9 @@ if __name__ == '__main__':
     #process the multi-stage composed models first 
     for tupl in dirs:
         (compostion_dir, shortest_path_dir, output_dir) = tupl
-        print "analysing shortest paths:", compostion_dir, shortest_path_dir, "->", output_dir
+        print("analysing shortest paths:", compostion_dir, shortest_path_dir, "->", output_dir)
         stringify_shortest_paths(compostion_dir, shortest_path_dir, output_dir)
     
-    print "done"
+    print("done")
     
     

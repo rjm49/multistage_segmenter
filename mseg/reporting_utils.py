@@ -49,11 +49,11 @@ def get_counts(gold, hyps):
     return (tp, tn, fp, fn)
 
 def mini_summary(name, gold, hyps):
-    print "STATS FOR ", name
-    print "(tp,tn,fp,fn)=", get_counts(gold, hyps)
+    print("STATS FOR ", name)
+    print("(tp,tn,fp,fn)=", get_counts(gold, hyps))
     p,r,F = get_prF(gold, hyps)
-    print "prF=", p,r,F
+    print("prF=", p,r,F)
     acc = get_accuracy(gold, hyps)
-    print "acc=", acc
+    print("acc=", acc)
     b_acc = get_baseline_accuracy(gold, hyps)
-    print "b_acc=", b_acc
+    print("b_acc=", b_acc)

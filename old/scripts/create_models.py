@@ -13,7 +13,6 @@ from mseg.common import DIR, TRAIN_FILE_DEFAULT, read_file, BREAK, UNK, \
 from mseg.lm_utils import generate_normed_text_file, compile_lm, remap_lm, ngramshrink
 from mseg.slm_utils import generate_slm_from_txt, create_slm_sym_file
 
-
 def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("base_dir", nargs='?', default= os.path.join(os.getcwd(),"mseg_workspace"), help="this is the working directory, all sub dirs live under it")
