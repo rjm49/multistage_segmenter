@@ -1,0 +1,3 @@
+for ./models/pm_lm_slm/output gp/gr/gF= 0.641791 0.329502 0.435443 
+for ./models/pm_only/output gp/gr/gF= 1.000000 0.279693 0.437126 
+for ./models/pm_lm/output gp/gr/gF= 0.434783 0.038314 0.070423 
